@@ -175,10 +175,21 @@ static int pyjobject_init(JNIEnv *env, PyJObject *pyjob)
             }
 
             if (pyjfield->pyFieldName && PyString_Check(pyjfield->pyFieldName)) {
-                if (PyDict_SetItem(cachedAttrs, pyjfield->pyFieldName,
+                if (PyDict_SetItem(cachedAttrs, pyjfield->pyFieldName ,
                                    (PyObject*) pyjfield) != 0) {
                     goto EXIT_ERROR;
                 }
+                // Originally, I thought over-writing the implementation of java_lang_Class_getName would change the
+                // name of the `PyJObject`. I then realized that the string returned from java_lang_Class_getName
+                // is only used internally in JEP (and never seen by the user). Since I want to see the what is returned
+                // from java_lang_Class_getName, I randomly set an attribute on this PyJObject, where the name of this
+                // attribute is the string returned from java_lang_Class_getName. Note that java_lang_Class_getName
+                // should return the full class name + "c3", so every c3 PyJObject should have a attribute which is
+                // their class name + "c3". All attributes of a PyJObject can be listed by calling `dir` on the object.
+                if (PyDict_GetItem(cachedAttrs, pyClassName) == NULL) {
+                    PyDict_SetItem(cachedAttrs, pyClassName,
+                                                       (PyObject*) pyjfield);
+                                }
             }
 
             Py_DECREF(pyjfield);

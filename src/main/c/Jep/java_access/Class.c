@@ -117,11 +117,14 @@ jstring java_lang_Class_getName(JNIEnv* env, jclass this)
     jstring result = NULL;
     jboolean isC3 = JNI_FALSE;
     Py_BEGIN_ALLOW_THREADS
+    // Here, we conditionally checck if jclass is a c3 class
     if (JNI_STATIC_METHOD(isC3Obj, env, C3_TYPE, "isC3Obj", "(Ljava/lang/Object;)Z")) {
             isC3 = (*env)->CallStaticBooleanMethod(env, C3_TYPE, isC3Obj, this);
         }
     if (isC3) {
-        if (JNI_STATIC_METHOD(getC3Name, env, JCLASS_TYPE, "getC3Name", "(Ljava/lang/Object;)Ljava/lang/String;")) {
+        // If jclass is a c3 class, call our JepInterface.getC3Name. This function return the results of `getName`
+        // with the string "c3" appended to the end of it.
+        if (JNI_STATIC_METHOD(getC3Name, env, C3_TYPE, "getC3Name", "(Ljava/lang/Object;)Ljava/lang/String;")) {
             result = (jstring) (*env)->CallStaticObjectMethod(env, C3_TYPE, getC3Name, this);
         }
     } else {
