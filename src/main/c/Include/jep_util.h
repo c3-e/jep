@@ -44,6 +44,9 @@
 #define JNI_METHOD(var, env, type, name, sig)\
     (var || (var = (*env)->GetMethodID(env, type, name, sig)))
 
+#define JNI_STATIC_METHOD(var, env, type, name, sig)\
+    (var || (var = (*env)->GetStaticMethodID(env, type, name, sig)))
+
 // get a const char* string from java string.
 // you *must* call release when you're finished with it.
 // returns local reference.
@@ -106,6 +109,7 @@ extern jclass JDOUBLE_ARRAY_TYPE;
     F(JOBJECT_TYPE, "java/lang/Object") \
     F(JSTRING_TYPE, "java/lang/String") \
     F(JCLASS_TYPE, "java/lang/Class") \
+    F(C3_TYPE, "c3/zoo/py/JepInterface") \
     F(JLIST_TYPE, "java/util/List") \
     F(JMAP_TYPE, "java/util/Map") \
     F(JENTRY_TYPE, "java/util/Map$Entry") \

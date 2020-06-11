@@ -34,6 +34,8 @@ static jmethodID getFields          = 0;
 static jmethodID getMethods         = 0;
 static jmethodID getModifiers       = 0;
 static jmethodID getName            = 0;
+static jmethodID getC3Name          = 0;
+static jmethodID isC3Obj            = 0;
 static jmethodID getSimpleName      = 0;
 static jmethodID isArray            = 0;
 static jmethodID newInstance        = 0;
@@ -113,9 +115,19 @@ jint java_lang_Class_getModifiers(JNIEnv* env, jclass this)
 jstring java_lang_Class_getName(JNIEnv* env, jclass this)
 {
     jstring result = NULL;
+    jboolean isC3 = JNI_FALSE;
     Py_BEGIN_ALLOW_THREADS
-    if (JNI_METHOD(getName, env, JCLASS_TYPE, "getName", "()Ljava/lang/String;")) {
-        result = (jstring) (*env)->CallObjectMethod(env, this, getName);
+    if (JNI_STATIC_METHOD(isC3Obj, env, C3_TYPE, "isC3Obj", "(Ljava/lang/Object;)Z")) {
+            isC3 = (*env)->CallStaticBooleanMethod(env, C3_TYPE, isC3Obj, this);
+        }
+    if (isC3) {
+        if (JNI_STATIC_METHOD(getC3Name, env, JCLASS_TYPE, "getC3Name", "(Ljava/lang/Object;)Ljava/lang/String;")) {
+            result = (jstring) (*env)->CallStaticObjectMethod(env, C3_TYPE, getC3Name, this);
+        }
+    } else {
+        if (JNI_METHOD(getName, env, JCLASS_TYPE, "getName", "()Ljava/lang/String;")) {
+            result = (jstring) (*env)->CallObjectMethod(env, this, getName);
+        }
     }
     Py_END_ALLOW_THREADS
     return result;
