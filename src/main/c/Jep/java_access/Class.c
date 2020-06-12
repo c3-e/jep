@@ -39,7 +39,6 @@ static jmethodID getSimpleName      = 0;
 static jmethodID isArray            = 0;
 static jmethodID newInstance        = 0;
 static jmethodID isInterface        = 0;
-static jmethodID isInterfaceC3        = 0;
 static jmethodID getFieldsC3        = 0;
 static jmethodID getMethodsC3        = 0;
 static jmethodID isC3Class        = 0;
@@ -151,17 +150,6 @@ jint java_lang_Class_getModifiers(JNIEnv* env, jclass this)
     return result;
 }
 
-jint C3_JepInterface_getClassModifiers(JNIEnv* env, jclass this)
-{
-    jint result = 0;
-    Py_BEGIN_ALLOW_THREADS
-    if (JNI_STATIC_METHOD(getModifiers, env, C3_JEPINTERFACE_TYPE, "getModifiers", "()I")) {
-        result = (*env)->CallStaticIntMethod(env, C3_JEPINTERFACE_TYPE, getModifiers, this);
-    }
-    Py_END_ALLOW_THREADS
-    return result;
-}
-
 jstring java_lang_Class_getName(JNIEnv* env, jclass this)
 {
     jstring result = NULL;
@@ -230,13 +218,3 @@ jboolean java_lang_Class_isInterface(JNIEnv* env, jclass this)
     return result;
 }
 
-jboolean C3_JepInterface_isInterface(JNIEnv* env, jclass this)
-{
-    jboolean result = JNI_FALSE;
-    Py_BEGIN_ALLOW_THREADS
-    if (JNI_STATIC_METHOD(isInterfaceC3, env, C3_JEPINTERFACE_TYPE, "isInterface", "()Z")) {
-        result = (*env)->CallBooleanMethod(env, C3_JEPINTERFACE_TYPE, isInterfaceC3, this);
-    }
-    Py_END_ALLOW_THREADS
-    return result;
-}

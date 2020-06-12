@@ -46,7 +46,7 @@ static PyObject* pyjc3class_add_inner_class(JNIEnv *env, PyJC3ClassObject *topCl
     jboolean  public;
 
     // setup to verify this inner class should be available
-    mods = C3_JepInterface_getClassModifiers(env, innerClz);
+    mods = java_lang_Class_getModifiers(env, innerClz);
     if (process_java_exception(env)) {
         return NULL;
     }

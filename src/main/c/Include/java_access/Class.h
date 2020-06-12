@@ -37,14 +37,11 @@ jobjectArray C3_JepInterface_getFields(JNIEnv*, jclass);
 jobjectArray java_lang_Class_getMethods(JNIEnv*, jclass);
 jobjectArray C3_JepInterface_getMethods(JNIEnv*, jclass);
 jint         java_lang_Class_getModifiers(JNIEnv*, jclass);
-jint         C3_JepInterface_getClassModifiers(JNIEnv*, jclass);
 jstring      java_lang_Class_getName(JNIEnv*, jclass);
 jstring      java_lang_Class_getSimpleName(JNIEnv*, jclass);
-jstring      C3_JepInterface_getSimpleName(JNIEnv*, jclass);
 jboolean     java_lang_Class_isArray(JNIEnv*, jclass);
 jboolean     C3_JepInterface_isC3Class(JNIEnv*, jclass);
 jobject      java_lang_Class_newInstance(JNIEnv*, jclass);
 jboolean     java_lang_Class_isInterface(JNIEnv*, jclass);
-jboolean     C3_JepInterface_isInterface(JNIEnv*, jclass);
 
 #endif // ndef java_lang_Class

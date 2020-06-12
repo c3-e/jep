@@ -751,10 +751,7 @@ char isFunctionalInterfaceType(JNIEnv *env, jclass type)
         process_java_exception(env);
         return 0;
     }
-    if (!isC3)
-        {isInterface = java_lang_Class_isInterface(env, type);}
-    else
-        {isInterface = C3_JepInterface_isInterface(env, type);}
+    isInterface = java_lang_Class_isInterface(env, type);
     if (process_java_exception(env)) {
         (*env)->PopLocalFrame(env, NULL);
         return 0;

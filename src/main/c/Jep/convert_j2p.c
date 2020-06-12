@@ -287,10 +287,10 @@ PyObject* jobject_As_PyObject(JNIEnv *env, jobject jobj)
             } else if ((*env)->ExceptionCheck(env)) {
                 process_java_exception(env);
             } else {
-                if (C3_JepInterface_isC3Class(env, class)) {
-                    result = jobject_As_PyJObject(env, jobj, class);
-                } else {
+                if (C3_JepInterface_isC3Class(env, class) || ((*env)->IsSameObject(env, class, JCLASS_TYPE) && C3_JepInterface_isC3Class(env, (jclass) jobj))) {
                     result = jobject_As_PyJC3Object(env, jobj, class);
+                } else {
+                    result = jobject_As_PyJObject(env, jobj, class);
                 }
 #if JEP_NUMPY_ENABLED
                 /*

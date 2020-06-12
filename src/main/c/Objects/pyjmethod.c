@@ -95,6 +95,7 @@ PyJMethodObject* PyJC3Method_New(JNIEnv *env, jobject rmethod)
 }
 
 // 1 if successful, 0 if failed.
+// TODO `PyJC3Method`'s pyjc3method_init will need tot call C3_JepInterface_... functions instead of java_lang_reflect..
 static int pyjmethod_init(JNIEnv *env, PyJMethodObject *self)
 {
     jobject           returnType             = NULL;
@@ -238,6 +239,7 @@ int PyJMethod_CheckArguments(PyJMethodObject* method, JNIEnv *env,
 // check them against the java args, and call the java function.
 //
 // easy. :-)
+// TODO SINCE java_lang_reflect_Method_isVarArgs IS CALLED ON EACH pyjmethod_call, WE WILL NEED A NEW TYPE `PyJC3Method` which calls C3_JepInterface_isVarArgs instead
 static PyObject* pyjmethod_call(PyJMethodObject *self,
                                 PyObject *args,
                                 PyObject *keywords)

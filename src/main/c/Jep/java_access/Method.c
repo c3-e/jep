@@ -42,6 +42,18 @@ jobjectArray java_lang_reflect_Method_getParameterTypes(JNIEnv* env,
     return result;
 }
 
+jobjectArray C3_JepInterface_getParameterTypes(JNIEnv* env,
+        jobject this)
+{
+    jobjectArray result = NULL;
+    if (JNI_STATIC_METHOD(getParameterTypes, env, C3_JEPINTERFACE_TYPE, "getParameterTypes",
+                   "()[Ljava/lang/Class;")) {
+        result = (jobjectArray) (*env)->CallStaticObjectMethod(env, C3_JEPINTERFACE_TYPE, getParameterTypes, this);
+    }
+    return result;
+}
+
+
 jclass java_lang_reflect_Method_getReturnType(JNIEnv* env, jobject this)
 {
     jclass result = NULL;
@@ -52,11 +64,30 @@ jclass java_lang_reflect_Method_getReturnType(JNIEnv* env, jobject this)
     return result;
 }
 
+jclass C3_JepInterface_getReturnType(JNIEnv* env, jobject this)
+{
+    jclass result = NULL;
+    if (JNI_STATIC_METHOD(getReturnType, env, C3_JEPINTERFACE_TYPE, "getReturnType",
+                   "()Ljava/lang/Class;")) {
+        result = (jclass) (*env)->CallStaticObjectMethod(env, C3_JEPINTERFACE_TYPE, getReturnType, this);
+    }
+    return result;
+}
+
 jboolean java_lang_reflect_Method_isVarArgs(JNIEnv* env, jobject this)
 {
     jboolean result = JNI_FALSE;
     if (JNI_METHOD(isVarArgs, env, JMETHOD_TYPE, "isVarArgs", "()Z")) {
         result = (*env)->CallBooleanMethod(env, this, isVarArgs);
+    }
+    return result;
+}
+
+jboolean C3_JepInterface_isVarArgs(JNIEnv* env, jobject this)
+{
+    jboolean result = JNI_FALSE;
+    if (JNI_STATIC_METHOD(isVarArgs, env, C3_JEPINTERFACE_TYPE, "isVarArgs", "()Z")) {
+        result = (*env)->CallStaticBooleanMethod(env, C3_JEPINTERFACE_TYPE, isVarArgs, this);
     }
     return result;
 }
