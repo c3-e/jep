@@ -13,6 +13,14 @@
 .. image:: https://img.shields.io/badge/docs-javadoc-orange.svg
     :target: https://ninia.github.io/jep/javadoc
 
+
+## C3 Contributions
+Here, I will document changes made to support the C3 Python SDK.
+
+JEP wraps Java objects in `PyJObject`s objects. When a `PyJObject` is created, or when an attribute is accessed on a `PyJObject` object, Java reflection is used.
+
+For C3, we will create a new `PyJC3Object` object which calls static functions on the C3 type `JepInterface` (in leu of Java reflection). Searing for `C3_JepInterface` will show you a list of the functions invoked on this type.
+
 Jep - Java Embedded Python
 ===========================
 

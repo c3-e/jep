@@ -219,6 +219,39 @@ PyObject* jobject_As_PyJObject(JNIEnv *env, jobject jobj, jclass class)
     return result;
 }
 
+
+PyObject* jobject_As_PyJC3Object(JNIEnv *env, jobject jobj, jclass class)
+{
+    PyObject* result = NULL;
+    if ((*env)->IsAssignableFrom(env, class, JITERABLE_TYPE)) {
+        if ((*env)->IsAssignableFrom(env, class, JCOLLECTION_TYPE)) {
+            if ((*env)->IsAssignableFrom(env, class, JLIST_TYPE)) {
+                result = PyJList_Wrap(env, jobj, class);
+            } else {
+                result = PyJCollection_Wrap(env, jobj, class);
+            }
+        } else {
+            result = PyJIterable_Wrap(env, jobj, class);
+        }
+    } else if ((*env)->IsAssignableFrom(env, class, JMAP_TYPE)) {
+        result = PyJMap_Wrap(env, jobj, class);
+    } else if ((*env)->IsAssignableFrom(env, class, JITERATOR_TYPE)) {
+        result = PyJIterator_Wrap(env, jobj, class);
+    } else if ((*env)->IsAssignableFrom(env, class, JAUTOCLOSEABLE_TYPE)) {
+        result = PyJAutoCloseable_Wrap(env, jobj, class);
+    } else if ((*env)->IsSameObject(env, class, JCLASS_TYPE)) {
+        result = PyJC3Class_Wrap(env, jobj);
+    } else if ((*env)->IsAssignableFrom(env, class, JNUMBER_TYPE)) {
+        result = PyJNumber_Wrap(env, jobj, class);
+    } else if ((*env)->IsAssignableFrom(env, class, JBUFFER_TYPE)) {
+        result = PyJBuffer_Wrap(env, jobj, class);
+    } else {
+        // Most likely, this function can just be this 1 line. Do any c3 types extend any of those^ types?
+        result = PyJC3Object_Wrap(env, jobj, class);
+    }
+    return result;
+}
+
 PyObject* jobject_As_PyObject(JNIEnv *env, jobject jobj)
 {
     PyObject* result = NULL;
@@ -254,7 +287,11 @@ PyObject* jobject_As_PyObject(JNIEnv *env, jobject jobj)
             } else if ((*env)->ExceptionCheck(env)) {
                 process_java_exception(env);
             } else {
-                result = jobject_As_PyJObject(env, jobj, class);
+                if (C3_JepInterface_isC3Class(env, class)) {
+                    result = jobject_As_PyJObject(env, jobj, class);
+                } else {
+                    result = jobject_As_PyJC3Object(env, jobj, class);
+                }
 #if JEP_NUMPY_ENABLED
                 /*
                  * check for jep/DirectNDArray and autoconvert to numpy.ndarray

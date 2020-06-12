@@ -109,7 +109,7 @@ extern jclass JDOUBLE_ARRAY_TYPE;
     F(JOBJECT_TYPE, "java/lang/Object") \
     F(JSTRING_TYPE, "java/lang/String") \
     F(JCLASS_TYPE, "java/lang/Class") \
-    F(C3_TYPE, "c3/zoo/py/JepInterface") \
+    F(C3_JEPINTERFACE_TYPE, "c3/zoo/py/JepInterface") \
     F(JLIST_TYPE, "java/util/List") \
     F(JMAP_TYPE, "java/util/Map") \
     F(JENTRY_TYPE, "java/util/Map$Entry") \

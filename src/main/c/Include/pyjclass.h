@@ -32,7 +32,7 @@
 
 #include "jep_platform.h"
 #include "pyjobject.h"
-
+#include "pyjc3object.h"
 #ifndef _Included_pyjclass
 #define _Included_pyjclass
 
@@ -49,9 +49,5 @@ typedef struct {
 } PyJClassObject;
 
 PyObject* PyJClass_Wrap(JNIEnv*, jobject);
-
-#define PyJClass_Check(pyobj) \
-    PyObject_TypeCheck(pyobj, &PyJClass_Type)
-
 
 #endif // ndef pyjclass

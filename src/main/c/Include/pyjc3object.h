@@ -27,11 +27,11 @@
 
 #include "jep_platform.h"
 
-#ifndef _Included_pyjobject
-#define _Included_pyjobject
+#ifndef _Included_pyjc3object
+#define _Included_pyjc3object
 
 
-extern PyTypeObject PyJObject_Type;
+extern PyTypeObject PyJC3Object_Type;
 
 /*
  * The common fields for PyJObject. The usage of this macro is similar to
@@ -43,7 +43,7 @@ extern PyTypeObject PyJObject_Type;
  * object. As well as a Python dict for the attributes and a Python string
  * containing the fully qualified java class name.
  */
-#define PyJObject_FIELDS \
+#define PyJC3Object_FIELDS \
     jobject   object;    \
     jclass    clazz;     \
     PyObject *attr;      \
@@ -51,17 +51,21 @@ extern PyTypeObject PyJObject_Type;
 
 typedef struct {
     PyObject_HEAD
-    PyJObject_FIELDS
-} PyJObject;
+    PyJC3Object_FIELDS
+} PyJC3Object;
 
 /*
  * Create a new instance of PyJObject or one of it's subtypes that wraps
  * the object provided. If the class of the object is known it can be passed
  * in, or the final argument can be NULL and this function will figure it out.
  */
-PyObject* PyJObject_New(JNIEnv*, PyTypeObject*, jobject, jclass);
+PyObject* PyJC3Object_New(JNIEnv*, PyTypeObject*, jobject, jclass);
 
-#define PyJObject_Wrap(env, jobj, jcls) \
-    PyJObject_New(env, &PyJObject_Type, jobj, jcls)
+#define PyJC3Object_Wrap(env, jobj, jcls) \
+    PyJC3Object_New(env, &PyJC3Object_Type, jobj, jcls)
+
+#define PyJObject_Check(pyobj) \
+    PyObject_TypeCheck(pyobj, &PyJC3Object_Type) || PyObject_TypeCheck(pyobj, &PyJObject_Type) // TODO TOMMY MAKE SURE THIS IS RIGHT
+
 
 #endif // ndef pyjobject

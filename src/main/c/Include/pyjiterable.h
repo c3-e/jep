@@ -33,7 +33,7 @@
 
 #include "jep_platform.h"
 #include "pyjobject.h"
-
+#include "pyjc3object.h"
 #ifndef _Included_pyjiterable
 #define _Included_pyjiterable
 

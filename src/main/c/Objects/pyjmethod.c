@@ -64,6 +64,36 @@ PyJMethodObject* PyJMethod_New(JNIEnv *env, jobject rmethod)
     return pym;
 }
 
+// called internally to make new PyJMethodObject instances.
+// throws python exception and returns NULL on error.
+PyJMethodObject* PyJC3Method_New(JNIEnv *env, jobject rmethod)
+{
+    jstring          jname  = NULL;
+    PyObject        *pyname = NULL;
+    PyJMethodObject *pym    = NULL;
+
+    if (PyType_Ready(&PyJMethod_Type) < 0) {
+        return NULL;
+    }
+
+    jname = C3_JepInterface_getName(env, rmethod);
+    if (process_java_exception(env) || !jname) {
+        return NULL;
+    }
+    pyname = jstring_As_PyString(env, jname);
+    (*env)->DeleteLocalRef(env, jname);
+
+    pym                = PyObject_NEW(PyJMethodObject, &PyJMethod_Type);
+    pym->rmethod       = (*env)->NewGlobalRef(env, rmethod);
+    pym->parameters    = NULL;
+    pym->lenParameters = -1;
+    pym->pyMethodName  = pyname;
+    pym->isStatic      = -1;
+    pym->returnTypeId  = -1;
+
+    return pym;
+}
+
 // 1 if successful, 0 if failed.
 static int pyjmethod_init(JNIEnv *env, PyJMethodObject *self)
 {

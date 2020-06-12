@@ -30,6 +30,9 @@
 
 jclass  java_lang_reflect_Member_getDeclaringClass(JNIEnv*, jobject);
 jint    java_lang_reflect_Member_getModifiers(JNIEnv*, jobject);
+jint    C3_JepInterface_getMemberModifiers(JNIEnv*, jobject);
 jstring java_lang_reflect_Member_getName(JNIEnv*, jobject);
+jstring C3_JepInterface_getName(JNIEnv*, jobject);
+jfieldID C3_JepInterface_getId(JNIEnv*, jobject);
 
 #endif // ndef java_lang_reflect_Member

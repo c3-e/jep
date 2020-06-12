@@ -87,6 +87,103 @@ EXIT_ERROR:
     return NULL;
 }
 
+PyJFieldObject* PyJC3Field_New(JNIEnv *env, jobject rfield)
+{
+    PyJFieldObject *pyf;
+    jstring          jstr        = NULL;
+
+    if (PyType_Ready(&PyJField_Type) < 0) {
+        return NULL;
+    }
+
+    pyf              = PyObject_NEW(PyJFieldObject, &PyJField_Type);
+    pyf->rfield      = (*env)->NewGlobalRef(env, rfield); // Meh I'm not sure about this..
+    pyf->pyFieldName = NULL;
+    pyf->fieldTypeId = -1;
+    pyf->isStatic    = -1;
+    pyf->init        = 0;
+
+    // ------------------------------ get field name
+
+    jstr = C3_JepInterface_getName(env, rfield);
+    if (process_java_exception(env) || !jstr) {
+        goto EXIT_ERROR;
+    }
+
+    pyf->pyFieldName = jstring_As_PyString(env, jstr);
+
+    (*env)->DeleteLocalRef(env, jstr);
+
+
+    return pyf;
+
+EXIT_ERROR:
+    if (pyf) {
+        pyjfield_dealloc(pyf);
+    }
+    return NULL;
+}
+
+
+static int pyjc3field_init(JNIEnv *env, PyJFieldObject *self)
+{
+    jint             modifier    = -1;
+    jboolean         isStatic    = JNI_TRUE;
+
+    if ((*env)->PushLocalFrame(env, JLOCAL_REFS) != 0) {
+        process_java_exception(env);
+        return 0;
+    }
+
+    // ------------------------------ get fieldid
+
+    self->fieldId = C3_JepInterface_getId(env, self->rfield);
+
+
+    // ------------------------------ get return type
+    self->fieldType = C3_JepInterface_getType(env, self->rfield);
+    if (process_java_exception(env) || !self->fieldType) {
+        goto EXIT_ERROR;
+    }
+
+    self->fieldTypeId = get_jtype(env, self->fieldType);
+    if (process_java_exception(env)) {
+        goto EXIT_ERROR;
+    }
+
+    // ------------------------------ get isStatic
+
+    // call getModifers()
+    modifier = C3_JepInterface_getMemberModifiers(env, self->rfield);
+    if (process_java_exception(env)) {
+        goto EXIT_ERROR;
+    }
+
+    isStatic = C3_JepInterface_isStatic(env, modifier);
+    if (process_java_exception(env)) {
+        goto EXIT_ERROR;
+    }
+
+    if (isStatic == JNI_TRUE) {
+        self->isStatic = 1;
+    } else {
+        self->isStatic = 0;
+    }
+    self->fieldType = (*env)->NewGlobalRef(env, self->fieldType);
+
+    (*env)->PopLocalFrame(env, NULL);
+    self->init = 1;
+    return 1;
+
+EXIT_ERROR:
+    (*env)->PopLocalFrame(env, NULL);
+
+    if (!PyErr_Occurred()) {
+        PyErr_SetString(PyExc_RuntimeError, "Unknown");
+    }
+
+    return 0;
+}
 
 static int pyjfield_init(JNIEnv *env, PyJFieldObject *self)
 {
@@ -156,6 +253,309 @@ int PyJField_Check(PyObject *obj)
         return 1;
     }
     return 0;
+}
+
+
+// get value from java object field.
+// returns new reference.
+PyObject* pyjc3field_get(PyJFieldObject *self, PyJC3Object* pyjobject)
+{
+    PyObject *result = NULL;
+    JNIEnv   *env;
+
+    env = pyembed_get_env();
+
+    if (!self) {
+        PyErr_Format(PyExc_RuntimeError, "Invalid self object.");
+        return NULL;
+    }
+
+    if (!self->init) {
+        if (!pyjc3field_init(env, self) || PyErr_Occurred()) {
+            return NULL;
+        }
+    }
+
+    if (!pyjobject->object && !self->isStatic) {
+        PyErr_SetString(PyExc_TypeError, "Field is not static.");
+        return NULL;
+    }
+
+    switch (self->fieldTypeId) {
+
+    case JSTRING_ID: {
+        jstring     jstr;
+
+        if (self->isStatic)
+            jstr = (jstring) (*env)->GetStaticObjectField(
+                       env,
+                       pyjobject->clazz,
+                       self->fieldId);
+        else
+            jstr = (jstring) (*env)->GetObjectField(env,
+                                                    pyjobject->object,
+                                                    self->fieldId);
+
+        if (process_java_exception(env)) {
+            return NULL;
+        }
+
+        if (jstr == NULL) {
+            Py_RETURN_NONE;
+        }
+
+        result = jstring_As_PyString(env, jstr);
+        (*env)->DeleteLocalRef(env, jstr);
+        break;
+    }
+
+    case JCLASS_ID: {
+        jobject obj;
+
+        if (self->isStatic)
+            obj = (*env)->GetStaticObjectField(env,
+                                               pyjobject->clazz,
+                                               self->fieldId);
+        else
+            obj = (*env)->GetObjectField(env,
+                                         pyjobject->object,
+                                         self->fieldId);
+
+        if (process_java_exception(env)) {
+            return NULL;
+        }
+
+        if (obj == NULL) {
+            Py_RETURN_NONE;
+        }
+
+        result = PyJClass_Wrap(env, obj);
+        (*env)->DeleteLocalRef(env, obj);
+        break;
+    }
+
+    case JOBJECT_ID: {
+        jobject obj;
+
+        if (self->isStatic)
+            obj = (*env)->GetStaticObjectField(env,
+                                               pyjobject->clazz,
+                                               self->fieldId);
+        else
+            obj = (*env)->GetObjectField(env,
+                                         pyjobject->object,
+                                         self->fieldId);
+
+        if (process_java_exception(env)) {
+            return NULL;
+        }
+
+        if (obj == NULL) {
+            Py_RETURN_NONE;
+        }
+
+        result = jobject_As_PyObject(env, obj);
+        (*env)->DeleteLocalRef(env, obj);
+        break;
+    }
+
+    case JARRAY_ID: {
+        PyErr_Format(PyExc_RuntimeError,
+                             "TODO: C3 ARRAY CURRENTLY UNSUPPORTED!!");
+                Py_RETURN_NONE;
+        /*
+        jobject obj;
+
+        if (self->isStatic)
+            obj = (*env)->GetStaticObjectField(env,
+                                               pyjobject->clazz,
+                                               self->fieldId);
+        else
+            obj = (*env)->GetObjectField(env,
+                                         pyjobject->object,
+                                         self->fieldId);
+
+        if (process_java_exception(env)) {
+            return NULL;
+        }
+
+        if (obj == NULL) {
+            Py_RETURN_NONE;
+        }
+
+        result = pyjarray_new(env, obj);
+        (*env)->DeleteLocalRef(env, obj);
+        break;
+        */
+    }
+    case JINT_ID: {
+        jint ret;
+
+        if (self->isStatic)
+            ret = (*env)->GetStaticIntField(env,
+                                            pyjobject->clazz,
+                                            self->fieldId);
+        else
+            ret = (*env)->GetIntField(env,
+                                      pyjobject->object,
+                                      self->fieldId);
+
+        if (process_java_exception(env)) {
+            return NULL;
+        }
+
+        result = jint_As_PyObject(ret);
+        break;
+    }
+
+    case JBYTE_ID: {
+        jbyte ret;
+
+        if (self->isStatic)
+            ret = (*env)->GetStaticByteField(env,
+                                             pyjobject->clazz,
+                                             self->fieldId);
+        else
+            ret = (*env)->GetByteField(env,
+                                       pyjobject->object,
+                                       self->fieldId);
+
+        if (process_java_exception(env)) {
+            return NULL;
+        }
+
+        result = jbyte_As_PyObject(ret);
+        break;
+    }
+
+    case JCHAR_ID: {
+        jchar ret;
+
+        if (self->isStatic)
+            ret = (*env)->GetStaticCharField(env,
+                                             pyjobject->clazz,
+                                             self->fieldId);
+        else
+            ret = (*env)->GetCharField(env,
+                                       pyjobject->object,
+                                       self->fieldId);
+
+        if (process_java_exception(env)) {
+            return NULL;
+        }
+        result = jchar_As_PyObject(ret);
+        break;
+    }
+
+    case JSHORT_ID: {
+        jshort ret;
+
+        if (self->isStatic)
+            ret = (*env)->GetStaticShortField(env,
+                                              pyjobject->clazz,
+                                              self->fieldId);
+        else
+            ret = (*env)->GetShortField(env,
+                                        pyjobject->object,
+                                        self->fieldId);
+
+        if (process_java_exception(env)) {
+            return NULL;
+        }
+
+        result = jshort_As_PyObject(ret);
+        break;
+    }
+
+    case JDOUBLE_ID: {
+        jdouble ret;
+
+        if (self->isStatic)
+            ret = (*env)->GetStaticDoubleField(env,
+                                               pyjobject->clazz,
+                                               self->fieldId);
+        else
+            ret = (*env)->GetDoubleField(env,
+                                         pyjobject->object,
+                                         self->fieldId);
+
+        if (process_java_exception(env)) {
+            return NULL;
+        }
+
+        result = jdouble_As_PyObject(ret);
+        break;
+    }
+
+    case JFLOAT_ID: {
+        jfloat ret;
+
+        if (self->isStatic)
+            ret = (*env)->GetStaticFloatField(env,
+                                              pyjobject->clazz,
+                                              self->fieldId);
+        else
+            ret = (*env)->GetFloatField(env,
+                                        pyjobject->object,
+                                        self->fieldId);
+
+        if (process_java_exception(env)) {
+            return NULL;
+        }
+
+        result = jfloat_As_PyObject(ret);
+        break;
+    }
+
+    case JLONG_ID: {
+        jlong ret;
+
+        if (self->isStatic)
+            ret = (*env)->GetStaticLongField(env,
+                                             pyjobject->clazz,
+                                             self->fieldId);
+        else
+            ret = (*env)->GetLongField(env,
+                                       pyjobject->object,
+                                       self->fieldId);
+
+        if (process_java_exception(env)) {
+            return NULL;
+        }
+
+        result = jlong_As_PyObject(ret);
+        break;
+    }
+
+
+    case JBOOLEAN_ID: {
+        jboolean ret;
+
+        if (self->isStatic)
+            ret = (*env)->GetStaticBooleanField(env,
+                                                pyjobject->clazz,
+                                                self->fieldId);
+        else
+            ret = (*env)->GetBooleanField(env,
+                                          pyjobject->object,
+                                          self->fieldId);
+
+        if (process_java_exception(env)) {
+            return NULL;
+        }
+
+        result = jboolean_As_PyObject(ret);
+        break;
+    }
+
+    default:
+        PyErr_Format(PyExc_RuntimeError,
+                     "Unknown field type %i.",
+                     self->fieldTypeId);
+        Py_RETURN_NONE;
+    }
+
+    return result;
 }
 
 
@@ -456,6 +856,161 @@ PyObject* pyjfield_get(PyJFieldObject *self, PyJObject* pyjobject)
     return result;
 }
 
+int pyjc3field_set(PyJFieldObject *self, PyJC3Object* pyjobject, PyObject *value)
+{
+    JNIEnv *env = pyembed_get_env();
+
+    if (!self) {
+        PyErr_Format(PyExc_RuntimeError, "Invalid self object.");
+        return -1;
+    }
+
+    if (!self->init) {
+        if (!pyjc3field_init(env, self) || PyErr_Occurred()) {
+            return -1;
+        }
+    }
+
+    if (!pyjobject->object && !self->isStatic) {
+        PyErr_SetString(PyExc_TypeError, "Field is not static.");
+        return -1;
+    }
+
+    switch (self->fieldTypeId) {
+    case JSTRING_ID:
+    case JCLASS_ID:
+    case JARRAY_ID:
+    case JOBJECT_ID: {
+        jobject obj = PyObject_As_jobject(env, value, self->fieldType);
+        if (!obj && PyErr_Occurred()) {
+            return -1;
+        }
+        if (self->isStatic) {
+            (*env)->SetStaticObjectField(env, pyjobject->clazz,
+                                         self->fieldId, obj);
+        } else {
+            (*env)->SetObjectField(env, pyjobject->object,
+                                   self->fieldId, obj);
+        }
+        (*env)->DeleteLocalRef(env, obj);
+        return 0;
+    }
+    case JINT_ID: {
+        jint i = PyObject_As_jint(value);
+        if (i == -1 && PyErr_Occurred()) {
+            return -1;
+        }
+        if (self->isStatic) {
+            (*env)->SetStaticIntField(env, pyjobject->clazz,
+                                      self->fieldId, i);
+        } else {
+            (*env)->SetIntField(env, pyjobject->object,
+                                self->fieldId, i);
+        }
+        return 0;
+    }
+    case JCHAR_ID: {
+        jchar c = PyObject_As_jchar(value);
+        if (c == 0 && PyErr_Occurred()) {
+            return -1;
+        }
+        if (self->isStatic) {
+            (*env)->SetStaticCharField(env, pyjobject->clazz,
+                                       self->fieldId, c);
+        } else {
+            (*env)->SetCharField(env, pyjobject->object,
+                                 self->fieldId, c);
+        }
+        return 0;
+    }
+    case JBYTE_ID: {
+        jbyte b = PyObject_As_jbyte(value);
+        if (b == -1 && PyErr_Occurred()) {
+            return -1;
+        }
+        if (self->isStatic) {
+            (*env)->SetStaticByteField(env, pyjobject->clazz,
+                                       self->fieldId, b);
+        } else {
+            (*env)->SetByteField(env, pyjobject->object,
+                                 self->fieldId, b);
+        }
+        return 0;
+    }
+    case JSHORT_ID: {
+        jshort s = PyObject_As_jshort(value);
+        if (s == -1 && PyErr_Occurred()) {
+            return -1;
+        }
+        if (self->isStatic) {
+            (*env)->SetStaticShortField(env, pyjobject->clazz,
+                                        self->fieldId, s);
+        } else {
+            (*env)->SetShortField(env, pyjobject->object,
+                                  self->fieldId, s);
+        }
+        return 0;
+    }
+    case JDOUBLE_ID: {
+        jdouble d = PyObject_As_jdouble(value);
+        if (d == -1.0 && PyErr_Occurred()) {
+            return -1;
+        }
+        if (self->isStatic) {
+            (*env)->SetStaticDoubleField(env, pyjobject->clazz,
+                                         self->fieldId, d);
+        } else {
+            (*env)->SetDoubleField(env, pyjobject->object,
+                                   self->fieldId, d);
+        }
+        return 0;
+    }
+    case JFLOAT_ID: {
+        jfloat f = PyObject_As_jfloat(value);
+        if (f == -1.0 && PyErr_Occurred()) {
+            return -1;
+        }
+        if (self->isStatic) {
+            (*env)->SetStaticFloatField(env, pyjobject->clazz,
+                                        self->fieldId, f);
+        } else {
+            (*env)->SetFloatField(env, pyjobject->object,
+                                  self->fieldId, f);
+        }
+        return 0;
+    }
+    case JLONG_ID: {
+        jlong j = PyObject_As_jlong(value);
+        if (j == -1 && PyErr_Occurred()) {
+            return -1;
+        }
+        if (self->isStatic) {
+            (*env)->SetStaticLongField(env, pyjobject->clazz,
+                                       self->fieldId, j);
+        } else {
+            (*env)->SetLongField(env, pyjobject->object,
+                                 self->fieldId, j);
+        }
+        return 0;
+    }
+    case JBOOLEAN_ID: {
+        jboolean z = PyObject_As_jboolean(value);
+        if (PyErr_Occurred()) {
+            return -1;
+        }
+        if (self->isStatic) {
+            (*env)->SetStaticBooleanField(env, pyjobject->clazz,
+                                          self->fieldId, z);
+        } else {
+            (*env)->SetBooleanField(env, pyjobject->object,
+                                    self->fieldId, z);
+        }
+        return 0;
+    }
+    }
+    PyErr_Format(PyExc_RuntimeError, "Unknown field type %i.", self->fieldTypeId);
+    return -1;
+}
 
 int pyjfield_set(PyJFieldObject *self, PyJObject* pyjobject, PyObject *value)
 {

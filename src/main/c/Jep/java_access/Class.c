@@ -29,6 +29,7 @@
 
 static jmethodID getComponentType   = 0;
 static jmethodID getConstructors    = 0;
+static jmethodID getConstructorsC3    = 0;
 static jmethodID getDeclaredClasses = 0;
 static jmethodID getFields          = 0;
 static jmethodID getMethods         = 0;
@@ -38,6 +39,10 @@ static jmethodID getSimpleName      = 0;
 static jmethodID isArray            = 0;
 static jmethodID newInstance        = 0;
 static jmethodID isInterface        = 0;
+static jmethodID isInterfaceC3        = 0;
+static jmethodID getFieldsC3        = 0;
+static jmethodID getMethodsC3        = 0;
+static jmethodID isC3Class        = 0;
 
 jclass java_lang_Class_getComponentType(JNIEnv* env, jclass this)
 {
@@ -58,6 +63,18 @@ jobjectArray java_lang_Class_getConstructors(JNIEnv* env, jclass this)
     if (JNI_METHOD(getConstructors, env, JCLASS_TYPE, "getConstructors",
                    "()[Ljava/lang/reflect/Constructor;")) {
         result = (jobjectArray) (*env)->CallObjectMethod(env, this, getConstructors);
+    }
+    Py_END_ALLOW_THREADS
+    return result;
+}
+
+jobjectArray C3_JepInterface_getConstructors(JNIEnv* env, jclass this)
+{
+    jobjectArray result = NULL;
+    Py_BEGIN_ALLOW_THREADS
+    if (JNI_STATIC_METHOD(getConstructorsC3, env, C3_JEPINTERFACE_TYPE, "getConstructors",
+                   "()[Ljava/lang/reflect/Constructor;")) {
+        result = (jobjectArray) (*env)->CallStaticObjectMethod(env, C3_JEPINTERFACE_TYPE, getConstructorsC3, this);
     }
     Py_END_ALLOW_THREADS
     return result;
@@ -87,6 +104,18 @@ jobjectArray java_lang_Class_getFields(JNIEnv* env, jclass this)
     return result;
 }
 
+jobjectArray C3_JepInterface_getFields(JNIEnv* env, jclass this)
+{
+    jobjectArray result = NULL;
+    Py_BEGIN_ALLOW_THREADS
+    if (JNI_STATIC_METHOD(getFieldsC3, env, C3_JEPINTERFACE_TYPE, "getFields",
+                   "()[Ljava/lang/reflect/Field;")) {
+        result = (jobjectArray) (*env)->CallStaticObjectMethod(env, C3_JEPINTERFACE_TYPE, getFieldsC3, this);
+    }
+    Py_END_ALLOW_THREADS
+    return result;
+}
+
 jobjectArray java_lang_Class_getMethods(JNIEnv* env, jclass this)
 {
     jobjectArray result = NULL;
@@ -99,12 +128,35 @@ jobjectArray java_lang_Class_getMethods(JNIEnv* env, jclass this)
     return result;
 }
 
+jobjectArray C3_JepInterface_getMethods(JNIEnv* env, jclass this)
+{
+    jobjectArray result = NULL;
+    Py_BEGIN_ALLOW_THREADS
+    if (JNI_STATIC_METHOD(getMethodsC3, env, C3_JEPINTERFACE_TYPE, "getMethods",
+                   "()[Ljava/lang/reflect/Method;")) {
+        result = (jobjectArray) (*env)->CallStaticObjectMethod(env, C3_JEPINTERFACE_TYPE, getMethodsC3, this);
+    }
+    Py_END_ALLOW_THREADS
+    return result;
+}
+
 jint java_lang_Class_getModifiers(JNIEnv* env, jclass this)
 {
     jint result = 0;
     Py_BEGIN_ALLOW_THREADS
     if (JNI_METHOD(getModifiers, env, JCLASS_TYPE, "getModifiers", "()I")) {
         result = (*env)->CallIntMethod(env, this, getModifiers);
+    }
+    Py_END_ALLOW_THREADS
+    return result;
+}
+
+jint C3_JepInterface_getClassModifiers(JNIEnv* env, jclass this)
+{
+    jint result = 0;
+    Py_BEGIN_ALLOW_THREADS
+    if (JNI_STATIC_METHOD(getModifiers, env, C3_JEPINTERFACE_TYPE, "getModifiers", "()I")) {
+        result = (*env)->CallStaticIntMethod(env, C3_JEPINTERFACE_TYPE, getModifiers, this);
     }
     Py_END_ALLOW_THREADS
     return result;
@@ -144,6 +196,17 @@ jboolean java_lang_Class_isArray(JNIEnv* env, jclass this)
     return result;
 }
 
+jboolean C3_JepInterface_isC3Class(JNIEnv* env, jclass this)
+{
+    jboolean result = JNI_FALSE;
+    Py_BEGIN_ALLOW_THREADS
+    if (JNI_STATIC_METHOD(isC3Class, env, C3_JEPINTERFACE_TYPE, "isC3Class", "()Z")) {
+        result = (*env)->CallStaticBooleanMethod(env, C3_JEPINTERFACE_TYPE, isC3Class, this);
+    }
+    Py_END_ALLOW_THREADS
+    return result;
+}
+
 jobject java_lang_Class_newInstance(JNIEnv* env, jclass this)
 {
     jobject result = NULL;
@@ -162,6 +225,17 @@ jboolean java_lang_Class_isInterface(JNIEnv* env, jclass this)
     Py_BEGIN_ALLOW_THREADS
     if (JNI_METHOD(isInterface, env, JCLASS_TYPE, "isInterface", "()Z")) {
         result = (*env)->CallBooleanMethod(env, this, isInterface);
+    }
+    Py_END_ALLOW_THREADS
+    return result;
+}
+
+jboolean C3_JepInterface_isInterface(JNIEnv* env, jclass this)
+{
+    jboolean result = JNI_FALSE;
+    Py_BEGIN_ALLOW_THREADS
+    if (JNI_STATIC_METHOD(isInterfaceC3, env, C3_JEPINTERFACE_TYPE, "isInterface", "()Z")) {
+        result = (*env)->CallBooleanMethod(env, C3_JEPINTERFACE_TYPE, isInterfaceC3, this);
     }
     Py_END_ALLOW_THREADS
     return result;

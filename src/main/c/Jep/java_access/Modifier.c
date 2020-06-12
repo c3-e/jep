@@ -30,6 +30,9 @@
 static jmethodID isPublic   = 0;
 static jmethodID isStatic   = 0;
 static jmethodID isAbstract = 0;
+static jmethodID isPublicC3   = 0;
+static jmethodID isStaticC3   = 0;
+static jmethodID isAbstractC3 = 0;
 
 jboolean java_lang_reflect_Modifier_isPublic(JNIEnv* env, jint mod)
 {
@@ -38,6 +41,17 @@ jboolean java_lang_reflect_Modifier_isPublic(JNIEnv* env, jint mod)
             || (isPublic = (*env)->GetStaticMethodID(env, JMODIFIER_TYPE, "isPublic",
                            "(I)Z"))) {
         result = (*env)->CallStaticBooleanMethod(env, JMODIFIER_TYPE, isPublic, mod);
+    }
+    return result;
+}
+
+jboolean C3_JepInterface_isPublic(JNIEnv* env, jint mod)
+{
+    jboolean result = JNI_FALSE;
+    if (isPublic
+            || (isPublicC3 = (*env)->GetStaticMethodID(env, C3_JEPINTERFACE_TYPE, "isPublic",
+                           "(I)Z"))) {
+        result = (*env)->CallStaticBooleanMethod(env, C3_JEPINTERFACE_TYPE, isPublicC3, mod);
     }
     return result;
 }
@@ -53,6 +67,17 @@ jboolean java_lang_reflect_Modifier_isStatic(JNIEnv* env, jint mod)
     return result;
 }
 
+jboolean C3_JepInterface_isStatic(JNIEnv* env, jint mod)
+{
+    jboolean result = JNI_FALSE;
+    if (isStatic
+            || (isStaticC3 = (*env)->GetStaticMethodID(env, C3_JEPINTERFACE_TYPE, "isStatic",
+                           "(I)Z"))) {
+        result = (*env)->CallStaticBooleanMethod(env, C3_JEPINTERFACE_TYPE, isStaticC3, mod);
+    }
+    return result;
+}
+
 jboolean java_lang_reflect_Modifier_isAbstract(JNIEnv* env, jint mod)
 {
     jboolean result = JNI_FALSE;
@@ -60,6 +85,17 @@ jboolean java_lang_reflect_Modifier_isAbstract(JNIEnv* env, jint mod)
             || (isAbstract = (*env)->GetStaticMethodID(env, JMODIFIER_TYPE, "isAbstract",
                              "(I)Z"))) {
         result = (*env)->CallStaticBooleanMethod(env, JMODIFIER_TYPE, isAbstract, mod);
+    }
+    return result;
+}
+
+jboolean C3_JepInterface_isAbstract(JNIEnv* env, jint mod)
+{
+    jboolean result = JNI_FALSE;
+    if (isAbstract
+            || (isAbstractC3 = (*env)->GetStaticMethodID(env, C3_JEPINTERFACE_TYPE, "isAbstract",
+                             "(I)Z"))) {
+        result = (*env)->CallStaticBooleanMethod(env, C3_JEPINTERFACE_TYPE, isAbstractC3, mod);
     }
     return result;
 }

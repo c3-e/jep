@@ -27,7 +27,7 @@
 
 #include "jep_platform.h"
 #include "pyjobject.h"
-
+#include "pyjc3object.h"
 #ifndef _Included_pyjmethod
 #define _Included_pyjmethod
 
@@ -53,6 +53,9 @@ typedef struct {
 
 /* Create a new PyJMethod from a java.lang.reflect.Method*/
 PyJMethodObject* PyJMethod_New(JNIEnv*, jobject);
+
+/* Create a new PyJMethod from a c3 tyoe APIs*/
+PyJMethodObject* PyJC3Method_New(JNIEnv*, jobject);
 
 /* Check if the arg is a PyJMethodObject */
 int PyJMethod_Check(PyObject *obj);

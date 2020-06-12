@@ -29,5 +29,6 @@
 #define _Included_java_lang_reflect_Field
 
 jclass  java_lang_reflect_Field_getType(JNIEnv*, jobject);
+jclass  C3_JepInterface_getType(JNIEnv*, jobject);
 
 #endif // ndef java_lang_reflect_Field
