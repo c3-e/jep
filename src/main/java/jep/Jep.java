@@ -280,6 +280,7 @@ public class Jep implements Interpreter {
         threadUsed.set(true);
         this.thread = Thread.currentThread();
         configureInterpreter(config);
+        MainInterpreter.incrementInterpreterCount();
     }
 
     protected void configureInterpreter(JepConfig config) throws JepException {
@@ -293,8 +294,13 @@ public class Jep implements Interpreter {
             }
 
             exec("import sys");
-            exec("sys.path += '" + includePath + "'.split('"
+            exec("sys.path = '" + includePath + "'.split('"
                     + File.pathSeparator + "')");
+            if (includePath.contains("/bin")) {
+                includePath = includePath.substring(0, includePath.indexOf("/bin"));
+                exec("sys.prefix = '" + includePath + "'");
+                exec("sys.exec_prefix = '" + includePath + "'");
+            }
         }
         boolean hasSharedModules = config.sharedModules != null
                 && !config.sharedModules.isEmpty();
@@ -1061,14 +1067,17 @@ public class Jep implements Interpreter {
         this.closed = true;
 
         if (isSubInterpreter) {
+            System.out.println("Java teardown\n");
             exec(this.tstate, "import jep");
             exec(this.tstate, "jep.shared_modules_hook.teardownImporter()");
         }
 
         this.close(tstate);
         this.tstate = 0;
+        thread = null;
 
         threadUsed.set(false);
+        MainInterpreter.decrementInterpreterCount();
     }
 
     private native void close(long tstate);

@@ -6,7 +6,7 @@
 
   <groupId>black.ninia</groupId>
   <artifactId>jep</artifactId>
-  <version>3.9.0</version>
+  <version>0.0.42</version>
   <packaging>jar</packaging>
 
   <name>Java Embedded Python</name>
@@ -36,11 +36,11 @@
     </developer>
   </developers>
 
-  <scm>
-    <connection>scm:git:git://github.com/ninia/jep.git</connection>
-    <developerConnection>scm:git:ssh://github.com:ninia/jep.git</developerConnection>
-    <url>https://github.com/ninia/jep/tree/v3.9.0</url>
-   </scm>
+<!--  <scm>-->
+<!--    <connection>scm:git:git://github.com/ninia/jep.git</connection>-->
+<!--    <developerConnection>scm:git:ssh://github.com:ninia/jep.git</developerConnection>-->
+<!--    <url>https://github.com/ninia/jep/tree/v3.9.0</url>-->
+<!--   </scm>-->
 
   <properties>
     <maven.compiler.source>1.7</maven.compiler.source>

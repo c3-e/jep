@@ -62,7 +62,25 @@ JNIEXPORT void JNICALL Java_jep_MainInterpreter_setInitParams
 JNIEXPORT void JNICALL Java_jep_MainInterpreter_initializePython
 (JNIEnv *env, jclass class, jobjectArray argv)
 {
+
+    printf("Java_jep_MainInterpreter_initializePython IN C");
+    fflush(stdout);
     pyembed_startup(env, argv);
+}
+
+/*
+ * Class:     jep_MainInterpreter
+ * Method:    shutdownPython
+ * Signature: (Ljava/lang/String;)V
+ */
+JNIEXPORT void JNICALL Java_jep_MainInterpreter_shutdownPython
+(JNIEnv *env, jclass class, jstring foo)
+{
+    JavaVM *jvm;
+    jsize nVMs;
+    JNI_GetCreatedJavaVMs(&jvm, 1, &nVMs);
+
+    pyembed_shutdown(jvm);
 }
 
 /*

@@ -71,6 +71,10 @@ public final class MainInterpreter implements AutoCloseable {
 
     private static String jepLibraryPath = null;
 
+    private static int interpreterCount = 0;
+
+    private static final Object lock = new Object();
+
     private Thread thread;
 
     private BlockingQueue<String> importQueue = new SynchronousQueue<>();
@@ -81,6 +85,7 @@ public final class MainInterpreter implements AutoCloseable {
 
     private MainInterpreter() {
         // only this class can instantiate it
+        System.out.println("Making new interpreter!!\n\n");
     }
 
     /**
@@ -109,6 +114,41 @@ public final class MainInterpreter implements AutoCloseable {
                     instance.error);
         }
         return instance;
+    }
+
+    protected static void incrementInterpreterCount() {
+        synchronized (lock) {
+            interpreterCount++;
+        }
+    }
+
+    protected static void decrementInterpreterCount() {
+        synchronized (lock) {
+            interpreterCount--;
+        }
+    }
+
+    public static boolean recycle(boolean resetConfig) {
+        synchronized (lock) {
+            if (interpreterCount > 0) {
+                return false;
+            }
+            if (instance != null) {
+                if (instance.thread != null) {
+                    MainInterpreter.shutdownPython("foo");
+                    instance.thread.interrupt();
+                }
+                instance.importQueue = null;
+                instance.importResults = null;
+                instance = null;
+            }
+            if (resetConfig) {
+                pyConfig = null;
+                sharedModulesArgv = null;
+                jepLibraryPath = null;
+            }
+            return true;
+        }
     }
 
     /**
@@ -165,6 +205,8 @@ public final class MainInterpreter implements AutoCloseable {
                         String nextImport = importQueue.take();
                         Object result = nextImport;
                         try {
+                            System.out.println("JAVA SHARED IMPORT internal" + nextImport);
+
                             MainInterpreter.sharedImportInternal(nextImport);
                         } catch (JepException e) {
                             result = e;
@@ -204,6 +246,7 @@ public final class MainInterpreter implements AutoCloseable {
      */
     public void sharedImport(String module) throws JepException {
         try {
+            System.out.println("JAVA SHARED IMPORT " + module);
             importQueue.put(module);
             Object result = importResults.take();
             if (result instanceof JepException) {
@@ -290,11 +333,13 @@ public final class MainInterpreter implements AutoCloseable {
     }
 
     private static native void setInitParams(int noSiteFlag,
-            int noUserSiteDiretory, int ignoreEnvironmentFlag, int verboseFlag,
+            int noUserSiteDirectory, int ignoreEnvironmentFlag, int verboseFlag,
             int optimizeFlag, int dontWriteBytecodeFlag,
             int hashRandomizationFlag, String pythonHome);
 
     private static native void initializePython(String[] mainInterpreterArgv);
+
+    private static native void shutdownPython(String foo);
 
     private static native void sharedImportInternal(String module)
             throws JepException;

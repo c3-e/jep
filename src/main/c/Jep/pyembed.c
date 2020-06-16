@@ -578,6 +578,27 @@ int pyembed_is_version_unsafe(void)
     return 0;
 }
 
+//void pyembed_shutdown(JavaVM *vm)
+//{
+//    JNIEnv *env;
+//
+//    // shut down python first
+//    PyEval_AcquireThread(mainThreadState);
+//    Py_Finalize();
+//
+//    if ((*vm)->GetEnv(vm, (void **) &env, JNI_VERSION_1_6) != JNI_OK) {
+//        // failed to get a JNIEnv*, we can hope it's just shutting down fast
+//        return;
+//    } else {
+//        // delete global references
+//        unref_cache_primitive_classes(env);
+//        unref_cache_frequent_classes(env);
+//        Py_XDECREF(PyImport_ImportModule("sys"));
+//        Py_XDECREF(mainThreadModulesLock);
+//        Py_XDECREF(mainThreadModules);
+//        PyImport_Cleanup();
+//    }
+//}
 
 void pyembed_shutdown(JavaVM *vm)
 {
@@ -612,6 +633,7 @@ void pyembed_shared_import(JNIEnv *env, jstring module)
 
     pymodule = PyImport_ImportModule(moduleName);
     if (pymodule) {
+        PyImport_ReloadModule(pymodule);
         Py_DECREF(pymodule);
     } else {
         process_py_exception(env);
@@ -702,6 +724,7 @@ intptr_t pyembed_thread_init(JNIEnv *env, jobject cl, jobject caller,
         THROW_JEP(env, "Invalid Classloader.");
         return 0;
     }
+    printf("INIT IN C");
 
 
     /*
@@ -714,11 +737,18 @@ intptr_t pyembed_thread_init(JNIEnv *env, jobject cl, jobject caller,
         THROW_JEP(env, "Out of memory.");
         return 0;
     }
-
+    printf("INIT IN C 2");
+    fflush(stdout);
     if (usesubinterpreter) {
+        printf("INIT IN C 3");
+    fflush(stdout);
         PyEval_AcquireThread(mainThreadState);
+        printf("INIT IN C 4");
+    fflush(stdout);
 
         jepThread->tstate = Py_NewInterpreter();
+        printf("INIT IN C 5");
+        fflush(stdout);
 #if PY_MAJOR_VERSION < 3
         if (hasSharedModules) {
             shareBuiltins(jepThread);

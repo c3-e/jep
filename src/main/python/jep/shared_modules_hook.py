@@ -105,6 +105,7 @@ class JepSharedModuleImporter(object):
         self.moduleList = list(moduleList)
         self.sharedImporter = sharedImporter
         if sys.version_info.major <= 2:
+            exit(1)
             # Python 2 will deadlock if you attempt to switch threads and import
             # during an import so instead preemptively import everything shared
             # https://docs.python.org/2/library/threading.html#threaded-imports
@@ -114,6 +115,8 @@ class JepSharedModuleImporter(object):
                     self.sharedImporter.sharedImport(module)
 
     def find_module(self, fullname, path=None):
+        if 'numpy' in fullname:
+            print("{} Finding MODULE: " + fullname, self)
         if fullname in self.moduleList:
             return self
         for moduleName in self.moduleList:
@@ -122,9 +125,12 @@ class JepSharedModuleImporter(object):
         return None
 
     def load_module(self, fullname):
+        if 'numpy' in fullname:
+            print("{} loading MODULE: " + fullname, self)
         if fullname not in sys.modules:
             from _jep import mainInterpreterModules, mainInterpreterModulesLock
             with mainInterpreterModulesLock:
+                print("in mainInterpreterModulesLock. modulesList " + str(self.moduleList) + "\nmainInterpreterModules " + str(mainInterpreterModules))
                 if fullname not in mainInterpreterModules and sys.version_info.major > 2:
                     self.sharedImporter.sharedImport(fullname)
                 # Must copy all modules or relative imports will be broken
@@ -135,6 +141,7 @@ class JepSharedModuleImporter(object):
         return sys.modules[fullname]
 
     def unload_modules(self):
+        print("UNLOADING MODULES: " + str(self.moduleList))
         for moduleName in self.moduleList:
             for key in set(sys.modules):
                 if key == moduleName or key.startswith(moduleName + "."):
@@ -142,13 +149,26 @@ class JepSharedModuleImporter(object):
 
 
 def setupImporter(moduleList, sharedImporter):
-    for importer in sys.meta_path:
+    jep_importer_indices = []
+    for i, importer in enumerate(sys.meta_path):
         if isinstance(importer, JepSharedModuleImporter):
-            return
+            jep_importer_indices.append(i)
+    if len(jep_importer_indices) > 0:
+        for i in jep_importer_indices[::-1]:
+            a = sys.meta_path.pop(i)
+            del a
     sys.meta_path.insert(0,JepSharedModuleImporter(moduleList, sharedImporter))
+    # sys.meta_path.append(JepSharedModuleImporter(moduleList, sharedImporter))
 
 
 def teardownImporter():
-    for importer in sys.meta_path:
+    print("TEARDOWN " + str(sys.meta_path))
+    jep_importer_indices = []
+    for i, importer in enumerate(sys.meta_path):
         if isinstance(importer, JepSharedModuleImporter):
+            jep_importer_indices.append(i)
             importer.unload_modules()
+    if len(jep_importer_indices) > 0:
+        for i in jep_importer_indices[::-1]:
+            a = sys.meta_path.pop(i)
+            del a
