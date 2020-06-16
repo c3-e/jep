@@ -1,7 +1,7 @@
 /*
    jep - Java Embedded Python
 
-   Copyright (c) 2004-2019 JEP AUTHORS.
+   Copyright (c) 2016-2019 JEP AUTHORS.
 
    This file is licensed under the the zlib/libpng License.
 
@@ -25,32 +25,17 @@
    distribution.
 */
 
-/*
- * A PyJC3ClassObject is a PyJC3Object with a __call__ method attached, where
- * the call method can invoke the Java object's constructors.
- */
-
 #include "jep_platform.h"
-#include "pyjc3object.h"
-#ifndef _Included_pyjc3class
-#define _Included_pyjc3class
+#include "pyjc3method.h"
 
-extern PyTypeObject PyJC3Class_Type;
+#ifndef _Included_pyjc3constructor
+#define _Included_pyjc3constructor
 
-typedef struct {
-    PyObject_HEAD
-    PyJC3Object_FIELDS
-    /*
-     * A python callable, either a PyJC3Constructor or PyJC3MultiMethod with many
-     * PyJC3Constructors
-     */
-    PyObject  *constructor;
-} PyJC3ClassObject;
+extern PyTypeObject PyJC3Constructor_Type;
 
-PyObject* PyJC3Class_Wrap(JNIEnv*, jobject);
+/* Second arg must be a java.lang.reflect.Constructor */
+PyObject* PyJC3Constructor_New(JNIEnv*, jobject);
 
-#define PyJC3Class_Check(pyobj) \
-    PyObject_TypeCheck(pyobj, &PyJC3Class_Type)
+int PyJC3Constructor_Check(PyObject*);
 
-
-#endif // ndef pyjc3class
+#endif // ndef pyjc3constructor

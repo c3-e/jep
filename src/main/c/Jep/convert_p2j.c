@@ -60,10 +60,12 @@ static void raiseTypeError(JNIEnv *env, PyObject *pyobject, jclass expectedType)
         return;
     }
     expTypeName = (*env)->GetStringUTFChars(env, expTypeJavaName, 0);
-    if (PyJClass_Check(pyobject)) {
+    if (PyJClass_Check(pyobject) || PyJC3Class_Check(pyobject)) {
         actTypeName = "java.lang.Class";
     } else if (PyJObject_Check(pyobject)) {
         actTypeName = PyString_AsString(((PyJObject*) pyobject)->javaClassName);
+    } else if (PyJC3Object_Check(pyobject)) {
+             actTypeName = PyString_AsString(((PyJC3Object*) pyobject)->javaClassName);
     } else {
         actTypeName = pyobject->ob_type->tp_name;
     }
@@ -1110,32 +1112,24 @@ jobject PyObject_As_jobject(JNIEnv *env, PyObject *pyobject,
     if (pyobject == Py_None) {
         return NULL;
     } else if (PyJClass_Check(pyobject)) {
-        if (PyObject_TypeCheck(pyobject, &PyJC3Object_Type)) {
-            if ((*env)->IsAssignableFrom(env, JCLASS_TYPE, expectedType)) {
-                return (*env)->NewLocalRef(env, ((PyJC3Object *) pyobject)->clazz);
-            }
-        } else {
-            if ((*env)->IsAssignableFrom(env, JCLASS_TYPE, expectedType)) {
-                return (*env)->NewLocalRef(env, ((PyJObject *) pyobject)->clazz);
-            }
-        }
+        return (*env)->NewLocalRef(env, ((PyJObject *) pyobject)->clazz);
+    } else if (PyJC3Class_Check(pyobject)) {
+        return (*env)->NewLocalRef(env, ((PyJC3Object *) pyobject)->clazz);
     } else if (pyjarray_check(pyobject)) {
         PyJObject *pyjarray = (PyJObject *) pyobject;
         if ((*env)->IsAssignableFrom(env, pyjarray->clazz, expectedType)) {
             pyjarray_release_pinned((PyJArrayObject *) pyjarray, JNI_COMMIT);
             return (*env)->NewLocalRef(env, pyjarray->object);
         }
+    } else if (PyJC3Object_Check(pyobject)) {
+        PyJC3Object *pyjobject = (PyJC3Object*) pyobject;
+        if ((*env)->IsAssignableFrom(env, pyjobject->clazz, expectedType)) {
+            return (*env)->NewLocalRef(env, pyjobject->object);
+        }
     } else if (PyJObject_Check(pyobject)) {
-        if (PyObject_TypeCheck(pyobject, &PyJC3Object_Type)) {
-            PyJC3Object *pyjobject = (PyJC3Object*) pyobject;
-            if ((*env)->IsAssignableFrom(env, pyjobject->clazz, expectedType)) {
-                return (*env)->NewLocalRef(env, pyjobject->object);
-            }
-        } else {
-            PyJObject *pyjobject = (PyJObject*) pyobject;
-            if ((*env)->IsAssignableFrom(env, pyjobject->clazz, expectedType)) {
-                return (*env)->NewLocalRef(env, pyjobject->object);
-            }
+        PyJObject *pyjobject = (PyJObject*) pyobject;
+        if ((*env)->IsAssignableFrom(env, pyjobject->clazz, expectedType)) {
+            return (*env)->NewLocalRef(env, pyjobject->object);
         }
     } else if ((*env)->IsSameObject(env, expectedType, JPYOBJECT_TYPE)) {
         return PyObject_As_JPyObject(env, pyobject);

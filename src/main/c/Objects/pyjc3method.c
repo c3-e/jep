@@ -34,26 +34,26 @@
 #include "structmember.h"
 
 
-// called internally to make new PyJMethodObject instances.
+// called internally to make new PyJC3MethodObject instances.
 // throws python exception and returns NULL on error.
-PyJMethodObject* PyJMethod_New(JNIEnv *env, jobject rmethod)
+PyJC3MethodObject* PyJC3Method_New(JNIEnv *env, jobject rmethod)
 {
     jstring          jname  = NULL;
     PyObject        *pyname = NULL;
-    PyJMethodObject *pym    = NULL;
+    PyJC3MethodObject *pym    = NULL;
 
-    if (PyType_Ready(&PyJMethod_Type) < 0) {
+    if (PyType_Ready(&PyJC3Method_Type) < 0) {
         return NULL;
     }
 
-    jname = java_lang_reflect_Member_getName(env, rmethod);
+    jname = C3_JepInterface_getName(env, rmethod);
     if (process_java_exception(env) || !jname) {
         return NULL;
     }
     pyname = jstring_As_PyString(env, jname);
     (*env)->DeleteLocalRef(env, jname);
 
-    pym                = PyObject_NEW(PyJMethodObject, &PyJMethod_Type);
+    pym                = PyObject_NEW(PyJC3MethodObject, &PyJC3Method_Type);
     pym->rmethod       = (*env)->NewGlobalRef(env, rmethod);
     pym->parameters    = NULL;
     pym->lenParameters = -1;
@@ -65,7 +65,7 @@ PyJMethodObject* PyJMethod_New(JNIEnv *env, jobject rmethod)
 }
 
 // 1 if successful, 0 if failed.
-static int pyjmethod_init(JNIEnv *env, PyJMethodObject *self)
+static int pyjc3method_init(JNIEnv *env, PyJC3MethodObject *self)
 {
     jobject           returnType             = NULL;
     jobjectArray      paramArray             = NULL;
@@ -79,7 +79,7 @@ static int pyjmethod_init(JNIEnv *env, PyJMethodObject *self)
 
     self->methodId = (*env)->FromReflectedMethod(env, self->rmethod);
 
-    returnType = java_lang_reflect_Method_getReturnType(env, self->rmethod);
+    returnType = C3_JepInterface_getReturnType(env, self->rmethod);
     if (process_java_exception(env) || !returnType) {
         goto EXIT_ERROR;
     }
@@ -89,7 +89,7 @@ static int pyjmethod_init(JNIEnv *env, PyJMethodObject *self)
         goto EXIT_ERROR;
     }
 
-    paramArray = java_lang_reflect_Method_getParameterTypes(env, self->rmethod);
+    paramArray = C3_JepInterface_getParameterTypes(env, self->rmethod);
     if (process_java_exception(env) || !paramArray) {
         goto EXIT_ERROR;
     }
@@ -98,12 +98,12 @@ static int pyjmethod_init(JNIEnv *env, PyJMethodObject *self)
     self->lenParameters = (*env)->GetArrayLength(env, paramArray);
 
 
-    modifier = java_lang_reflect_Member_getModifiers(env, self->rmethod);
+    modifier = C3_JepInterface_getMemberModifiers(env, self->rmethod);
     if (process_java_exception(env)) {
         goto EXIT_ERROR;
     }
 
-    isStatic = java_lang_reflect_Modifier_isStatic(env, modifier);
+    isStatic = C3_JepInterface_isStatic(env, modifier);
     if (process_java_exception(env)) {
         goto EXIT_ERROR;
     }
@@ -127,7 +127,7 @@ EXIT_ERROR:
 }
 
 
-static void pyjmethod_dealloc(PyJMethodObject *self)
+static void pyjc3method_dealloc(PyJC3MethodObject *self)
 {
 #if USE_DEALLOC
     JNIEnv *env  = pyembed_get_env();
@@ -147,27 +147,27 @@ static void pyjmethod_dealloc(PyJMethodObject *self)
 }
 
 
-int PyJMethod_Check(PyObject *obj)
+int PyJC3Method_Check(PyObject *obj)
 {
-    return PyObject_TypeCheck(obj, &PyJMethod_Type);
+    return PyObject_TypeCheck(obj, &PyJC3Method_Type);
 }
 
-int PyJMethod_GetParameterCount(PyJMethodObject *method, JNIEnv *env)
+int PyJC3Method_GetParameterCount(PyJC3MethodObject *method, JNIEnv *env)
 {
-    if (!method->parameters && !pyjmethod_init(env, method)) {
+    if (!method->parameters && !pyjc3method_init(env, method)) {
         return -1;
     }
     return method->lenParameters;
 }
 
 
-int PyJMethod_CheckArguments(PyJMethodObject* method, JNIEnv *env,
+int PyJC3Method_CheckArguments(PyJC3MethodObject* method, JNIEnv *env,
                              PyObject* args)
 {
     int matchTotal = 1;
     int parampos;
 
-    if (PyJMethod_GetParameterCount(method, env) != (PyTuple_Size(args) - 1)) {
+    if (PyJC3Method_GetParameterCount(method, env) != (PyTuple_Size(args) - 1)) {
         return 0;
     }
 
@@ -201,14 +201,14 @@ int PyJMethod_CheckArguments(PyJMethodObject* method, JNIEnv *env,
     return matchTotal;
 }
 
-// pyjmethod_call. where the magic happens.
+// pyjc3method_call. where the magic happens.
 //
 // okay, some of the magic -- we already the methodId, so we don't have
 // to reflect. we just have to parse the arguments from python,
 // check them against the java args, and call the java function.
 //
 // easy. :-)
-static PyObject* pyjmethod_call(PyJMethodObject *self,
+static PyObject* pyjc3method_call(PyJC3MethodObject *self,
                                 PyObject *args,
                                 PyObject *keywords)
 {
@@ -218,7 +218,7 @@ static PyObject* pyjmethod_call(PyJMethodObject *self,
     /* The number of normal arguments before any varargs */
     int            lenJArgsNormal   = 0;
     PyObject      *firstArg         = NULL;
-    PyJObject     *instance         = NULL;
+    PyJC3Object     *instance         = NULL;
     PyObject      *result           = NULL;
     int            pos              = 0;
     jvalue        *jargs            = NULL;
@@ -232,13 +232,13 @@ static PyObject* pyjmethod_call(PyJMethodObject *self,
     lenPyArgsGiven = PyTuple_Size(args);
 
     env = pyembed_get_env();
-    lenJArgsExpected = PyJMethod_GetParameterCount(self, env);
+    lenJArgsExpected = PyJC3Method_GetParameterCount(self, env);
     if (lenJArgsExpected == -1) {
         return NULL;
     }
     /* Python gives one more arg than java expects for self/this. */
     if (lenJArgsExpected != lenPyArgsGiven - 1) {
-        jboolean varargs = java_lang_reflect_Method_isVarArgs(env, self->rmethod);
+        jboolean varargs = C3_JepInterface_isVarArgs(env, self->rmethod);
         if (process_java_exception(env)) {
             return NULL;
         }
@@ -257,13 +257,13 @@ static PyObject* pyjmethod_call(PyJMethodObject *self,
     }
 
     firstArg = PyTuple_GetItem(args, 0);
-    if (!PyJObject_Check(firstArg)) {
+    if (!PyJC3Object_Check(firstArg)) {
         PyErr_SetString(PyExc_RuntimeError,
                         "First argument to a java method must be a java object.");
         return NULL;
 
     }
-    instance = (PyJObject*) firstArg;
+    instance = (PyJC3Object*) firstArg;
 
     // validate we can call this method
     if (!instance->object && self->isStatic != JNI_TRUE) {
@@ -303,7 +303,7 @@ static PyObject* pyjmethod_call(PyJMethodObject *self,
         if (PyErr_Occurred()) {
             if (pos == (lenJArgsExpected - 1)
                     && PyErr_ExceptionMatches(PyExc_TypeError)) {
-                jboolean varargs = java_lang_reflect_Method_isVarArgs(env, self->rmethod);
+                jboolean varargs = C3_JepInterface_isVarArgs(env, self->rmethod);
                 if ((*env)->ExceptionOccurred(env)) {
                     /* Cannot convert to python since there is already a python exception */
                     (*env)->ExceptionClear(env);
@@ -447,7 +447,7 @@ static PyObject* pyjmethod_call(PyJMethodObject *self,
 
         Py_END_ALLOW_THREADS;
         if (!process_java_exception(env) && obj != NULL) {
-            result = PyJClass_Wrap(env, obj);
+            result = PyJC3Class_Wrap(env, obj);
         }
 
         break;
@@ -780,21 +780,21 @@ EXIT_ERROR:
     return NULL;
 }
 
-static PyMemberDef pyjmethod_members[] = {
+static PyMemberDef pyjc3method_members[] = {
     {
-        "__name__", T_OBJECT_EX, offsetof(PyJMethodObject, pyMethodName), READONLY,
+        "__name__", T_OBJECT_EX, offsetof(PyJC3MethodObject, pyMethodName), READONLY,
         "method name"
     },
     {NULL}  /* Sentinel */
 };
 
 
-PyTypeObject PyJMethod_Type = {
+PyTypeObject PyJC3Method_Type = {
     PyVarObject_HEAD_INIT(NULL, 0)
-    "jep.PyJMethod",
-    sizeof(PyJMethodObject),
+    "jep.PyJC3Method",
+    sizeof(PyJC3MethodObject),
     0,
-    (destructor) pyjmethod_dealloc,           /* tp_dealloc */
+    (destructor) pyjc3method_dealloc,           /* tp_dealloc */
     0,                                        /* tp_print */
     0,                                        /* tp_getattr */
     0,                                        /* tp_setattr */
@@ -804,13 +804,13 @@ PyTypeObject PyJMethod_Type = {
     0,                                        /* tp_as_sequence */
     0,                                        /* tp_as_mapping */
     0,                                        /* tp_hash  */
-    (ternaryfunc) pyjmethod_call,             /* tp_call */
+    (ternaryfunc) pyjc3method_call,             /* tp_call */
     0,                                        /* tp_str */
     0,                                        /* tp_getattro */
     0,                                        /* tp_setattro */
     0,                                        /* tp_as_buffer */
     Py_TPFLAGS_DEFAULT,                       /* tp_flags */
-    "jmethod",                                /* tp_doc */
+    "Python Java Method",                                /* tp_doc */
     0,                                        /* tp_traverse */
     0,                                        /* tp_clear */
     0,                                        /* tp_richcompare */
@@ -818,7 +818,7 @@ PyTypeObject PyJMethod_Type = {
     0,                                        /* tp_iter */
     0,                                        /* tp_iternext */
     0,                                        /* tp_methods */
-    pyjmethod_members,                        /* tp_members */
+    pyjc3method_members,                        /* tp_members */
     0,                                        /* tp_getset */
     0,                                        /* tp_base */
     0,                                        /* tp_dict */

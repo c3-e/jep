@@ -64,18 +64,18 @@ static int pyjc3object_init(JNIEnv *env, PyJC3Object *pyjob)
      * cached in memory.
      *
      * Previously every time you instantiate a PyJC3Object, Jep would get the
-     * complete list of methods through reflection, turn them into PyJMethods,
+     * complete list of methods through reflection, turn them into PyJC3Methods,
      * and add them as attributes to the PyJC3Object.
      *
      * Now Jep retains a Python dictionary in memory with a key of the fully
-     * qualified Java classname to a list of PyJMethods and PyJMultiMethods.
+     * qualified Java classname to a list of PyJC3Methods and PyJC3MultiMethods.
      * Since the Java methods will never change at runtime for a particular
      * Class, this is safe and drastically speeds up PyJC3Object instantiation
      * by reducing reflection calls. We continue to set and reuse the
-     * PyJMethods and PyJMultiMethods attributes on the PyJC3Object instance,
-     * but if pyjc3object_getattro sees a PyJMethod or PyJMultiMethod, it will
+     * PyJC3Methods and PyJC3MultiMethods attributes on the PyJC3Object instance,
+     * but if pyjc3object_getattro sees a PyJC3Method or PyJC3MultiMethod, it will
      * put it inside a PyMethod and return that, enabling the reuse of the
-     * PyJMethod or PyJMultiMethod for this particular object instance.
+     * PyJC3Method or PyJC3MultiMethod for this particular object instance.
      *
      * We have the GIL at this point, so we can safely assume we're
      * synchronized and multiple threads will not alter the dictionary at the
@@ -113,26 +113,26 @@ static int pyjc3object_init(JNIEnv *env, PyJC3Object *pyjob)
         }
 
         /*
-         * For each method, create a new PyJMethod object and either add it to
-         * the cached methods list or a PyJMultiMethod.
+         * For each method, create a new PyJC3Method object and either add it to
+         * the cached methods list or a PyJC3MultiMethod.
          */
         len = (*env)->GetArrayLength(env, methodArray);
         for (i = 0; i < len; i++) {
-            PyJMethodObject *pymethod = NULL;
+            PyJC3MethodObject *pymethod = NULL;
             // jobject rmethod = NULL;
             jobject c3method = NULL;
             c3method = (*env)->GetObjectArrayElement(env, methodArray, i);
-            // pymethod = PyJMethod_New(env, rmethod);
+            // pymethod = PyJC3Method_New(env, rmethod);
             pymethod = PyJC3Method_New(env, c3method);
             if (!pymethod) {
                 continue;
             }
 
             /*
-             * For every method of this name, check to see if a PyJMethod or
-             * PyJMultiMethod is already in the cache with the same name. If
-             * so, turn it into a PyJMultiMethod or add it to the existing
-             * PyJMultiMethod.
+             * For every method of this name, check to see if a PyJC3Method or
+             * PyJC3MultiMethod is already in the cache with the same name. If
+             * so, turn it into a PyJC3MultiMethod or add it to the existing
+             * PyJC3MultiMethod.
              */
             if (pymethod->pyMethodName && PyString_Check(pymethod->pyMethodName)) {
                 PyObject* cached = PyDict_GetItem(cachedAttrs, pymethod->pyMethodName);
@@ -141,12 +141,12 @@ static int pyjc3object_init(JNIEnv *env, PyJC3Object *pyjob)
                                        (PyObject*) pymethod) != 0) {
                         goto EXIT_ERROR;
                     }
-                } else if (PyJMethod_Check(cached)) {
-                    PyObject* multimethod = PyJMultiMethod_New((PyObject*) pymethod, cached);
+                } else if (PyJC3Method_Check(cached)) {
+                    PyObject* multimethod = PyJC3MultiMethod_New((PyObject*) pymethod, cached);
                     PyDict_SetItem(cachedAttrs, pymethod->pyMethodName, multimethod);
                     Py_DECREF(multimethod);
-                } else if (PyJMultiMethod_Check(cached)) {
-                    PyJMultiMethod_Append(cached, (PyObject*) pymethod);
+                } else if (PyJC3MultiMethod_Check(cached)) {
+                    PyJC3MultiMethod_Append(cached, (PyObject*) pymethod);
                 }
             }
 
@@ -199,7 +199,7 @@ static int pyjc3object_init(JNIEnv *env, PyJC3Object *pyjob)
         Py_INCREF(cachedAttrs);
         pyjob->attr = cachedAttrs;
     } else {
-        /* PyJClass may add additional attributes so use a copy */
+        /* PyJC3Class may add additional attributes so use a copy */
         pyjob->attr = PyDict_Copy(cachedAttrs);
     }
 
@@ -221,7 +221,7 @@ PyObject* PyJC3Object_New(JNIEnv *env, PyTypeObject* type, jobject obj,
     if (obj) {
         pyjob->object = (*env)->NewGlobalRef(env, obj);
     } else {
-        /* THis should only happen for pyjclass*/
+        /* THis should only happen for pyjc3class*/
         pyjob->object = NULL;
     }
     if (class) {
@@ -293,7 +293,7 @@ static PyObject* pyjc3object_richcompare(PyJC3Object *self,
         target = self->object;
         other_target = other->object;
 
-        // lack of object indicates it's a pyjclass
+        // lack of object indicates it's a pyjc3class
         if (!target) {
             target = self->clazz;
         }
@@ -410,9 +410,9 @@ static PyObject* pyjc3object_getattro(PyObject *obj, PyObject *name)
     PyObject *ret = PyObject_GenericGetAttr(obj, name);
     if (ret == NULL) {
         return NULL;
-    } else if (PyJMethod_Check(ret) || PyJMultiMethod_Check(ret)) {
+    } else if (PyJC3Method_Check(ret) || PyJC3MultiMethod_Check(ret)) {
         /*
-         * TODO Should not bind non-static methods to pyjclass objects, but not
+         * TODO Should not bind non-static methods to pyjc3class objects, but not
          * sure yet how to handle multimethods and static methods.
          */
 #if PY_MAJOR_VERSION >= 3
@@ -456,7 +456,7 @@ static int pyjc3object_setattro(PyJC3Object *obj, PyObject *name, PyObject *v)
     }
 
     if (!PyJField_Check(cur)) {
-        if (PyJMethod_Check(cur) || PyJMultiMethod_Check(cur)) {
+        if (PyJC3Method_Check(cur) || PyJC3MultiMethod_Check(cur)) {
             PyErr_Format(PyExc_AttributeError, "'%s' object cannot assign to method '%s'.",
                          PyString_AsString(obj->javaClassName), PyString_AsString(name));
         } else {
@@ -507,7 +507,7 @@ static PyObject* pyjc3object_synchronized(PyObject* self, PyObject* args)
         // PyJC3Object
         monitor = PyJMonitor_New(thisObj->object);
     } else {
-        // PyJClass
+        // PyJC3Class
         monitor = PyJMonitor_New(thisObj->clazz);
     }
 

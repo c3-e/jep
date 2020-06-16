@@ -511,7 +511,7 @@ int pyarg_matches_jtype(JNIEnv *env,
         case JCLASS_ID:
             return 1;
         }
-    } else if (PyJClass_Check(param)) {
+    } else if (PyJClass_Check(param) || PyJC3Class_Check(param)) {
         switch (paramTypeId) {
         case JCLASS_ID:
             return 2;
@@ -522,7 +522,7 @@ int pyarg_matches_jtype(JNIEnv *env,
                 return 1;
             }
         }
-    } else if (PyJObject_Check(param)) {
+    } else if (PyJObject_Check(param) || PyJC3Object_Check(param)) {
         switch (paramTypeId) {
         case JARRAY_ID:
         case JOBJECT_ID:

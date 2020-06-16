@@ -188,7 +188,7 @@ jboolean C3_JepInterface_isC3Class(JNIEnv* env, jclass this)
 {
     jboolean result = JNI_FALSE;
     Py_BEGIN_ALLOW_THREADS
-    if (JNI_STATIC_METHOD(isC3Class, env, C3_JEPINTERFACE_TYPE, "isC3Class", "()Z")) {
+    if (JNI_STATIC_METHOD(isC3Class, env, C3_JEPINTERFACE_TYPE, "isC3Class", "(Ljava/lang/Class;)Z")) {
         result = (*env)->CallStaticBooleanMethod(env, C3_JEPINTERFACE_TYPE, isC3Class, this);
     }
     Py_END_ALLOW_THREADS

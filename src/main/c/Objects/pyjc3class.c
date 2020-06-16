@@ -34,7 +34,7 @@
  * intended to only be called from pyjc3class_add_inner_classes().
  *
  * @param env the JNI environment
- * @param topClz the pyjobject of the top/outer Class
+ * @param topClz the pyjc3object of the top/outer Class
  * @param innerClz the jclass of the inner class
  *
  * @return NULL on errors, topClz if there are no errors
@@ -87,7 +87,7 @@ static PyObject* pyjc3class_add_inner_class(JNIEnv *env, PyJC3ClassObject *topCl
  * Adds a Java class's public inner classes as attributes to the pyjc3class.
  *
  * @param env the JNI environment
- * @param topClz the pyjobject of the top/outer Class
+ * @param topClz the pyjc3object of the top/outer Class
  *
  * @return topClz if successful, otherwise NULL
  */
@@ -211,7 +211,7 @@ static int pyjc3class_init_constructors(PyJC3ClassObject *pyc)
         if (process_java_exception(env) || !constructor) {
             goto EXIT_ERROR;
         }
-        pyjinit = PyJConstructor_New(env, constructor);
+        pyjinit = PyJC3Constructor_New(env, constructor);
         if (pyjinit == NULL) {
             goto EXIT_ERROR;
         }
@@ -221,14 +221,14 @@ static int pyjc3class_init_constructors(PyJC3ClassObject *pyc)
             pycallable = pyjinit;
         } else if (i == 1) {
             PyObject* firstInit = pycallable;
-            pycallable = PyJMultiMethod_New(firstInit, pyjinit);//TOM YOU ARE HERE
+            pycallable = PyJC3MultiMethod_New(firstInit, pyjinit);//TOM YOU ARE HERE
             Py_DECREF(firstInit);
             Py_DECREF(pyjinit);
             if (pycallable == NULL) {
                 goto EXIT_ERROR;
             }
         } else {
-            if (PyJMultiMethod_Append(pycallable, pyjinit) == -1) {
+            if (PyJC3MultiMethod_Append(pycallable, pyjinit) == -1) {
                 Py_DECREF(pyjinit);
                 goto EXIT_ERROR;
             }
@@ -250,7 +250,7 @@ EXIT_ERROR:
     return -1;
 }
 
-// call constructor as a method and return pyjobject.
+// call constructor as a method and return pyjc3object.
 static PyObject* pyjc3class_call(PyJC3ClassObject *self,
                                PyObject *args,
                                PyObject *keywords)
@@ -313,7 +313,7 @@ PyTypeObject PyJC3Class_Type = {
     0,                                        /* tp_methods */
     0,                                        /* tp_members */
     0,                                        /* tp_getset */
-    0, // &PyJObject_Type                     /* tp_base */
+    0, // &PyJC3Object_Type                     /* tp_base */
     0,                                        /* tp_dict */
     0,                                        /* tp_descr_get */
     0,                                        /* tp_descr_set */

@@ -34,10 +34,10 @@
 extern PyTypeObject PyJC3Object_Type;
 
 /*
- * The common fields for PyJObject. The usage of this macro is similar to
- * PyObject_HEAD. Any type which extends PyJObject and requires additional
+ * The common fields for PyJC3Object. The usage of this macro is similar to
+ * PyObject_HEAD. Any type which extends PyJC3Object and requires additional
  * fields must start the struct definition with PyObject_HEAD followed
- * immediatly by PyJObject_FIELDS and then any custom fields for the subtype.
+ * immediatly by PyJC3Object_FIELDS and then any custom fields for the subtype.
  *
  * These fields are the JNI objects for the Java object and the Class of that
  * object. As well as a Python dict for the attributes and a Python string
@@ -55,7 +55,7 @@ typedef struct {
 } PyJC3Object;
 
 /*
- * Create a new instance of PyJObject or one of it's subtypes that wraps
+ * Create a new instance of PyJC3Object or one of it's subtypes that wraps
  * the object provided. If the class of the object is known it can be passed
  * in, or the final argument can be NULL and this function will figure it out.
  */
@@ -64,8 +64,8 @@ PyObject* PyJC3Object_New(JNIEnv*, PyTypeObject*, jobject, jclass);
 #define PyJC3Object_Wrap(env, jobj, jcls) \
     PyJC3Object_New(env, &PyJC3Object_Type, jobj, jcls)
 
-#define PyJObject_Check(pyobj) \
-    PyObject_TypeCheck(pyobj, &PyJC3Object_Type) || PyObject_TypeCheck(pyobj, &PyJObject_Type) // TODO TOMMY MAKE SURE THIS IS RIGHT
+#define PyJC3Object_Check(pyobj) \
+    PyObject_TypeCheck(pyobj, &PyJC3Object_Type)
 
 
-#endif // ndef pyjobject
+#endif // ndef pyjc3object

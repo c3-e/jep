@@ -1,7 +1,7 @@
 /*
    jep - Java Embedded Python
 
-   Copyright (c) 2004-2019 JEP AUTHORS.
+   Copyright (c) 2015-2019 JEP_AUTHORS.
 
    This file is licensed under the the zlib/libpng License.
 
@@ -25,32 +25,32 @@
    distribution.
 */
 
-/*
- * A PyJC3ClassObject is a PyJC3Object with a __call__ method attached, where
- * the call method can invoke the Java object's constructors.
- */
-
 #include "jep_platform.h"
 #include "pyjc3object.h"
-#ifndef _Included_pyjc3class
-#define _Included_pyjc3class
+#include "pyjc3method.h"
+#include "pyjc3object.h"
+#ifndef _Included_pyjc3multimethod
+#define _Included_pyjc3multimethod
 
-extern PyTypeObject PyJC3Class_Type;
+
+extern PyTypeObject PyJC3MultiMethod_Type;
 
 typedef struct {
     PyObject_HEAD
-    PyJC3Object_FIELDS
-    /*
-     * A python callable, either a PyJC3Constructor or PyJC3MultiMethod with many
-     * PyJC3Constructors
-     */
-    PyObject  *constructor;
-} PyJC3ClassObject;
+    PyObject* methodList;
+} PyJC3MultiMethodObject;
 
-PyObject* PyJC3Class_Wrap(JNIEnv*, jobject);
+/*
+ * Both args must be PyJC3MethodObjects. A minimum of 2 methods is required to
+ * make a PyJC3MultiMethod, after creation it is possible to add more than two
+ * methods using PyJC3MultiMethod_Append.
+ */
+PyObject* PyJC3MultiMethod_New(PyObject*, PyObject*);
+/* Args must be a PyJC3MultiMethodObject and a PyJC3MethodObject */
+int PyJC3MultiMethod_Append(PyObject*, PyObject*);
+/* Check if the arg is a PyJC3MultiMethodObject */
+int PyJC3MultiMethod_Check(PyObject*);
+/* Get the name of a PyJC3MultiMethodObject, returns a new reference to the name */
+PyObject* PyJC3MultiMethod_GetName(PyObject*);
 
-#define PyJC3Class_Check(pyobj) \
-    PyObject_TypeCheck(pyobj, &PyJC3Class_Type)
-
-
-#endif // ndef pyjc3class
+#endif // ndef pyjc3multimethod

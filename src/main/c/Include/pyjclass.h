@@ -50,4 +50,7 @@ typedef struct {
 
 PyObject* PyJClass_Wrap(JNIEnv*, jobject);
 
+#define PyJClass_Check(pyobj) \
+    PyObject_TypeCheck(pyobj, &PyJClass_Type)
+
 #endif // ndef pyjclass

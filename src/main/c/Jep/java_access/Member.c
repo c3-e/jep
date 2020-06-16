@@ -56,7 +56,7 @@ jint java_lang_reflect_Member_getModifiers(JNIEnv* env, jobject this)
 jint C3_JepInterface_getMemberModifiers(JNIEnv* env, jobject this)
 {
     jint result = 0;
-    if (JNI_STATIC_METHOD(getModifiersC3, env, C3_JEPINTERFACE_TYPE, "getModifiers", "()I")) {
+    if (JNI_STATIC_METHOD(getModifiersC3, env, C3_JEPINTERFACE_TYPE, "getMemberModifiers", "()I")) {
         result = (*env)->CallStaticIntMethod(env, C3_JEPINTERFACE_TYPE, getModifiersC3, this);
     }
     return result;
