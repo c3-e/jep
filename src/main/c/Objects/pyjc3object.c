@@ -402,7 +402,7 @@ static PyObject* pyjc3object_getattro(PyObject *obj, PyObject *name)
         return NULL;
     } else if (PyJC3Method_Check(ret) || PyJC3MultiMethod_Check(ret)) {
         /*
-         * TODO Should not bind non-static methods to pyjc3class objects, but not
+         * TODO Should not bind non-static methods to pyjclass objects, but not
          * sure yet how to handle multimethods and static methods.
          */
 #if PY_MAJOR_VERSION >= 3

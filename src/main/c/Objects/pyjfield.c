@@ -105,7 +105,7 @@ PyJFieldObject* PyJC3Field_New(JNIEnv *env, jobject rfield)
 
     // ------------------------------ get field name
 
-    jstr = C3_JepInterface_getName(env, rfield);
+    jstr = C3_JepInterface_getMethodName(env, rfield);
     if (process_java_exception(env) || !jstr) {
         goto EXIT_ERROR;
     }
@@ -137,7 +137,7 @@ static int pyjc3field_init(JNIEnv *env, PyJFieldObject *self)
 
     // ------------------------------ get fieldid
 
-    self->fieldId = C3_JepInterface_getId(env, self->rfield);
+    // self->fieldId = C3_JepInterface_getId(env, self->rfield); // TODO C3 figure out what we should do with fields.
 
 
     // ------------------------------ get return type

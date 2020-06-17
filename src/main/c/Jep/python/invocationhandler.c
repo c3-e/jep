@@ -43,7 +43,7 @@ static jobject invokeDefault(JNIEnv *env, jobject obj, jobject method,
     jobject      result    = NULL;
 
     if (args) {
-        // TODO AVOID REFLECTION
+        // TODO C3 AVOID REFLECTION
         argTypes = java_lang_reflect_Method_getParameterTypes(env, method);
         if ((*env)->ExceptionOccurred(env)) {
             return NULL;
@@ -80,7 +80,7 @@ static jobject invokeDefault(JNIEnv *env, jobject obj, jobject method,
         return NULL;
     }
     methodID = (*env)->FromReflectedMethod(env, method);
-    // TODO AVOID REFLECTION
+    // TODO C3 AVOID REFLECTION
     retType = java_lang_reflect_Method_getReturnType(env, method);
     if ((*env)->ExceptionOccurred(env)) {
         return NULL;
@@ -213,7 +213,7 @@ JNIEXPORT jobject JNICALL Java_jep_python_InvocationHandler_invoke(JNIEnv *env,
     if ((*env)->ExceptionOccurred(env)) {
         return NULL;
     }
-    // TODO AVOID REFLECTION
+    // TODO C3 AVOID REFLECTION
     retType = java_lang_reflect_Method_getReturnType(env, method);
     if ((*env)->ExceptionOccurred(env)) {
         return NULL;
