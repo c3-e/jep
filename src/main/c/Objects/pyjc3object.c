@@ -97,16 +97,6 @@ static int pyjc3object_init(JNIEnv *env, PyJC3Object *pyjob)
 
         cachedAttrs = PyDict_New();
 
-        // - GetMethodID fails when you pass the clazz object, it expects
-        //   a java.lang.Class jobject.
-        // - if you CallObjectMethod with the langClass jclass object,
-        //   it'll return an array of methods, but they're methods of the
-        //   java.lang.reflect.Method class -- not ->object.
-        //
-        // so what i did here was find the methodid using langClass,
-        // but then i call the method using clazz. methodIds for java
-        // classes are shared....
-        // methodArray = java_lang_Class_getMethods(env, pyjob->clazz);
         methodArray = C3_JepInterface_getMethods(env, pyjob->clazz);
         if (process_java_exception(env) || !methodArray) {
             goto EXIT_ERROR;

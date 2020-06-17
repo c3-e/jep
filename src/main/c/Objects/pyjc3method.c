@@ -38,7 +38,8 @@
 // throws python exception and returns NULL on error.
 PyJC3MethodObject* PyJC3Method_New(JNIEnv *env, jobject rmethod)
 {
-    jstring          jname  = NULL;
+    jstring          methodName  = NULL;
+    jstring          typeName  = NULL;
     PyObject        *pyname = NULL;
     PyJC3MethodObject *pym    = NULL;
 
@@ -46,7 +47,9 @@ PyJC3MethodObject* PyJC3Method_New(JNIEnv *env, jobject rmethod)
         return NULL;
     }
 
-    jname = C3_JepInterface_getName(env, rmethod);
+    methodName = C3_JepInterface_getMethodName(env, rmethod); // TODO MAKE THIS FUNC, REMOVE C3_JepInterface_getName
+    typeName = C3_JepInterface_getTypeName(env, rmethod); // TODO MAKE THIS FUNC, REMOVE C3_JepInterface_getName
+
     if (process_java_exception(env) || !jname) {
         return NULL;
     }
@@ -55,6 +58,8 @@ PyJC3MethodObject* PyJC3Method_New(JNIEnv *env, jobject rmethod)
 
     pym                = PyObject_NEW(PyJC3MethodObject, &PyJC3Method_Type);
     pym->rmethod       = (*env)->NewGlobalRef(env, rmethod);
+    pym->methodName    = methodName;
+    pym->typeName      = typeName;
     pym->parameters    = NULL;
     pym->lenParameters = -1;
     pym->pyMethodName  = pyname;
@@ -76,8 +81,6 @@ static int pyjc3method_init(JNIEnv *env, PyJC3MethodObject *self)
         process_java_exception(env);
         return 0;
     }
-
-    self->methodId = (*env)->FromReflectedMethod(env, self->rmethod);
 
     returnType = C3_JepInterface_getReturnType(env, self->rmethod);
     if (process_java_exception(env) || !returnType) {
@@ -201,12 +204,7 @@ int PyJC3Method_CheckArguments(PyJC3MethodObject* method, JNIEnv *env,
     return matchTotal;
 }
 
-// pyjc3method_call. where the magic happens.
-//
-// okay, some of the magic -- we already the methodId, so we don't have
-// to reflect. we just have to parse the arguments from python,
-// check them against the java args, and call the java function.
-//
+// pyjc3method_call.
 // easy. :-)
 static PyObject* pyjc3method_call(PyJC3MethodObject *self,
                                 PyObject *args,
@@ -358,27 +356,10 @@ static PyObject* pyjc3method_call(PyJC3MethodObject *self,
         jstring jstr;
         Py_BEGIN_ALLOW_THREADS;
 
-        if (self->isStatic)
-            jstr = (jstring) (*env)->CallStaticObjectMethodA(
-                       env,
-                       instance->clazz,
-                       self->methodId,
-                       jargs);
-        else {
-            // not static, a method on class then.
-            if (!instance->object)
-                jstr = (jstring) (*env)->CallObjectMethodA(
-                           env,
-                           instance->clazz,
-                           self->methodId,
-                           jargs);
-            else
-                jstr = (jstring) (*env)->CallObjectMethodA(
-                           env,
-                           instance->object,
-                           self->methodId,
-                           jargs);
-        }
+        jstr = (jstring) C3_JepInterface_Dispatch(
+                   self->typeName, // TODO SET AS FIELD ON PYJC3METHOD
+                   self->methodName, // TODO SET AS FIELD ON PYJC3METHOD
+                   jargs);
 
         Py_END_ALLOW_THREADS;
         if (!process_java_exception(env) && jstr != NULL) {
@@ -393,26 +374,10 @@ static PyObject* pyjc3method_call(PyJC3MethodObject *self,
         jobjectArray obj;
         Py_BEGIN_ALLOW_THREADS;
 
-        if (self->isStatic)
-            obj = (jobjectArray) (*env)->CallStaticObjectMethodA(
-                      env,
-                      instance->clazz,
-                      self->methodId,
-                      jargs);
-        else {
-            if (!instance->object)
-                obj = (jobjectArray) (*env)->CallObjectMethodA(
-                          env,
-                          instance->clazz,
-                          self->methodId,
-                          jargs);
-            else
-                obj = (jobjectArray) (*env)->CallObjectMethodA(
-                          env,
-                          instance->object,
-                          self->methodId,
-                          jargs);
-        }
+        obj = (jobjectArray) C3_JepInterface_Dispatch(
+                           self->typeName, // TODO SET AS FIELD ON PYJC3METHOD
+                           self->methodName, // TODO SET AS FIELD ON PYJC3METHOD
+                           jargs);
 
         Py_END_ALLOW_THREADS;
         if (!process_java_exception(env) && obj != NULL) {
@@ -426,24 +391,10 @@ static PyObject* pyjc3method_call(PyJC3MethodObject *self,
         jobject obj;
         Py_BEGIN_ALLOW_THREADS;
 
-        if (self->isStatic)
-            obj = (*env)->CallStaticObjectMethodA(
-                      env,
-                      instance->clazz,
-                      self->methodId,
-                      jargs);
-        else {
-            if (!instance->object)
-                obj = (*env)->CallObjectMethodA(env,
-                                                instance->clazz,
-                                                self->methodId,
-                                                jargs);
-            else
-                obj = (*env)->CallObjectMethodA(env,
-                                                instance->object,
-                                                self->methodId,
-                                                jargs);
-        }
+        obj = C3_JepInterface_Dispatch(
+                           self->typeName, // TODO SET AS FIELD ON PYJC3METHOD
+                           self->methodName, // TODO SET AS FIELD ON PYJC3METHOD
+                           jargs);
 
         Py_END_ALLOW_THREADS;
         if (!process_java_exception(env) && obj != NULL) {
@@ -457,24 +408,10 @@ static PyObject* pyjc3method_call(PyJC3MethodObject *self,
         jobject obj;
         Py_BEGIN_ALLOW_THREADS;
 
-        if (self->isStatic)
-            obj = (*env)->CallStaticObjectMethodA(
-                      env,
-                      instance->clazz,
-                      self->methodId,
-                      jargs);
-        else {
-            if (!instance->object)
-                obj = (*env)->CallObjectMethodA(env,
-                                                instance->clazz,
-                                                self->methodId,
-                                                jargs);
-            else
-                obj = (*env)->CallObjectMethodA(env,
-                                                instance->object,
-                                                self->methodId,
-                                                jargs);
-        }
+        obj = C3_JepInterface_Dispatch(
+                                   self->typeName, // TODO SET AS FIELD ON PYJC3METHOD
+                                   self->methodName, // TODO SET AS FIELD ON PYJC3METHOD
+                                   jargs);
 
         Py_END_ALLOW_THREADS;
         if (!process_java_exception(env) && obj != NULL) {
@@ -488,24 +425,10 @@ static PyObject* pyjc3method_call(PyJC3MethodObject *self,
         jint ret;
         Py_BEGIN_ALLOW_THREADS;
 
-        if (self->isStatic)
-            ret = (*env)->CallStaticIntMethodA(
-                      env,
-                      instance->clazz,
-                      self->methodId,
-                      jargs);
-        else {
-            if (!instance->object)
-                ret = (*env)->CallIntMethodA(env,
-                                             instance->clazz,
-                                             self->methodId,
-                                             jargs);
-            else
-                ret = (*env)->CallIntMethodA(env,
-                                             instance->object,
-                                             self->methodId,
-                                             jargs);
-        }
+        ret = (jint) C3_JepInterface_Dispatch(
+                                   self->typeName, // TODO SET AS FIELD ON PYJC3METHOD
+                                   self->methodName, // TODO SET AS FIELD ON PYJC3METHOD
+                                   jargs);
 
         Py_END_ALLOW_THREADS;
         if (!process_java_exception(env)) {
@@ -519,24 +442,10 @@ static PyObject* pyjc3method_call(PyJC3MethodObject *self,
         jbyte ret;
         Py_BEGIN_ALLOW_THREADS;
 
-        if (self->isStatic)
-            ret = (*env)->CallStaticByteMethodA(
-                      env,
-                      instance->clazz,
-                      self->methodId,
-                      jargs);
-        else {
-            if (!instance->object)
-                ret = (*env)->CallByteMethodA(env,
-                                              instance->clazz,
-                                              self->methodId,
-                                              jargs);
-            else
-                ret = (*env)->CallByteMethodA(env,
-                                              instance->object,
-                                              self->methodId,
-                                              jargs);
-        }
+        ret = (jbyte) C3_JepInterface_Dispatch( // TODO CASTNIG FROM jobject TO jbyte, jint, ETC PROBABLY WONT WORK. WE WILL NED A UNIQUE FUNCTION PER RETURN TYPE
+                                   self->typeName, // TODO SET AS FIELD ON PYJC3METHOD
+                                   self->methodName, // TODO SET AS FIELD ON PYJC3METHOD
+                                   jargs);
 
         Py_END_ALLOW_THREADS;
         if (!process_java_exception(env)) {
@@ -550,24 +459,10 @@ static PyObject* pyjc3method_call(PyJC3MethodObject *self,
         jchar ret;
         Py_BEGIN_ALLOW_THREADS;
 
-        if (self->isStatic)
-            ret = (*env)->CallStaticCharMethodA(
-                      env,
-                      instance->clazz,
-                      self->methodId,
-                      jargs);
-        else {
-            if (!instance->object)
-                ret = (*env)->CallCharMethodA(env,
-                                              instance->clazz,
-                                              self->methodId,
-                                              jargs);
-            else
-                ret = (*env)->CallCharMethodA(env,
-                                              instance->object,
-                                              self->methodId,
-                                              jargs);
-        }
+        ret = (jchar) C3_JepInterface_Dispatch( // TODO CASTNIG FROM jobject TO jbyte, jint, ETC PROBABLY WONT WORK. WE WILL NED A UNIQUE FUNCTION PER RETURN TYPE
+                                   self->typeName, // TODO SET AS FIELD ON PYJC3METHOD
+                                   self->methodName, // TODO SET AS FIELD ON PYJC3METHOD
+                                   jargs);
 
         Py_END_ALLOW_THREADS;
         if (!process_java_exception(env)) {
@@ -580,24 +475,10 @@ static PyObject* pyjc3method_call(PyJC3MethodObject *self,
         jshort ret;
         Py_BEGIN_ALLOW_THREADS;
 
-        if (self->isStatic)
-            ret = (*env)->CallStaticShortMethodA(
-                      env,
-                      instance->clazz,
-                      self->methodId,
-                      jargs);
-        else {
-            if (!instance->object)
-                ret = (*env)->CallShortMethodA(env,
-                                               instance->clazz,
-                                               self->methodId,
-                                               jargs);
-            else
-                ret = (*env)->CallShortMethodA(env,
-                                               instance->object,
-                                               self->methodId,
-                                               jargs);
-        }
+        ret = (jshort) C3_JepInterface_Dispatch( // TODO CASTNIG FROM jobject TO jbyte, jint, ETC PROBABLY WONT WORK. WE WILL NED A UNIQUE FUNCTION PER RETURN TYPE
+                                   self->typeName, // TODO SET AS FIELD ON PYJC3METHOD
+                                   self->methodName, // TODO SET AS FIELD ON PYJC3METHOD
+                                   jargs);
 
         Py_END_ALLOW_THREADS;
         if (!process_java_exception(env)) {
@@ -611,24 +492,10 @@ static PyObject* pyjc3method_call(PyJC3MethodObject *self,
         jdouble ret;
         Py_BEGIN_ALLOW_THREADS;
 
-        if (self->isStatic)
-            ret = (*env)->CallStaticDoubleMethodA(
-                      env,
-                      instance->clazz,
-                      self->methodId,
-                      jargs);
-        else {
-            if (!instance->object)
-                ret = (*env)->CallDoubleMethodA(env,
-                                                instance->clazz,
-                                                self->methodId,
-                                                jargs);
-            else
-                ret = (*env)->CallDoubleMethodA(env,
-                                                instance->object,
-                                                self->methodId,
-                                                jargs);
-        }
+        ret = (jdouble) C3_JepInterface_Dispatch( // TODO CASTNIG FROM jobject TO jbyte, jint, ETC PROBABLY WONT WORK. WE WILL NED A UNIQUE FUNCTION PER RETURN TYPE
+                                   self->typeName, // TODO SET AS FIELD ON PYJC3METHOD
+                                   self->methodName, // TODO SET AS FIELD ON PYJC3METHOD
+                                   jargs);
 
         Py_END_ALLOW_THREADS;
         if (!process_java_exception(env)) {
@@ -642,24 +509,10 @@ static PyObject* pyjc3method_call(PyJC3MethodObject *self,
         jfloat ret;
         Py_BEGIN_ALLOW_THREADS;
 
-        if (self->isStatic)
-            ret = (*env)->CallStaticFloatMethodA(
-                      env,
-                      instance->clazz,
-                      self->methodId,
-                      jargs);
-        else {
-            if (!instance->object)
-                ret = (*env)->CallFloatMethodA(env,
-                                               instance->clazz,
-                                               self->methodId,
-                                               jargs);
-            else
-                ret = (*env)->CallFloatMethodA(env,
-                                               instance->object,
-                                               self->methodId,
-                                               jargs);
-        }
+        ret = (jfloat) C3_JepInterface_Dispatch( // TODO CASTNIG FROM jobject TO jbyte, jint, ETC PROBABLY WONT WORK. WE WILL NED A UNIQUE FUNCTION PER RETURN TYPE
+                                   self->typeName, // TODO SET AS FIELD ON PYJC3METHOD
+                                   self->methodName, // TODO SET AS FIELD ON PYJC3METHOD
+                                   jargs);
 
         Py_END_ALLOW_THREADS;
         if (!process_java_exception(env)) {
@@ -673,24 +526,10 @@ static PyObject* pyjc3method_call(PyJC3MethodObject *self,
         jlong ret;
         Py_BEGIN_ALLOW_THREADS;
 
-        if (self->isStatic)
-            ret = (*env)->CallStaticLongMethodA(
-                      env,
-                      instance->clazz,
-                      self->methodId,
-                      jargs);
-        else {
-            if (!instance->object)
-                ret = (*env)->CallLongMethodA(env,
-                                              instance->clazz,
-                                              self->methodId,
-                                              jargs);
-            else
-                ret = (*env)->CallLongMethodA(env,
-                                              instance->object,
-                                              self->methodId,
-                                              jargs);
-        }
+        ret = (jlong) C3_JepInterface_Dispatch( // TODO CASTNIG FROM jobject TO jbyte, jint, ETC PROBABLY WONT WORK. WE WILL NED A UNIQUE FUNCTION PER RETURN TYPE
+                                   self->typeName, // TODO SET AS FIELD ON PYJC3METHOD
+                                   self->methodName, // TODO SET AS FIELD ON PYJC3METHOD
+                                   jargs);
 
         Py_END_ALLOW_THREADS;
         if (!process_java_exception(env)) {
@@ -704,24 +543,10 @@ static PyObject* pyjc3method_call(PyJC3MethodObject *self,
         jboolean ret;
         Py_BEGIN_ALLOW_THREADS;
 
-        if (self->isStatic)
-            ret = (*env)->CallStaticBooleanMethodA(
-                      env,
-                      instance->clazz,
-                      self->methodId,
-                      jargs);
-        else {
-            if (!instance->object)
-                ret = (*env)->CallBooleanMethodA(env,
-                                                 instance->clazz,
-                                                 self->methodId,
-                                                 jargs);
-            else
-                ret = (*env)->CallBooleanMethodA(env,
-                                                 instance->object,
-                                                 self->methodId,
-                                                 jargs);
-        }
+        ret = (jboolean) C3_JepInterface_Dispatch( // TODO CASTNIG FROM jobject TO jbyte, jint, ETC PROBABLY WONT WORK. WE WILL NED A UNIQUE FUNCTION PER RETURN TYPE
+                                   self->typeName, // TODO SET AS FIELD ON PYJC3METHOD
+                                   self->methodName, // TODO SET AS FIELD ON PYJC3METHOD
+                                   jargs);
 
         Py_END_ALLOW_THREADS;
         if (!process_java_exception(env)) {
@@ -735,16 +560,10 @@ static PyObject* pyjc3method_call(PyJC3MethodObject *self,
         Py_BEGIN_ALLOW_THREADS;
 
         // i hereby anoint thee a void method
-        if (self->isStatic)
-            (*env)->CallStaticVoidMethodA(env,
-                                          instance->clazz,
-                                          self->methodId,
-                                          jargs);
-        else
-            (*env)->CallVoidMethodA(env,
-                                    instance->object,
-                                    self->methodId,
-                                    jargs);
+        C3_JepInterface_Dispatch(
+                       self->typeName, // TODO SET AS FIELD ON PYJC3METHOD
+                       self->methodName, // TODO SET AS FIELD ON PYJC3METHOD
+                       jargs);
 
         Py_END_ALLOW_THREADS;
         process_java_exception(env);

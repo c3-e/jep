@@ -44,8 +44,6 @@ static int pyjc3constructor_init(JNIEnv *env, PyJC3MethodObject *self)
         return 0;
     }
 
-    self->methodId = (*env)->FromReflectedMethod(env, self->rmethod);
-
     paramArray = C3_JepInterface_getConstructorParameterTypes(env,
                  self->rmethod);
     if (process_java_exception(env) || !paramArray) {
@@ -179,9 +177,9 @@ static PyObject* pyjc3constructor_call(PyJC3MethodObject *self, PyObject *args,
     }
 
     Py_UNBLOCK_THREADS;
-    obj = (*env)->NewObjectA(env,
-                             clazz->clazz,
-                             self->methodId,
+    obj = C3_JepInterface_Dispatch(
+                             self->typeName, // TODO SET AS FIELD ON PYJC3METHOD
+                             self->methodName, // TODO SET AS FIELD ON PYJC3METHOD
                              jargs);
     Py_BLOCK_THREADS;
     if (process_java_exception(env) || !obj) {
