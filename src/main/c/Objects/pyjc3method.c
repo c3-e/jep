@@ -50,11 +50,11 @@ PyJC3MethodObject* PyJC3Method_New(JNIEnv *env, jobject rmethod)
     methodName = C3_JepInterface_getMethodName(env, rmethod);
     typeName = C3_JepInterface_getTypeName(env, rmethod);
 
-    if (process_java_exception(env) || !jname) {
+    if (process_java_exception(env) || !typeName) {
         return NULL;
     }
-    pyname = jstring_As_PyString(env, jname);
-    (*env)->DeleteLocalRef(env, jname);
+    pyname = jstring_As_PyString(env, typeName);
+    (*env)->DeleteLocalRef(env, typeName);
 
     pym                = PyObject_NEW(PyJC3MethodObject, &PyJC3Method_Type);
     pym->rmethod       = (*env)->NewGlobalRef(env, rmethod);
