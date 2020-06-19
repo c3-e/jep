@@ -41,7 +41,7 @@ extern PyTypeObject PyJC3Method_Type;
  */
 typedef struct {
     PyObject_HEAD
-    jobject           rmethod;             /* TODO C3 determine if we need this
+    jobject           rmethod;             /* TODO C3 determine if we need this */
     jstring           methodName;
     jstring           typeName;
     int               returnTypeId;        /* type id of return */
