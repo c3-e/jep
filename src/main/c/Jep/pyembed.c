@@ -397,6 +397,8 @@ void pyembed_startup(JNIEnv *env, jobjectArray sharedModulesArgv)
 
 
     if (mainThreadState != NULL) {
+        printf("mainThreadStateNull\n");
+        fflush(stdout);
         // this shouldn't happen but to be safe, don't initialize twice
         return;
     }
@@ -607,6 +609,8 @@ void pyembed_shutdown(JavaVM *vm)
     // shut down python first
     PyEval_AcquireThread(mainThreadState);
     Py_Finalize();
+
+//    mainThreadState = NULL;
 
     if ((*vm)->GetEnv(vm, (void **) &env, JNI_VERSION_1_6) != JNI_OK) {
         // failed to get a JNIEnv*, we can hope it's just shutting down fast

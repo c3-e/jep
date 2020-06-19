@@ -76,6 +76,8 @@ JNIEXPORT void JNICALL Java_jep_MainInterpreter_initializePython
 JNIEXPORT void JNICALL Java_jep_MainInterpreter_shutdownPython
 (JNIEnv *env, jclass class, jstring foo)
 {
+    printf("Java_jep_MainInterpreter_shutdownPython IN C");
+    fflush(stdout);
     JavaVM *jvm;
     jsize nVMs;
     JNI_GetCreatedJavaVMs(&jvm, 1, &nVMs);
