@@ -33,7 +33,6 @@ static jmethodID getName           = 0;
 static jmethodID getMethodNameC3           = 0;
 static jmethodID getTypeNameC3           = 0;
 static jmethodID getModifiersC3           = 0;
-static jmethodID getFieldIdC3           = 0;
 
 jclass java_lang_reflect_Member_getDeclaringClass(JNIEnv* env, jobject this)
 {
@@ -76,7 +75,7 @@ jstring java_lang_reflect_Member_getName(JNIEnv* env, jobject this)
 jstring C3_JepInterface_getTypeName(JNIEnv* env, jobject this)
 {
     jstring result = NULL;
-    if (JNI_STATIC_METHOD(getTypeNameC3, env, C3_JEPINTERFACE_TYPE, "getTypeName", "()Ljava/lang/String;")) {
+    if (JNI_STATIC_METHOD(getTypeNameC3, env, C3_JEPINTERFACE_TYPE, "getTypeName", "(Ljava/lang/Object;)Ljava/lang/String;")) {
         result = (jstring) (*env)->CallStaticObjectMethod(env, C3_JEPINTERFACE_TYPE, getTypeNameC3, this);
     }
     return result;
@@ -85,7 +84,7 @@ jstring C3_JepInterface_getTypeName(JNIEnv* env, jobject this)
 jstring C3_JepInterface_getMethodName(JNIEnv* env, jobject this)
 {
     jstring result = NULL;
-    if (JNI_STATIC_METHOD(getMethodNameC3, env, C3_JEPINTERFACE_TYPE, "getMethodName", "()Ljava/lang/String;")) {
+    if (JNI_STATIC_METHOD(getMethodNameC3, env, C3_JEPINTERFACE_TYPE, "getMethodName", "(Lc3/platform/type/MethodType;)Ljava/lang/String;")) {
         result = (jstring) (*env)->CallStaticObjectMethod(env, C3_JEPINTERFACE_TYPE, getMethodNameC3, this);
     }
     return result;

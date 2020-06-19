@@ -35,7 +35,7 @@ jobjectArray java_lang_Class_getDeclaredClasses(JNIEnv*, jclass);
 jobjectArray java_lang_Class_getFields(JNIEnv*, jclass);
 jobjectArray C3_JepInterface_getFields(JNIEnv*, jclass);
 jobjectArray java_lang_Class_getMethods(JNIEnv*, jclass);
-jobjectArray C3_JepInterface_getMethods(JNIEnv*, jclass);
+jobjectArray C3_JepInterface_getMethods(JNIEnv*, jobject);
 jint         java_lang_Class_getModifiers(JNIEnv*, jclass);
 jstring      java_lang_Class_getName(JNIEnv*, jclass);
 jstring      java_lang_Class_getSimpleName(JNIEnv*, jclass);

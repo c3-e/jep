@@ -127,13 +127,13 @@ jobjectArray java_lang_Class_getMethods(JNIEnv* env, jclass this)
     return result;
 }
 
-jobjectArray C3_JepInterface_getMethods(JNIEnv* env, jclass this)
+jobjectArray C3_JepInterface_getMethods(JNIEnv* env, jobject tn)
 {
     jobjectArray result = NULL;
     Py_BEGIN_ALLOW_THREADS
     if (JNI_STATIC_METHOD(getMethodsC3, env, C3_JEPINTERFACE_TYPE, "getMethods",
-                   "()[Ljava/lang/reflect/Method;")) {
-        result = (jobjectArray) (*env)->CallStaticObjectMethod(env, C3_JEPINTERFACE_TYPE, getMethodsC3, this);
+                   "(Ljava/lang/Object;)[Lc3/platform/type/MethodType;")) {
+        result = (jobjectArray) (*env)->CallStaticObjectMethod(env, C3_JEPINTERFACE_TYPE, getMethodsC3, tn);
     }
     Py_END_ALLOW_THREADS
     return result;

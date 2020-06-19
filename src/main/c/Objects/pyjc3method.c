@@ -36,7 +36,7 @@
 
 // called internally to make new PyJC3MethodObject instances.
 // throws python exception and returns NULL on error.
-PyJC3MethodObject* PyJC3Method_New(JNIEnv *env, jobject rmethod)
+PyJC3MethodObject* PyJC3Method_New(JNIEnv *env, jobject rmethod, jstring tn)
 {
     jstring          methodName  = NULL;
     jstring          typeName  = NULL;
@@ -48,9 +48,8 @@ PyJC3MethodObject* PyJC3Method_New(JNIEnv *env, jobject rmethod)
     }
 
     methodName = C3_JepInterface_getMethodName(env, rmethod);
-    typeName = C3_JepInterface_getTypeName(env, rmethod);
 
-    if (process_java_exception(env) || !typeName) {
+    if (process_java_exception(env) || !methodName) {
         return NULL;
     }
     pyname = jstring_As_PyString(env, methodName);
@@ -58,7 +57,7 @@ PyJC3MethodObject* PyJC3Method_New(JNIEnv *env, jobject rmethod)
     pym                = PyObject_NEW(PyJC3MethodObject, &PyJC3Method_Type);
     pym->rmethod       = (*env)->NewGlobalRef(env, rmethod);
     pym->methodName    = (*env)->NewGlobalRef(env, methodName);
-    pym->typeName      = (*env)->NewGlobalRef(env, typeName);
+    pym->typeName      = (*env)->NewGlobalRef(env, tn);
     pym->parameters    = NULL;
     pym->lenParameters = -1;
     pym->pyMethodName  = pyname;
@@ -66,7 +65,6 @@ PyJC3MethodObject* PyJC3Method_New(JNIEnv *env, jobject rmethod)
     pym->returnTypeId  = -1;
 
     (*env)->DeleteLocalRef(env, methodName);
-    (*env)->DeleteLocalRef(env, typeName);
 
     return pym;
 }

@@ -32,6 +32,7 @@ jobjectArray java_lang_reflect_Method_getParameterTypes(JNIEnv*, jobject);
 jobjectArray C3_JepInterface_getParameterTypes(JNIEnv*, jobject);
 jclass       java_lang_reflect_Method_getReturnType(JNIEnv*, jobject);
 jclass       C3_JepInterface_getReturnType(JNIEnv*, jobject);
+jobject      C3_JepInterface_Dispatch(JNIEnv*, jstring, jstring, jvalue*);
 jboolean     java_lang_reflect_Method_isVarArgs(JNIEnv*, jobject);
 jboolean     C3_JepInterface_isVarArgs(JNIEnv*, jobject);
 #endif // ndef java_lang_reflect_Method

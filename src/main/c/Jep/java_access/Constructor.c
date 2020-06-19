@@ -34,7 +34,7 @@ jobjectArray C3_JepInterface_getConstructorParameterTypes(JNIEnv* env,
         jobject this)
 {
     jobjectArray result = NULL;
-    if (JNI_STATIC_METHOD(getParameterTypes, env, C3_JEPINTERFACE_TYPE, "getConstructorParameterTypes",
+    if (JNI_STATIC_METHOD(getParameterTypesC3, env, C3_JEPINTERFACE_TYPE, "getConstructorParameterTypes",
                    "()[Ljava/lang/Class;")) {
         result = (jobjectArray) (*env)->CallStaticObjectMethod(env, C3_JEPINTERFACE_TYPE, getParameterTypesC3, this);
     }
