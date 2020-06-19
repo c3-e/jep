@@ -53,18 +53,20 @@ PyJC3MethodObject* PyJC3Method_New(JNIEnv *env, jobject rmethod)
     if (process_java_exception(env) || !typeName) {
         return NULL;
     }
-    pyname = jstring_As_PyString(env, typeName);
-    (*env)->DeleteLocalRef(env, typeName);
+    pyname = jstring_As_PyString(env, methodName);
 
     pym                = PyObject_NEW(PyJC3MethodObject, &PyJC3Method_Type);
     pym->rmethod       = (*env)->NewGlobalRef(env, rmethod);
-    pym->methodName    = methodName;
-    pym->typeName      = typeName;
+    pym->methodName    = (*env)->NewGlobalRef(env, methodName);
+    pym->typeName      = (*env)->NewGlobalRef(env, typeName);
     pym->parameters    = NULL;
     pym->lenParameters = -1;
     pym->pyMethodName  = pyname;
     pym->isStatic      = -1;
     pym->returnTypeId  = -1;
+
+    (*env)->DeleteLocalRef(env, methodName);
+    (*env)->DeleteLocalRef(env, typeName);
 
     return pym;
 }
@@ -140,6 +142,12 @@ static void pyjc3method_dealloc(PyJC3MethodObject *self)
         }
         if (self->rmethod) {
             (*env)->DeleteGlobalRef(env, self->rmethod);
+        }
+        if (self->typeName) {
+            (*env)->DeleteGlobalRef(env, self->typeName);
+        }
+        if (self->methodName) {
+            (*env)->DeleteGlobalRef(env, self->methodName);
         }
     }
 
