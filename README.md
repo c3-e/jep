@@ -55,7 +55,7 @@ For C3, we will create a new `PyJC3Object` (and corresponding `PyJC3Class`) obje
 Search "TODO C3" to see a list of TODOs for C3
 
 #### Needed for PLAT-25012 (C3 interfaces for Jep)
-* TODO C3 (not listed elsewhere) Implement all corresponding Java methods for C3_JepInterface_... functions (we may not need all of these).
+* ~~TODO C3 (not listed elsewhere) Implement all corresponding Java methods for C3_JepInterface_... functions (we may not need all of these).~~
 * TODO C3 CASTING FROM jobject TO jbyte, jint, ETC IN THIS WAY PROBABLY WONT WORK. WE WILL NEED A UNIQUE FUNCTION TO CALL C3.Dispatch PER RETURN TYPE: We may need a unique java function to call `C3.Dispatch` for each return type
 * TODO C3 determine if we need this: decide whether PyJC3Methods need a rmethod attribute, or what an alternative for it would be.
 

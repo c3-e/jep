@@ -356,7 +356,7 @@ static PyObject* pyjc3method_call(PyJC3MethodObject *self,
         jstring jstr;
         Py_BEGIN_ALLOW_THREADS;
 
-        jstr = (jstring) C3_JepInterface_Dispatch(
+        jstr = (jstring) C3_JepInterface_DispatchString(
                    self->typeName,
                    self->methodName,
                    jargs);
@@ -374,7 +374,7 @@ static PyObject* pyjc3method_call(PyJC3MethodObject *self,
         jobjectArray obj;
         Py_BEGIN_ALLOW_THREADS;
 
-        obj = (jobjectArray) C3_JepInterface_Dispatch(
+        obj = (jobjectArray) C3_JepInterface_DispatchArray(
                            self->typeName,
                            self->methodName,
                            jargs);
@@ -391,7 +391,7 @@ static PyObject* pyjc3method_call(PyJC3MethodObject *self,
         jobject obj;
         Py_BEGIN_ALLOW_THREADS;
 
-        obj = C3_JepInterface_Dispatch(
+        obj = C3_JepInterface_DispatchClass(
                            self->typeName,
                            self->methodName,
                            jargs);
@@ -408,7 +408,7 @@ static PyObject* pyjc3method_call(PyJC3MethodObject *self,
         jobject obj;
         Py_BEGIN_ALLOW_THREADS;
 
-        obj = C3_JepInterface_Dispatch(
+        obj = C3_JepInterface_DispatchObject(
                                    self->typeName,
                                    self->methodName,
                                    jargs);
@@ -425,7 +425,7 @@ static PyObject* pyjc3method_call(PyJC3MethodObject *self,
         jint ret;
         Py_BEGIN_ALLOW_THREADS;
 
-        ret = (jint) C3_JepInterface_Dispatch(
+        ret = (jint) C3_JepInterface_DispatchInt(
                                    self->typeName,
                                    self->methodName,
                                    jargs);
@@ -442,7 +442,7 @@ static PyObject* pyjc3method_call(PyJC3MethodObject *self,
         jbyte ret;
         Py_BEGIN_ALLOW_THREADS;
 
-        ret = (jbyte) C3_JepInterface_Dispatch( // TODO C3 CASTING FROM jobject TO jbyte, jint, ETC IN THIS WAY PROBABLY WONT WORK. WE WILL NEED A UNIQUE FUNCTION TO CALL C3.Dispatch PER RETURN TYPE
+        ret = (jbyte) C3_JepInterface_DispatchByte( // TODO C3 CASTING FROM jobject TO jbyte, jint, ETC IN THIS WAY PROBABLY WONT WORK. WE WILL NEED A UNIQUE FUNCTION TO CALL C3.Dispatch PER RETURN TYPE
                                    self->typeName,
                                    self->methodName,
                                    jargs);
@@ -455,44 +455,45 @@ static PyObject* pyjc3method_call(PyJC3MethodObject *self,
         break;
     }
 
-    case JCHAR_ID: {
-        jchar ret;
-        Py_BEGIN_ALLOW_THREADS;
-
-        ret = (jchar) C3_JepInterface_Dispatch( // TODO C3 CASTING FROM jobject TO jbyte, jint, ETC IN THIS WAY PROBABLY WONT WORK. WE WILL NEED A UNIQUE FUNCTION TO CALL C3.Dispatch PER RETURN TYPE
-                                   self->typeName,
-                                   self->methodName,
-                                   jargs);
-
-        Py_END_ALLOW_THREADS;
-        if (!process_java_exception(env)) {
-            result = jchar_As_PyObject(ret);
-        }
-        break;
-    }
-
-    case JSHORT_ID: {
-        jshort ret;
-        Py_BEGIN_ALLOW_THREADS;
-
-        ret = (jshort) C3_JepInterface_Dispatch( // TODO C3 CASTING FROM jobject TO jbyte, jint, ETC IN THIS WAY PROBABLY WONT WORK. WE WILL NEED A UNIQUE FUNCTION TO CALL C3.Dispatch PER RETURN TYPE
-                                   self->typeName,
-                                   self->methodName,
-                                   jargs);
-
-        Py_END_ALLOW_THREADS;
-        if (!process_java_exception(env)) {
-            result = jshort_As_PyObject(ret);
-        }
-
-        break;
-    }
+//C3 types don't use these
+//    case JCHAR_ID: {
+//        jchar ret;
+//        Py_BEGIN_ALLOW_THREADS;
+//
+//        ret = (jchar) C3_JepInterface_Dispatch( // TODO C3 CASTING FROM jobject TO jbyte, jint, ETC IN THIS WAY PROBABLY WONT WORK. WE WILL NEED A UNIQUE FUNCTION TO CALL C3.Dispatch PER RETURN TYPE
+//                                   self->typeName,
+//                                   self->methodName,
+//                                   jargs);
+//
+//        Py_END_ALLOW_THREADS;
+//        if (!process_java_exception(env)) {
+//            result = jchar_As_PyObject(ret);
+//        }
+//        break;
+//    }
+//
+//    case JSHORT_ID: {
+//        jshort ret;
+//        Py_BEGIN_ALLOW_THREADS;
+//
+//        ret = (jshort) C3_JepInterface_Dispatch( // TODO C3 CASTING FROM jobject TO jbyte, jint, ETC IN THIS WAY PROBABLY WONT WORK. WE WILL NEED A UNIQUE FUNCTION TO CALL C3.Dispatch PER RETURN TYPE
+//                                   self->typeName,
+//                                   self->methodName,
+//                                   jargs);
+//
+//        Py_END_ALLOW_THREADS;
+//        if (!process_java_exception(env)) {
+//            result = jshort_As_PyObject(ret);
+//        }
+//
+//        break;
+//    }
 
     case JDOUBLE_ID: {
         jdouble ret;
         Py_BEGIN_ALLOW_THREADS;
 
-        ret = (jdouble) C3_JepInterface_Dispatch( // TODO C3 CASTING FROM jobject TO jbyte, jint, ETC IN THIS WAY PROBABLY WONT WORK. WE WILL NEED A UNIQUE FUNCTION TO CALL C3.Dispatch PER RETURN TYPE
+        ret = (jdouble) C3_JepInterface_DispatchDouble( // TODO C3 CASTING FROM jobject TO jbyte, jint, ETC IN THIS WAY PROBABLY WONT WORK. WE WILL NEED A UNIQUE FUNCTION TO CALL C3.Dispatch PER RETURN TYPE
                                    self->typeName,
                                    self->methodName,
                                    jargs);
@@ -509,7 +510,7 @@ static PyObject* pyjc3method_call(PyJC3MethodObject *self,
         jfloat ret;
         Py_BEGIN_ALLOW_THREADS;
 
-        ret = (jfloat) C3_JepInterface_Dispatch( // TODO C3 CASTING FROM jobject TO jbyte, jint, ETC IN THIS WAY PROBABLY WONT WORK. WE WILL NEED A UNIQUE FUNCTION TO CALL C3.Dispatch PER RETURN TYPE
+        ret = (jfloat) C3_JepInterface_DispatchFloat( // TODO C3 CASTING FROM jobject TO jbyte, jint, ETC IN THIS WAY PROBABLY WONT WORK. WE WILL NEED A UNIQUE FUNCTION TO CALL C3.Dispatch PER RETURN TYPE
                                    self->typeName,
                                    self->methodName,
                                    jargs);
@@ -526,7 +527,7 @@ static PyObject* pyjc3method_call(PyJC3MethodObject *self,
         jlong ret;
         Py_BEGIN_ALLOW_THREADS;
 
-        ret = (jlong) C3_JepInterface_Dispatch( // TODO C3 CASTING FROM jobject TO jbyte, jint, ETC IN THIS WAY PROBABLY WONT WORK. WE WILL NEED A UNIQUE FUNCTION TO CALL C3.Dispatch PER RETURN TYPE
+        ret = (jlong) C3_JepInterface_DispatchLong( // TODO C3 CASTING FROM jobject TO jbyte, jint, ETC IN THIS WAY PROBABLY WONT WORK. WE WILL NEED A UNIQUE FUNCTION TO CALL C3.Dispatch PER RETURN TYPE
                                    self->typeName,
                                    self->methodName,
                                    jargs);
@@ -543,7 +544,7 @@ static PyObject* pyjc3method_call(PyJC3MethodObject *self,
         jboolean ret;
         Py_BEGIN_ALLOW_THREADS;
 
-        ret = (jboolean) C3_JepInterface_Dispatch( // TODO C3 CASTING FROM jobject TO jbyte, jint, ETC IN THIS WAY PROBABLY WONT WORK. WE WILL NEED A UNIQUE FUNCTION TO CALL C3.Dispatch PER RETURN TYPE
+        ret = (jboolean) C3_JepInterface_DispatchBoolean( // TODO C3 CASTING FROM jobject TO jbyte, jint, ETC IN THIS WAY PROBABLY WONT WORK. WE WILL NEED A UNIQUE FUNCTION TO CALL C3.Dispatch PER RETURN TYPE
                                    self->typeName,
                                    self->methodName,
                                    jargs);

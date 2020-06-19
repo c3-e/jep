@@ -101,9 +101,9 @@ extern jclass JDOUBLE_ARRAY_TYPE;
 
 /*
  * CLASS_TABLE contains the definition for all the classes that we cache for
- * easy access. Tyically a macro is passed to CLASS_TABLE macro and it will be
+ * easy access. Typically a macro is passed to CLASS_TABLE macro and it will be
  * evaluated for all cached classes. This is based off the X macro pattern
- * except a macro is passed in rather than redifining X for each use.
+ * except a macro is passed in rather than redefining X for each use.
  */
 #define CLASS_TABLE(F) \
     F(JOBJECT_TYPE, "java/lang/Object") \
