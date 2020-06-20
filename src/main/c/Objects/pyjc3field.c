@@ -107,11 +107,15 @@ static int pyjc3field_init(JNIEnv *env, PyJC3FieldObject *self)
     if (process_java_exception(env) || !self->fieldType) {
         goto EXIT_ERROR;
     }
+    printf("pyjc3field init 2\n");
+    fflush(stdout);
 
     self->fieldTypeId = get_jtype(env, self->fieldType);
     if (process_java_exception(env)) {
         goto EXIT_ERROR;
     }
+    printf("pyjc3field init 3\n");
+    fflush(stdout);
 
     // ------------------------------ get isStatic
 
@@ -119,18 +123,30 @@ static int pyjc3field_init(JNIEnv *env, PyJC3FieldObject *self)
         goto EXIT_ERROR;
     }
 
+
+    printf("pyjc3field init 4\n");
+    fflush(stdout);
+
     isStatic = C3_JepInterface_isFieldStatic(env, self->c3field);
     if (process_java_exception(env)) {
         goto EXIT_ERROR;
     }
 
+    printf("pyjc3field init 5\n");
+    fflush(stdout);
+
     if (isStatic == JNI_TRUE) {
+
+        printf("pyjc3field init static\n");
+        fflush(stdout);
         self->isStatic = 1;
     } else {
         self->isStatic = 0;
     }
     self->fieldType = (*env)->NewGlobalRef(env, self->fieldType);
 
+    printf("pyjc3field init 7\n");
+    fflush(stdout);
     (*env)->PopLocalFrame(env, NULL);
     self->init = 1;
     return 1;
@@ -163,43 +179,66 @@ PyObject* pyjc3field_get(PyJC3FieldObject *self, PyJC3Object* pyjobject)
     JNIEnv   *env;
 
     env = pyembed_get_env();
-
+    printf("pyjc3field get 1\n");
+    fflush(stdout);
     if (!self) {
+    printf("pyjc3field get no self\n");
+    fflush(stdout);
         PyErr_Format(PyExc_RuntimeError, "Invalid self object.");
         return NULL;
     }
 
     if (!self->init) {
+
         if (!pyjc3field_init(env, self) || PyErr_Occurred()) {
+    printf("pyjc3field get failed init\n");
+    fflush(stdout);
             return NULL;
         }
     }
 
     if (!pyjobject->object && !self->isStatic) {
+    printf("pyjc3field get not static\n");
+    fflush(stdout);
         PyErr_SetString(PyExc_TypeError, "Field is not static.");
         return NULL;
     }
+
+
+    printf("pyjc3field get fieldTypeId %d\n", self->fieldTypeId);
+    fflush(stdout);
 
     switch (self->fieldTypeId) {
 
     case JSTRING_ID: {
         jstring     jstr;
 
-        if (self->isStatic)
+        if (self->isStatic) {
+
+    printf("pyjc3field get static string field %d\n", self->fieldTypeId);
+    fflush(stdout);
             jstr = (jstring) (*env)->GetStaticObjectField(
                        env,
                        pyjobject->clazz,
                        self->fieldId);
-        else
+        } else {
+    printf("pyjc3field get non-static string field %d\n", self->fieldTypeId);
+    fflush(stdout);
             jstr = (jstring) (*env)->GetObjectField(env,
                                                     pyjobject->object,
                                                     self->fieldId);
-
+        }
         if (process_java_exception(env)) {
+
+    printf("pyjc3field get java exception\n");
+    fflush(stdout);
             return NULL;
         }
 
         if (jstr == NULL) {
+
+    printf("pyjc3field get string is null %d\n", self->fieldTypeId);
+    fflush(stdout);
             Py_RETURN_NONE;
         }
 
