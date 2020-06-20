@@ -362,7 +362,7 @@ static PyObject* pyjc3method_call(PyJC3MethodObject *self,
         jstring jstr;
         Py_BEGIN_ALLOW_THREADS;
 
-        jstr = (jstring) C3_JepInterface_DispatchString(env, // TODO C3 make this c function
+        jstr = (jstring) C3_JepInterface_dispatchString(env, // TODO C3 make this c function
                    self->typeName,
                    self->methodName,
                    jargs);
@@ -380,7 +380,7 @@ static PyObject* pyjc3method_call(PyJC3MethodObject *self,
         jobjectArray obj;
         Py_BEGIN_ALLOW_THREADS;
 
-        obj = (jobjectArray) C3_JepInterface_DispatchArray(env, // TODO C3 make this c function
+        obj = (jobjectArray) C3_JepInterface_dispatchArray(env, // TODO C3 make this c function
                            self->typeName,
                            self->methodName,
                            jargs);
@@ -397,7 +397,7 @@ static PyObject* pyjc3method_call(PyJC3MethodObject *self,
         jobject obj;
         Py_BEGIN_ALLOW_THREADS;
 
-        obj = (jobject) C3_JepInterface_DispatchClass(env, // TODO C3 make this c function
+        obj = (jobject) C3_JepInterface_dispatchClass(env, // TODO C3 make this c function
                            self->typeName,
                            self->methodName,
                            jargs);
@@ -414,7 +414,7 @@ static PyObject* pyjc3method_call(PyJC3MethodObject *self,
         jobject obj;
         Py_BEGIN_ALLOW_THREADS;
 
-        obj = (jobject) C3_JepInterface_DispatchObject(env, // TODO C3 make this c function
+        obj = (jobject) C3_JepInterface_dispatchObject(env, // TODO C3 make this c function
                                    self->typeName,
                                    self->methodName,
                                    jargs);
@@ -431,7 +431,7 @@ static PyObject* pyjc3method_call(PyJC3MethodObject *self,
         jint ret;
         Py_BEGIN_ALLOW_THREADS;
 
-        ret = (jint) C3_JepInterface_DispatchInt(env, // TODO C3 make this c function
+        ret = (jint) C3_JepInterface_dispatchInt(env, // TODO C3 make this c function
 
                                    self->typeName,
                                    self->methodName,
@@ -449,7 +449,7 @@ static PyObject* pyjc3method_call(PyJC3MethodObject *self,
         jbyte ret;
         Py_BEGIN_ALLOW_THREADS;
 
-        ret = (jbyte) C3_JepInterface_DispatchByte(env, // TODO C3 make this c function
+        ret = (jbyte) C3_JepInterface_dispatchByte(env, // TODO C3 make this c function
                                    self->typeName,
                                    self->methodName,
                                    jargs);
@@ -467,7 +467,7 @@ static PyObject* pyjc3method_call(PyJC3MethodObject *self,
 //        jchar ret;
 //        Py_BEGIN_ALLOW_THREADS;
 //
-//        ret = (jchar) C3_JepInterface_Dispatch(env, // TODO C3 make this c function
+//        ret = (jchar) C3_JepInterface_dispatch(env, // TODO C3 make this c function
 //                                   self->typeName,
 //                                   self->methodName,
 //                                   jargs);
@@ -483,7 +483,7 @@ static PyObject* pyjc3method_call(PyJC3MethodObject *self,
 //        jshort ret;
 //        Py_BEGIN_ALLOW_THREADS;
 //
-//        ret = (jshort) C3_JepInterface_Dispatch(env, // TODO C3 make this c function
+//        ret = (jshort) C3_JepInterface_dispatch(env, // TODO C3 make this c function
 //                                   self->typeName,
 //                                   self->methodName,
 //                                   jargs);
@@ -500,7 +500,7 @@ static PyObject* pyjc3method_call(PyJC3MethodObject *self,
         jdouble ret;
         Py_BEGIN_ALLOW_THREADS;
 
-        ret = (jdouble) C3_JepInterface_DispatchDouble(env, // TODO C3 make this c function
+        ret = (jdouble) C3_JepInterface_dispatchDouble(env, // TODO C3 make this c function
                                    self->typeName,
                                    self->methodName,
                                    jargs);
@@ -517,7 +517,7 @@ static PyObject* pyjc3method_call(PyJC3MethodObject *self,
         jfloat ret;
         Py_BEGIN_ALLOW_THREADS;
 
-        ret = (jfloat) C3_JepInterface_DispatchFloat(env, // TODO C3 make this c function
+        ret = (jfloat) C3_JepInterface_dispatchFloat(env, // TODO C3 make this c function
                                    self->typeName,
                                    self->methodName,
                                    jargs);
@@ -534,7 +534,7 @@ static PyObject* pyjc3method_call(PyJC3MethodObject *self,
         jlong ret;
         Py_BEGIN_ALLOW_THREADS;
 
-        ret = (jlong) C3_JepInterface_DispatchLong(env, // TODO C3 make this c function
+        ret = (jlong) C3_JepInterface_dispatchLong(env, // TODO C3 make this c function
                                    self->typeName,
                                    self->methodName,
                                    jargs);
@@ -551,7 +551,7 @@ static PyObject* pyjc3method_call(PyJC3MethodObject *self,
         jboolean ret;
         Py_BEGIN_ALLOW_THREADS;
 
-        ret = (jboolean) C3_JepInterface_DispatchBoolean(env, // TODO C3 make this c function
+        ret = (jboolean) C3_JepInterface_dispatchBoolean(env, // TODO C3 make this c function
                                    self->typeName,
                                    self->methodName,
                                    jargs);
@@ -568,7 +568,7 @@ static PyObject* pyjc3method_call(PyJC3MethodObject *self,
         Py_BEGIN_ALLOW_THREADS;
 
         // i hereby anoint thee a void method
-        C3_JepInterface_DispatchVoid(env, // TODO C3 make this c function
+        C3_JepInterface_dispatchVoid(env, // TODO C3 make this c function
                        self->typeName,
                        self->methodName,
                        jargs);

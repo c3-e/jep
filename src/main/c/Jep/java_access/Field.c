@@ -28,22 +28,12 @@
 #include "Jep.h"
 
 static jmethodID getType = 0;
-static jmethodID getTypeC3 = 0;
 
 jclass java_lang_reflect_Field_getType(JNIEnv* env, jobject this)
 {
     jclass result = NULL;
     if (JNI_METHOD(getType, env, JFIELD_TYPE, "getType", "()Ljava/lang/Class;")) {
         result = (jclass) (*env)->CallObjectMethod(env, this, getType);
-    }
-    return result;
-}
-
-jclass C3_JepInterface_getType(JNIEnv* env, jobject this)
-{
-    jclass result = NULL;
-    if (JNI_STATIC_METHOD(getTypeC3, env, C3_JEPINTERFACE_TYPE, "getType", "()Ljava/lang/Class;")) {
-        result = (jclass) (*env)->CallStaticObjectMethod(env, C3_JEPINTERFACE_TYPE, getTypeC3, this);
     }
     return result;
 }

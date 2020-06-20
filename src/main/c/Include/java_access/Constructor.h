@@ -29,6 +29,5 @@
 #define _Included_java_lang_reflect_Constructor
 
 jobjectArray java_lang_reflect_Constructor_getParameterTypes(JNIEnv*, jobject);
-jobjectArray C3_JepInterface_getConstructorParameterTypes(JNIEnv*, jobject);
 
 #endif // ndef java_lang_reflect_Constructor

@@ -29,10 +29,6 @@
 #define _Included_java_lang_reflect_Modifier
 
 jboolean java_lang_reflect_Modifier_isPublic(JNIEnv*, jint);
-jboolean C3_JepInterface_isPublic(JNIEnv*, jint);
 jboolean java_lang_reflect_Modifier_isStatic(JNIEnv*, jint);
-jboolean C3_JepInterface_isStatic(JNIEnv*, jint);
 jboolean java_lang_reflect_Modifier_isAbstract(JNIEnv*, jint);
-jboolean C3_JepInterface_isAbstract(JNIEnv*, jint);
-
 #endif // ndef java_lang_reflect_Modifier
