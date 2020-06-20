@@ -52,7 +52,7 @@ typedef struct {
 } PyJC3MethodObject;
 
 /* Create a new PyJC3Method from a c3 type APIs*/
-PyJC3MethodObject* PyJC3Method_New(JNIEnv*, jobject);
+PyJC3MethodObject* PyJC3Method_New(JNIEnv*, jobject, jstring);
 
 /* Check if the arg is a PyJC3MethodObject */
 int PyJC3Method_Check(PyObject *obj);

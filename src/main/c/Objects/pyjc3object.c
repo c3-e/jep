@@ -38,6 +38,7 @@ static int pyjc3object_init(JNIEnv *env, PyJC3Object *pyjob)
 {
 
     jstring className     = NULL;
+    jstring typeName      = NULL;
     PyObject *pyClassName = NULL;
     JepThread *jepThread  = NULL;
     PyObject *cachedAttrs = NULL;
@@ -55,8 +56,16 @@ static int pyjc3object_init(JNIEnv *env, PyJC3Object *pyjob)
     if (process_java_exception(env) || !className) {
         goto EXIT_ERROR;
     }
-    pyClassName = jstring_As_PyString(env, className);
     pyjob->javaClassName = pyClassName;
+
+    typeName = C3_JepInterface_getTypeName(env, pyjob->object);
+        if (process_java_exception(env) || !typeName) {
+            goto EXIT_ERROR;
+        }
+
+    pyClassName = jstring_As_PyString(env, className);
+    pyjob->typeName = (*env)->NewGlobalRef(env, typeName);
+    (*env)->DeleteLocalRef(env, typeName);
 
     /*
      * Get methods for the PyJC3Object, optimized for performance.  The code
@@ -97,7 +106,7 @@ static int pyjc3object_init(JNIEnv *env, PyJC3Object *pyjob)
 
         cachedAttrs = PyDict_New();
 
-        methodArray = C3_JepInterface_getMethods(env, pyjob->clazz);
+        methodArray = C3_JepInterface_getMethods(env, pyjob->object);
         if (process_java_exception(env) || !methodArray) {
             goto EXIT_ERROR;
         }
@@ -113,7 +122,7 @@ static int pyjc3object_init(JNIEnv *env, PyJC3Object *pyjob)
             jobject c3method = NULL;
             c3method = (*env)->GetObjectArrayElement(env, methodArray, i);
             // pymethod = PyJC3Method_New(env, rmethod);
-            pymethod = PyJC3Method_New(env, c3method);
+            pymethod = PyJC3Method_New(env, c3method, pyjob->typeName);
             if (!pymethod) {
                 continue;
             }
@@ -240,6 +249,9 @@ static void pyjc3object_dealloc(PyJC3Object *self)
         }
         if (self->clazz) {
             (*env)->DeleteGlobalRef(env, self->clazz);
+        }
+        if (self->typeName) {
+            (*env)->DeleteGlobalRef(env, self->typeName);
         }
     }
 

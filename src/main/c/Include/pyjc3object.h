@@ -45,6 +45,7 @@ extern PyTypeObject PyJC3Object_Type;
  */
 #define PyJC3Object_FIELDS \
     jobject   object;    \
+    jstring   typeName;  \
     jclass    clazz;     \
     PyObject *attr;      \
     PyObject *javaClassName;
