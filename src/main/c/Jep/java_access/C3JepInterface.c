@@ -80,7 +80,7 @@ jobjectArray C3_JepInterface_getConstructors(JNIEnv* env, jclass this)
     jobjectArray result = NULL;
     Py_BEGIN_ALLOW_THREADS
     if (JNI_STATIC_METHOD(getConstructorsC3, env, C3_JEPINTERFACE_TYPE, "getConstructors",
-                   "()[Ljava/lang/reflect/Constructor;")) {
+                   "(Ljava/lang/Object;)[Ljava/lang/reflect/Constructor;")) {
         result = (jobjectArray) (*env)->CallStaticObjectMethod(env, C3_JEPINTERFACE_TYPE, getConstructorsC3, this);
     }
     Py_END_ALLOW_THREADS
@@ -115,7 +115,7 @@ jboolean C3_JepInterface_isC3Class(JNIEnv* env, jclass this)
 jclass C3_JepInterface_getType(JNIEnv* env, jobject this)
 {
     jclass result = NULL;
-    if (JNI_STATIC_METHOD(getTypeC3, env, C3_JEPINTERFACE_TYPE, "getType", "()Ljava/lang/Class;")) {
+    if (JNI_STATIC_METHOD(getTypeC3, env, C3_JEPINTERFACE_TYPE, "getType", "(java/lang/Object;)Lc3/platform/type/Type;")) {
         result = (jclass) (*env)->CallStaticObjectMethod(env, C3_JEPINTERFACE_TYPE, getTypeC3, this);
     }
     return result;
@@ -210,7 +210,7 @@ jboolean C3_JepInterface_isFieldStatic(JNIEnv* env, jobject ft)
 jboolean C3_JepInterface_isVarArgs(JNIEnv* env, jobject this)
 {
     jboolean result = JNI_FALSE;
-    if (JNI_STATIC_METHOD(isVarArgsC3, env, C3_JEPINTERFACE_TYPE, "isVarArgs", "()Z")) {
+    if (JNI_STATIC_METHOD(isVarArgsC3, env, C3_JEPINTERFACE_TYPE, "isVarArgs", "(Lc3/platform/type/MethodType;)Z")) {
         result = (*env)->CallStaticBooleanMethod(env, C3_JEPINTERFACE_TYPE, isVarArgsC3, this);
     }
     return result;
