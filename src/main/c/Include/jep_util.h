@@ -64,6 +64,7 @@ void unref_cache_frequent_classes(JNIEnv*);
 int get_jtype(JNIEnv*, jclass);
 int pyarg_matches_jtype(JNIEnv*, PyObject*, jclass, int);
 jvalue convert_pyarg_jvalue(JNIEnv*, PyObject*, jclass, int, int);
+jobject convert_pyarg_jobject(JNIEnv*, PyObject*, jclass, int, int);
 
 #define JBOOLEAN_ID 0
 #define JINT_ID     1

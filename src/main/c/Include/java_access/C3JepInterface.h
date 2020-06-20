@@ -3,6 +3,7 @@
 
 jstring C3_JepInterface_getFieldValueString(JNIEnv*, jobject, jstring);
 jstring C3_JepInterface_dispatchString(JNIEnv*, jstring, jstring, jvalue*);
+jstring C3_JepInterface_dispatchStringMember(JNIEnv*, jstring, jstring, jobject, jvalue*);
 jobjectArray C3_JepInterface_dispatchArray(JNIEnv*, jstring, jstring, jvalue*);
 jobject C3_JepInterface_dispatchObject(JNIEnv*, jstring, jstring, jvalue*);
 jobject C3_JepInterface_dispatchClass(JNIEnv*, jstring, jstring, jvalue*);
@@ -30,5 +31,6 @@ jobjectArray C3_JepInterface_getParameterTypes(JNIEnv*, jobject);
 jboolean C3_JepInterface_isAbstract(JNIEnv*, jint);
 jboolean C3_JepInterface_isPublic(JNIEnv*, jint);
 jboolean C3_JepInterface_isStatic(JNIEnv*, jint);
+jboolean C3_JepInterface_isStaticMethodType(JNIEnv*, jobject);
 
 #endif // ndef java_lang_reflect_Member

@@ -417,7 +417,9 @@ static PyObject* pyjc3object_richcompare(PyJC3Object *self,
 // returns new reference.
 static PyObject* pyjc3object_getattro(PyObject *obj, PyObject *name)
 {
-    printf("getattro: %s\n", PyString_AsString(name));
+    printf("getattro\n");
+    fflush(stdout);
+    printf("%s\n", PyString_AsString(name));
     fflush(stdout);
 
     PyObject *ret = PyObject_GenericGetAttr(obj, name);

@@ -39,8 +39,9 @@
 PyJC3MethodObject* PyJC3Method_New(JNIEnv *env, jobject rmethod, jstring tn)
 {
     jstring          methodName  = NULL;
-    jstring          typeName  = NULL;
+//    jstring          typeName  = NULL;
     PyObject        *pyname = NULL;
+//    PyObject        *pyTypeName = NULL;
     PyJC3MethodObject *pym    = NULL;
 
     if (PyType_Ready(&PyJC3Method_Type) < 0) {
@@ -53,18 +54,20 @@ PyJC3MethodObject* PyJC3Method_New(JNIEnv *env, jobject rmethod, jstring tn)
         return NULL;
     }
     pyname = jstring_As_PyString(env, methodName);
+//    pyTypeName = jstring_As_PyString(env, tn);
+//    (*env)->DeleteLocalRef(env, methodName);
+
+    //TODO C3: Should we be deleting tn?
 
     pym                = PyObject_NEW(PyJC3MethodObject, &PyJC3Method_Type);
     pym->rmethod       = (*env)->NewGlobalRef(env, rmethod);
-    pym->methodName    = (*env)->NewGlobalRef(env, methodName);
+    pym->methodName    = (*env)->NewGlobalRef(env, methodName); //TODO C3: Just use pyMethodName
     pym->typeName      = (*env)->NewGlobalRef(env, tn);
     pym->parameters    = NULL;
     pym->lenParameters = -1;
     pym->pyMethodName  = pyname;
     pym->isStatic      = -1;
     pym->returnTypeId  = -1;
-
-    (*env)->DeleteLocalRef(env, methodName);
 
     return pym;
 }
@@ -104,7 +107,7 @@ static int pyjc3method_init(JNIEnv *env, PyJC3MethodObject *self)
         goto EXIT_ERROR;
     }
 
-    isStatic = C3_JepInterface_isStatic(env, self->rmethod);
+    isStatic = C3_JepInterface_isStaticMethodType(env, self->rmethod);
     if (process_java_exception(env)) {
         goto EXIT_ERROR;
     }
@@ -148,6 +151,8 @@ static void pyjc3method_dealloc(PyJC3MethodObject *self)
     }
 
     Py_CLEAR(self->pyMethodName);
+//    Py_CLEAR(self->methodName);
+//    Py_CLEAR(self->typeName);
 
     PyObject_Del(self);
 #endif
@@ -224,6 +229,7 @@ static PyObject* pyjc3method_call(PyJC3MethodObject *self,
     PyObject      *result           = NULL;
     int            pos              = 0;
     jvalue        *jargs            = NULL;
+    jobjectArray        *jobjectArgs            = NULL;
     /* if params includes pyjarray instance */
     int            foundArray       = 0;
 
@@ -238,6 +244,7 @@ static PyObject* pyjc3method_call(PyJC3MethodObject *self,
     if (lenJArgsExpected == -1) {
         return NULL;
     }
+
     /* Python gives one more arg than java expects for self/this. */
     if (lenJArgsExpected != lenPyArgsGiven - 1) {
         jboolean varargs = C3_JepInterface_isVarArgs(env, self->rmethod);
@@ -257,6 +264,14 @@ static PyObject* pyjc3method_call(PyJC3MethodObject *self,
         /* No varargs, all args are normal */
         lenJArgsNormal = lenJArgsExpected;
     }
+//    const char      *mName   = jstring2char(env, self->methodName);
+//    const char      *tName   = jstring2char(env, self->typeName);
+//
+//        printf("pyjc3method_call %s.%s  num params expected, given, normal, params: %d, %d, %d, %d\n",
+//       tName, mName, lenJArgsExpected, lenPyArgsGiven, lenJArgsNormal, self->lenParameters);
+//        fflush(stdout);
+//        release_utf_char(env, self->methodName, mName);
+//        release_utf_char(env, self->typeName, tName);
 
     firstArg = PyTuple_GetItem(args, 0);
     if (!PyJC3Object_Check(firstArg)) {
@@ -300,9 +315,20 @@ static PyObject* pyjc3method_call(PyJC3MethodObject *self,
         if (paramTypeId == JARRAY_ID) {
             foundArray = 1;
         }
+        printf("pyjc3method_call param number, type: %d, %d\n", pos, paramTypeId);
+        fflush(stdout);
 
         jargs[pos] = convert_pyarg_jvalue(env, param, paramType, paramTypeId, pos);
+
+
+        if (paramTypeId == JSTRING_ID) {
+          printf("pyjc3method_call param[%d] %s\n", pos, PyString_AsString(PyObject_Str(param)));
+          fflush(stdout);
+        }
+
         if (PyErr_Occurred()) {
+            printf("pyjc3method_call error occurred\n");
+            fflush(stdout);
             if (pos == (lenJArgsExpected - 1)
                     && PyErr_ExceptionMatches(PyExc_TypeError)) {
                 jboolean varargs = C3_JepInterface_isVarArgs(env, self->rmethod);
@@ -324,17 +350,25 @@ static PyObject* pyjc3method_call(PyJC3MethodObject *self,
         (*env)->DeleteLocalRef(env, paramType);
     }
     if (lenJArgsNormal + 1 == lenJArgsExpected) {
+        printf("pyjc3method_call varargs true\n");
+        fflush(stdout);
         /* Need to process last arg as varargs. */
         PyObject *param = NULL;
         jclass paramType = (jclass) (*env)->GetObjectArrayElement(env,
                            self->parameters, lenJArgsExpected - 1);
         if (lenPyArgsGiven == lenJArgsExpected) {
+
+            printf("pyjc3method_call varargs true   1 \n");
+            fflush(stdout);
             /*
              * Python args are normally one longer than expected to allow for
              * this/self so if it isn't then nothing was given for the varargs
              */
             param = PyTuple_New(0);
         } else {
+
+            printf("pyjc3method_call varargs true    2\n");
+            fflush(stdout);
             param = PyTuple_GetSlice(args, lenJArgsExpected, lenPyArgsGiven);
         }
         if (PyErr_Occurred()) {
@@ -359,12 +393,22 @@ static PyObject* pyjc3method_call(PyJC3MethodObject *self,
     case JSTRING_ID: {
         jstring jstr;
         Py_BEGIN_ALLOW_THREADS;
-
-        jstr = (jstring) C3_JepInterface_dispatchString(env, // TODO C3 make this c function
-                   self->typeName,
-                   self->methodName,
-                   jargs);
-
+        if (self->isStatic) {
+        printf("pyjc3method_call string static: true");
+            fflush(stdout);
+          jstr = (jstring) C3_JepInterface_dispatchString(env, // TODO C3 make this c function
+                     self->typeName,
+                     self->methodName,
+                     jargs);
+        } else {
+        printf("pyjc3method_call string static: false");
+            fflush(stdout);
+          jstr = (jstring) C3_JepInterface_dispatchStringMember(env, // TODO C3 make this c function
+                               self->typeName,
+                               self->methodName,
+                               instance->object,
+                               jargs);
+        }
         Py_END_ALLOW_THREADS;
         if (!process_java_exception(env) && jstr != NULL) {
             result = jstring_As_PyString(env, jstr);

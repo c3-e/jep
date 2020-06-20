@@ -2,6 +2,7 @@
 
 static jmethodID getFieldValueStringC3 = 0;
 static jmethodID dispatchStringC3 = 0;
+static jmethodID dispatchStringMemberC3 = 0;
 static jmethodID dispatchArrayC3 = 0;
 static jmethodID dispatchClassC3 = 0;
 static jmethodID dispatchObjectC3 = 0;
@@ -29,6 +30,7 @@ static jmethodID getReturnTypeC3     = 0;
 static jmethodID isVarArgsC3         = 0;
 static jmethodID isPublicC3   = 0;
 static jmethodID isStaticC3   = 0;
+static jmethodID isStaticMethodTypeC3   = 0;
 static jmethodID isAbstractC3 = 0;
 static jmethodID getFieldNameC3 = 0;
 
@@ -72,6 +74,16 @@ jstring C3_JepInterface_dispatchString(JNIEnv* env, jstring tn, jstring mn, jval
     jstring result = NULL;
     if (JNI_STATIC_METHOD(dispatchStringC3, env, C3_JEPINTERFACE_TYPE, "dispatchString", "(args blah blah)Ljava/lang/String;")) {
         result = (jstring) (*env)->CallStaticObjectMethod(env, C3_JEPINTERFACE_TYPE, dispatchStringC3, tn, mn, args);
+    }
+    return result;
+}
+
+jstring C3_JepInterface_dispatchStringMember(JNIEnv* env, jstring tn, jstring mn, jobject obj, jvalue* args)
+{
+    jstring result = NULL;
+    if (JNI_STATIC_METHOD(dispatchStringMemberC3, env, C3_JEPINTERFACE_TYPE, "dispatchStringMember",
+                          "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/Object;[Ljava/lang/Object;)Ljava/lang/String;")) {
+        result = (jstring) (*env)->CallStaticObjectMethod(env, C3_JEPINTERFACE_TYPE, dispatchStringMemberC3, tn, mn, obj, args);
     }
     return result;
 }
@@ -254,6 +266,16 @@ jboolean C3_JepInterface_isStatic(JNIEnv* env, jint mod)
             || (isStaticC3 = (*env)->GetStaticMethodID(env, C3_JEPINTERFACE_TYPE, "isStatic",
                            "(I)Z"))) {
         result = (*env)->CallStaticBooleanMethod(env, C3_JEPINTERFACE_TYPE, isStaticC3, mod);
+    }
+    return result;
+}
+jboolean C3_JepInterface_isStaticMethodType(JNIEnv* env,
+        jobject obj)
+{
+    jboolean result = JNI_FALSE;
+    if (JNI_STATIC_METHOD(isStaticMethodTypeC3, env, C3_JEPINTERFACE_TYPE, "isStaticMethodType",
+                   "(Lc3/platform/type/MethodType;)Z")) {
+        result = (*env)->CallStaticObjectMethod(env, C3_JEPINTERFACE_TYPE, isStaticMethodTypeC3, obj);
     }
     return result;
 }
