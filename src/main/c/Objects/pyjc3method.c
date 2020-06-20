@@ -74,7 +74,6 @@ static int pyjc3method_init(JNIEnv *env, PyJC3MethodObject *self)
 {
     jobject           returnType             = NULL;
     jobjectArray      paramArray             = NULL;
-    jint              modifier               = -1;
     jboolean          isStatic               = JNI_FALSE;
 
     if ((*env)->PushLocalFrame(env, JLOCAL_REFS) != 0) {
@@ -101,12 +100,11 @@ static int pyjc3method_init(JNIEnv *env, PyJC3MethodObject *self)
     self->lenParameters = (*env)->GetArrayLength(env, paramArray);
 
 
-    modifier = C3_JepInterface_getMemberModifiers(env, self->rmethod);
     if (process_java_exception(env)) {
         goto EXIT_ERROR;
     }
 
-    isStatic = C3_JepInterface_isStatic(env, modifier);
+    isStatic = C3_JepInterface_isStatic(env, self->rmethod);
     if (process_java_exception(env)) {
         goto EXIT_ERROR;
     }

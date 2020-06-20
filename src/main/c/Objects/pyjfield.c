@@ -105,7 +105,7 @@ PyJFieldObject* PyJC3Field_New(JNIEnv *env, jobject rfield)
 
     // ------------------------------ get field name
 
-    jstr = C3_JepInterface_getMethodName(env, rfield);
+    jstr = C3_JepInterface_getFieldName(env, rfield);
     if (process_java_exception(env) || !jstr) {
         goto EXIT_ERROR;
     }
@@ -127,7 +127,6 @@ EXIT_ERROR:
 
 static int pyjc3field_init(JNIEnv *env, PyJFieldObject *self)
 {
-    jint             modifier    = -1;
     jboolean         isStatic    = JNI_TRUE;
 
     if ((*env)->PushLocalFrame(env, JLOCAL_REFS) != 0) {
@@ -136,8 +135,6 @@ static int pyjc3field_init(JNIEnv *env, PyJFieldObject *self)
     }
 
     // ------------------------------ get fieldid
-
-    // self->fieldId = C3_JepInterface_getId(env, self->rfield); // TODO C3 figure out what we should do with fields.
 
 
     // ------------------------------ get return type
@@ -153,13 +150,11 @@ static int pyjc3field_init(JNIEnv *env, PyJFieldObject *self)
 
     // ------------------------------ get isStatic
 
-    // call getModifers()
-    modifier = C3_JepInterface_getMemberModifiers(env, self->rfield);
     if (process_java_exception(env)) {
         goto EXIT_ERROR;
     }
 
-    isStatic = C3_JepInterface_isStatic(env, modifier);
+    isStatic = C3_JepInterface_isFieldStatic(env, self->rfield);
     if (process_java_exception(env)) {
         goto EXIT_ERROR;
     }
