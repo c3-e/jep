@@ -177,7 +177,7 @@ static PyObject* pyjc3constructor_call(PyJC3MethodObject *self, PyObject *args,
     }
 
     Py_UNBLOCK_THREADS;
-    obj = (jobject) C3_JepInterface_DispatchObject(env,
+    obj = (jobject) C3_JepInterface_dispatchObject(env,
                              self->typeName,
                              self->methodName,
                              jargs);
