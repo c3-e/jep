@@ -33,13 +33,13 @@
 #include "Jep.h"
 
 
-static void pyjfield_dealloc(PyJFieldObject *self)
+static void pyjc3field_dealloc(PyJC3FieldObject *self)
 {
 #if USE_DEALLOC
     JNIEnv *env  = pyembed_get_env();
     if (env) {
-        if (self->rfield) {
-            (*env)->DeleteGlobalRef(env, self->rfield);
+        if (self->c3field) {
+            (*env)->DeleteGlobalRef(env, self->c3field);
         }
     }
 
@@ -50,17 +50,17 @@ static void pyjfield_dealloc(PyJFieldObject *self)
 }
 
 
-PyJFieldObject* PyJField_New(JNIEnv *env, jobject rfield)
+PyJC3FieldObject* PyJC3Field_New(JNIEnv *env, jobject c3field)
 {
-    PyJFieldObject *pyf;
+    PyJC3FieldObject *pyf;
     jstring          jstr        = NULL;
 
-    if (PyType_Ready(&PyJField_Type) < 0) {
+    if (PyType_Ready(&PyJC3Field_Type) < 0) {
         return NULL;
     }
 
-    pyf              = PyObject_NEW(PyJFieldObject, &PyJField_Type);
-    pyf->rfield      = (*env)->NewGlobalRef(env, rfield);
+    pyf              = PyObject_NEW(PyJC3FieldObject, &PyJC3Field_Type);
+    pyf->c3field      = (*env)->NewGlobalRef(env, c3field);
     pyf->pyFieldName = NULL;
     pyf->fieldTypeId = -1;
     pyf->isStatic    = -1;
@@ -68,7 +68,7 @@ PyJFieldObject* PyJField_New(JNIEnv *env, jobject rfield)
 
     // ------------------------------ get field name
 
-    jstr = java_lang_reflect_Member_getName(env, rfield);
+    jstr = C3_JepInterface_getFieldName(env, c3field);
     if (process_java_exception(env) || !jstr) {
         goto EXIT_ERROR;
     }
@@ -82,15 +82,13 @@ PyJFieldObject* PyJField_New(JNIEnv *env, jobject rfield)
 
 EXIT_ERROR:
     if (pyf) {
-        pyjfield_dealloc(pyf);
+        pyjc3field_dealloc(pyf);
     }
     return NULL;
 }
 
-
-static int pyjfield_init(JNIEnv *env, PyJFieldObject *self)
+static int pyjc3field_init(JNIEnv *env, PyJC3FieldObject *self)
 {
-    jint             modifier    = -1;
     jboolean         isStatic    = JNI_TRUE;
 
     if ((*env)->PushLocalFrame(env, JLOCAL_REFS) != 0) {
@@ -100,12 +98,9 @@ static int pyjfield_init(JNIEnv *env, PyJFieldObject *self)
 
     // ------------------------------ get fieldid
 
-    self->fieldId = (*env)->FromReflectedField(env,
-                    self->rfield);
-
 
     // ------------------------------ get return type
-    self->fieldType = java_lang_reflect_Field_getType(env, self->rfield);
+    self->fieldType = C3_JepInterface_getType(env, self->c3field);
     if (process_java_exception(env) || !self->fieldType) {
         goto EXIT_ERROR;
     }
@@ -117,13 +112,11 @@ static int pyjfield_init(JNIEnv *env, PyJFieldObject *self)
 
     // ------------------------------ get isStatic
 
-    // call getModifers()
-    modifier = java_lang_reflect_Member_getModifiers(env, self->rfield);
     if (process_java_exception(env)) {
         goto EXIT_ERROR;
     }
 
-    isStatic = java_lang_reflect_Modifier_isStatic(env, modifier);
+    isStatic = C3_JepInterface_isFieldStatic(env, self->c3field);
     if (process_java_exception(env)) {
         goto EXIT_ERROR;
     }
@@ -150,19 +143,18 @@ EXIT_ERROR:
 }
 
 
-int PyJField_Check(PyObject *obj)
+int PyJC3Field_Check(PyObject *obj)
 {
-    if (PyObject_TypeCheck(obj, &PyJField_Type)) {
+    if (PyObject_TypeCheck(obj, &PyJC3Field_Type)) {
         return 1;
     }
     return 0;
 }
 
 
-
 // get value from java object field.
 // returns new reference.
-PyObject* pyjfield_get(PyJFieldObject *self, PyJObject* pyjobject)
+PyObject* pyjc3field_get(PyJC3FieldObject *self, PyJC3Object* pyjobject)
 {
     PyObject *result = NULL;
     JNIEnv   *env;
@@ -175,7 +167,7 @@ PyObject* pyjfield_get(PyJFieldObject *self, PyJObject* pyjobject)
     }
 
     if (!self->init) {
-        if (!pyjfield_init(env, self) || PyErr_Occurred()) {
+        if (!pyjc3field_init(env, self) || PyErr_Occurred()) {
             return NULL;
         }
     }
@@ -264,6 +256,10 @@ PyObject* pyjfield_get(PyJFieldObject *self, PyJObject* pyjobject)
     }
 
     case JARRAY_ID: {
+        PyErr_Format(PyExc_RuntimeError,
+                             "TODO: C3 ARRAY CURRENTLY UNSUPPORTED!!");
+                Py_RETURN_NONE;
+        /*
         jobject obj;
 
         if (self->isStatic)
@@ -286,6 +282,7 @@ PyObject* pyjfield_get(PyJFieldObject *self, PyJObject* pyjobject)
         result = pyjarray_new(env, obj);
         (*env)->DeleteLocalRef(env, obj);
         break;
+        */
     }
     case JINT_ID: {
         jint ret;
@@ -457,7 +454,7 @@ PyObject* pyjfield_get(PyJFieldObject *self, PyJObject* pyjobject)
     return result;
 }
 
-int pyjfield_set(PyJFieldObject *self, PyJObject* pyjobject, PyObject *value)
+int pyjc3field_set(PyJC3FieldObject *self, PyJC3Object* pyjobject, PyObject *value)
 {
     JNIEnv *env = pyembed_get_env();
 
@@ -467,7 +464,7 @@ int pyjfield_set(PyJFieldObject *self, PyJObject* pyjobject, PyObject *value)
     }
 
     if (!self->init) {
-        if (!pyjfield_init(env, self) || PyErr_Occurred()) {
+        if (!pyjc3field_init(env, self) || PyErr_Occurred()) {
             return -1;
         }
     }
@@ -613,13 +610,12 @@ int pyjfield_set(PyJFieldObject *self, PyJObject* pyjobject, PyObject *value)
     return -1;
 }
 
-
-PyTypeObject PyJField_Type = {
+PyTypeObject PyJC3Field_Type = {
     PyVarObject_HEAD_INIT(NULL, 0)
-    "jep.PyJField",
-    sizeof(PyJFieldObject),
+    "jep.PyJC3Field",
+    sizeof(PyJC3FieldObject),
     0,
-    (destructor) pyjfield_dealloc,            /* tp_dealloc */
+    (destructor) pyjc3field_dealloc,            /* tp_dealloc */
     0,                                        /* tp_print */
     0,                                        /* tp_getattr */
     0,                                        /* tp_setattr */

@@ -166,7 +166,7 @@ jobjectArray C3_JepInterface_getFields(JNIEnv* env, jobject obj)
     jobjectArray result = NULL;
     Py_BEGIN_ALLOW_THREADS
     if (JNI_STATIC_METHOD(getFieldsC3, env, C3_JEPINTERFACE_TYPE, "getFields",
-                   "(Ljava.lang.Object;)[Lc3/platform/type/FieldType;")) {
+                   "(Ljava/lang/Object;)[Lc3/platform/type/FieldType;")) {
         result = (jobjectArray) (*env)->CallStaticObjectMethod(env, C3_JEPINTERFACE_TYPE, getFieldsC3, obj);
     }
     Py_END_ALLOW_THREADS

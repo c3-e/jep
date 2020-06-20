@@ -26,30 +26,32 @@
 */
 
 #include "jep_platform.h"
-#include "pyjobject.h"
 #include "pyjc3object.h"
-#ifndef _Included_pyjfield
-#define _Included_pyjfield
+#include "pyjc3object.h"
+#ifndef _Included_pyjc3field
+#define _Included_pyjc3field
 
-extern PyTypeObject PyJField_Type;
+extern PyTypeObject PyJC3Field_Type;
 
 /* Represents a java field on a java object and allows getting and setting values */
 typedef struct {
     PyObject_HEAD
     jfieldID          fieldId;             /* Resolved fieldid */
-    jobject           rfield;              /* reflect/Field object */
+    jobject           c3field;              /* reflect/Field object */
     jclass            fieldType;           /* field's type */
     int               fieldTypeId;         /* field's typeid */
     PyObject         *pyFieldName;         /* python name... :-) */
     int               isStatic;            /* -1 if not known,
                                               otherwise 1 or 0 */
     int               init;                /* 1 if init performed */
-} PyJFieldObject;
+} PyJC3FieldObject;
 
-PyJFieldObject* PyJField_New(JNIEnv*, jobject);
-int PyJField_Check(PyObject*);
+PyJC3FieldObject* PyJC3Field_New(JNIEnv*, jobject);
 
-PyObject* pyjfield_get(PyJFieldObject*, PyJObject*);
-int pyjfield_set(PyJFieldObject*, PyJObject*, PyObject*);
+int PyJC3Field_Check(PyObject*);
+
+PyObject* pyjc3field_get(PyJC3FieldObject*, PyJC3Object*);
+
+int pyjc3field_set(PyJC3FieldObject*, PyJC3Object*, PyObject*);
 
 #endif // ndef pyjfield
