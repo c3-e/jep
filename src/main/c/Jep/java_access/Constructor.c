@@ -28,18 +28,6 @@
 #include "Jep.h"
 
 static jmethodID getParameterTypes = 0;
-static jmethodID getParameterTypesC3 = 0;
-
-jobjectArray C3_JepInterface_getConstructorParameterTypes(JNIEnv* env,
-        jobject this)
-{
-    jobjectArray result = NULL;
-    if (JNI_STATIC_METHOD(getParameterTypesC3, env, C3_JEPINTERFACE_TYPE, "getConstructorParameterTypes",
-                   "()[Ljava/lang/Class;")) {
-        result = (jobjectArray) (*env)->CallStaticObjectMethod(env, C3_JEPINTERFACE_TYPE, getParameterTypesC3, this);
-    }
-    return result;
-}
 
 
 jobjectArray java_lang_reflect_Constructor_getParameterTypes(JNIEnv* env,

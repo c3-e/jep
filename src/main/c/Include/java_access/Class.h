@@ -30,17 +30,13 @@
 
 jclass       java_lang_Class_getComponentType(JNIEnv*, jclass);
 jobjectArray java_lang_Class_getConstructors(JNIEnv*, jclass);
-jobjectArray C3_JepInterface_getConstructors(JNIEnv*, jclass);
 jobjectArray java_lang_Class_getDeclaredClasses(JNIEnv*, jclass);
 jobjectArray java_lang_Class_getFields(JNIEnv*, jclass);
-jobjectArray C3_JepInterface_getFields(JNIEnv*, jclass);
 jobjectArray java_lang_Class_getMethods(JNIEnv*, jclass);
-jobjectArray C3_JepInterface_getMethods(JNIEnv*, jobject);
 jint         java_lang_Class_getModifiers(JNIEnv*, jclass);
 jstring      java_lang_Class_getName(JNIEnv*, jclass);
 jstring      java_lang_Class_getSimpleName(JNIEnv*, jclass);
 jboolean     java_lang_Class_isArray(JNIEnv*, jclass);
-jboolean     C3_JepInterface_isC3Class(JNIEnv*, jclass);
 jobject      java_lang_Class_newInstance(JNIEnv*, jclass);
 jboolean     java_lang_Class_isInterface(JNIEnv*, jclass);
 

@@ -104,3 +104,4 @@
 #include "java_access/ShortBuffer.h"
 #include "java_access/String.h"
 #include "java_access/Throwable.h"
+#include "java_access/C3JepInterface.h"
