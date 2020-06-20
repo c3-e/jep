@@ -11,15 +11,14 @@ jdouble C3_JepInterface_dispatchDouble(JNIEnv*, jstring, jstring, jvalue*);
 jfloat C3_JepInterface_dispatchFloat(JNIEnv*, jstring, jstring, jvalue*);
 jlong C3_JepInterface_dispatchLong(JNIEnv*, jstring, jstring, jvalue*);
 jboolean C3_JepInterface_dispatchBoolean(JNIEnv*, jstring, jstring, jvalue*);
-jobject C3_JepInterface_dispatch(JNIEnv*, jstring, jstring, jvalue*);
-
+jboolean C3_JepInterface_isFieldStatic(JNIEnv*, jobject);
 jobjectArray C3_JepInterface_getConstructors(JNIEnv*, jclass);
 jobjectArray C3_JepInterface_getFields(JNIEnv*, jclass);
 jobjectArray C3_JepInterface_getMethods(JNIEnv*, jobject);
 jboolean     C3_JepInterface_isC3Class(JNIEnv*, jclass);
 jobjectArray C3_JepInterface_getConstructorParameterTypes(JNIEnv*, jobject);
 jclass  C3_JepInterface_getType(JNIEnv*, jobject);
-
+jstring C3_JepInterface_getFieldName(JNIEnv*, jobject);
 jstring C3_JepInterface_getTypeName(JNIEnv*, jobject);
 jstring C3_JepInterface_getMethodName(JNIEnv*, jobject);
 jint    C3_JepInterface_getMemberModifiers(JNIEnv*, jobject);

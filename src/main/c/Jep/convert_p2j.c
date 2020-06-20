@@ -775,8 +775,6 @@ char isFunctionalInterfaceType(JNIEnv *env, jclass type)
         jint modifiers;
         if (!isC3)
             {modifiers = java_lang_reflect_Member_getModifiers(env, method);}
-        else
-            {modifiers = C3_JepInterface_getMemberModifiers(env, method);}
         jboolean isAbstract;
         if (process_java_exception(env)) {
             (*env)->PopLocalFrame(env, NULL);
@@ -785,7 +783,7 @@ char isFunctionalInterfaceType(JNIEnv *env, jclass type)
         if (!isC3)
             {isAbstract = java_lang_reflect_Modifier_isAbstract(env, modifiers);}
         else
-            {isAbstract = C3_JepInterface_isAbstract(env, modifiers);}
+            {isAbstract = C3_JepInterface_isAbstract(env, method);}
         if (process_java_exception(env)) {
             (*env)->PopLocalFrame(env, NULL);
             return 0;

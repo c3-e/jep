@@ -156,7 +156,7 @@ static int pyjc3object_init(JNIEnv *env, PyJC3Object *pyjob)
         //  process fields
         // fieldArray = java_lang_Class_getFields(env, pyjob->clazz);
 
-        fieldArray = C3_JepInterface_getFields(env, pyjob->clazz);
+        fieldArray = C3_JepInterface_getFields(env, pyjob);
         if (process_java_exception(env) || !fieldArray) {
             goto EXIT_ERROR;
         }
