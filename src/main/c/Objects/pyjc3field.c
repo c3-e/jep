@@ -100,6 +100,9 @@ static int pyjc3field_init(JNIEnv *env, PyJC3FieldObject *self)
 
 
     // ------------------------------ get return type
+    printf("pyjc3field init: %s\n", PyString_AsString(self->pyFieldName));
+    fflush(stdout);
+
     self->fieldType = C3_JepInterface_getType(env, self->c3field);
     if (process_java_exception(env) || !self->fieldType) {
         goto EXIT_ERROR;

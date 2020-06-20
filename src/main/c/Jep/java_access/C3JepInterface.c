@@ -188,7 +188,7 @@ jboolean C3_JepInterface_isC3Class(JNIEnv* env, jclass this)
 jclass C3_JepInterface_getType(JNIEnv* env, jobject obj)
 {
     jclass result = NULL;
-    if (JNI_STATIC_METHOD(getTypeC3, env, C3_JEPINTERFACE_TYPE, "getType", "(java/lang/Object;)Lc3/platform/type/Type;")) {
+    if (JNI_STATIC_METHOD(getTypeC3, env, C3_JEPINTERFACE_TYPE, "getType", "(Lc3/platform/type/FieldType;)Ljava/lang/Class;")) {
         result = (jclass) (*env)->CallStaticObjectMethod(env, C3_JEPINTERFACE_TYPE, getTypeC3, obj);
     }
     return result;
