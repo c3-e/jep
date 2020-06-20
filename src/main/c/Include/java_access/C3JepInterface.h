@@ -1,6 +1,7 @@
 #ifndef _Included_c3_zoo_py_JepInterface
 #define _Included_c3_zoo_py_JepInterface
 
+jstring C3_JepInterface_getFieldValueString(JNIEnv*, jobject, jstring);
 jstring C3_JepInterface_dispatchString(JNIEnv*, jstring, jstring, jvalue*);
 jobjectArray C3_JepInterface_dispatchArray(JNIEnv*, jstring, jstring, jvalue*);
 jobject C3_JepInterface_dispatchObject(JNIEnv*, jstring, jstring, jvalue*);

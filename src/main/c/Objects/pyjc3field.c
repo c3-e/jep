@@ -32,7 +32,6 @@
 
 #include "Jep.h"
 
-
 static void pyjc3field_dealloc(PyJC3FieldObject *self)
 {
 #if USE_DEALLOC
@@ -224,9 +223,9 @@ PyObject* pyjc3field_get(PyJC3FieldObject *self, PyJC3Object* pyjobject)
         } else {
     printf("pyjc3field get non-static string field %d\n", self->fieldTypeId);
     fflush(stdout);
-            jstr = (jstring) (*env)->GetObjectField(env,
+            jstr = (jstring) C3_JepInterface_getFieldValueString(env,
                                                     pyjobject->object,
-                                                    self->fieldId);
+                                                    PyObject_As_jstring(env, self->pyFieldName));
         }
         if (process_java_exception(env)) {
 

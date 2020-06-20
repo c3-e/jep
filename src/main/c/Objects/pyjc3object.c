@@ -26,7 +26,6 @@
 */
 
 #include "Jep.h"
-
 /*
  * https://bugs.python.org/issue2897
  * structmember.h must be included to use PyMemberDef

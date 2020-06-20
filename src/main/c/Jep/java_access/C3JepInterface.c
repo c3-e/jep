@@ -1,5 +1,6 @@
 #include "Jep.h"
 
+static jmethodID getFieldValueStringC3 = 0;
 static jmethodID dispatchStringC3 = 0;
 static jmethodID dispatchArrayC3 = 0;
 static jmethodID dispatchClassC3 = 0;
@@ -314,6 +315,15 @@ jstring C3_JepInterface_getFieldName(JNIEnv* env, jobject obj)
     jstring result = NULL;
     if (JNI_STATIC_METHOD(getFieldNameC3, env, C3_JEPINTERFACE_TYPE, "getFieldName", "(Lc3/platform/type/FieldType;)Ljava/lang/String;")) {
         result = (jstring) (*env)->CallStaticObjectMethod(env, C3_JEPINTERFACE_TYPE, getFieldNameC3, obj);
+    }
+    return result;
+}
+
+jstring C3_JepInterface_getFieldValueString(JNIEnv* env, jobject obj, jstring fieldName)
+{
+    jstring result = NULL;
+    if (JNI_STATIC_METHOD(getFieldValueStringC3, env, C3_JEPINTERFACE_TYPE, "getFieldValueString", "(Ljava/lang/Object;Ljava/lang/String;)Ljava/lang/String;")) {
+        result = (jstring) (*env)->CallStaticObjectMethod(env, C3_JEPINTERFACE_TYPE, getFieldValueStringC3, obj, fieldName);
     }
     return result;
 }
