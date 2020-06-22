@@ -294,37 +294,14 @@ static PyObject* pyjc3method_call(PyJC3MethodObject *self,
         process_java_exception(env);
         return NULL;
     }
-    if (!self->isStatic) {
-        // This logic was added assuming that adding the "this" arg to be the first arg in the "args" list passed to
-        // C3.dispatch will allow for member function invocation. This assumption is turned out to be incorrect, so
-        // member functions do not work
-        jarray = (*env)->NewObjectArray(env, (jsize) lenJArgsExpected + 1, JOBJECT_TYPE, NULL);
-        if (!jarray) {
-            process_java_exception(env);
-            (*env)->PopLocalFrame(env, NULL);
-            return PyErr_NoMemory(); // TODO C3 Throw a better error
-        }
-        PyObject *param = NULL;
-        int paramTypeId = -1;
-        param = firstArg;
-        jclass paramType = ((PyJC3Object*) param)->clazz;
 
-        paramTypeId = get_jtype(env, paramType);
-        if (paramTypeId == JARRAY_ID) {
-            foundArray = 1;
-        }
-        printf("pyjc3method_call member param, type: %d\n", paramTypeId);
-        fflush(stdout);
-        (*env)->SetObjectArrayElement(env, jarray, (jsize) 0,convert_pyarg_jobject(env, param, paramType, paramTypeId, 0));
-        start_idx = 1;
-    } else {
-        jarray = (*env)->NewObjectArray(env, (jsize) lenJArgsExpected, JOBJECT_TYPE, NULL);
-        if (!jarray) {
-            process_java_exception(env);
-            (*env)->PopLocalFrame(env, NULL);
-            return PyErr_NoMemory(); // TODO C3 Throw a better error
-        }
+    jarray = (*env)->NewObjectArray(env, (jsize) lenJArgsExpected, JOBJECT_TYPE, NULL);
+    if (!jarray) {
+        process_java_exception(env);
+        (*env)->PopLocalFrame(env, NULL);
+        return PyErr_NoMemory(); // TODO C3 Throw a better error
     }
+
 
     for (pos = 0; pos < lenJArgsNormal; pos++) {
         PyObject *param = NULL;
