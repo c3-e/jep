@@ -445,7 +445,7 @@ static PyObject* pyjc3object_getattro(PyObject *obj, PyObject *name)
         return wrapper;
     } else if (PyJC3Field_Check(ret)) {
 
-        printf("getattro: field\n", PyString_AsString(name));
+        printf("getattro: field %s\n", PyString_AsString(name));
         fflush(stdout);
         // PyObject *resolved = pyjfield_get((PyJFieldObject *) ret, (PyJC3Object*) obj);
         PyObject *resolved = pyjc3field_get((PyJC3FieldObject *) ret, (PyJC3Object*) obj);
@@ -453,7 +453,7 @@ static PyObject* pyjc3object_getattro(PyObject *obj, PyObject *name)
         return resolved;
     } else {
 
-        printf("getattro: none\n", PyString_AsString(name));
+        printf("getattro: none %s\n", PyString_AsString(name));
         fflush(stdout);
     }
     return ret;

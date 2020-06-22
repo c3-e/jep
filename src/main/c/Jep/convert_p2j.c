@@ -426,82 +426,54 @@ static jobject pylong_as_jobject(JNIEnv *env, PyObject *pyobject,
         jobject result;
         jlong j = PyObject_As_jlong(pyobject);
         if (j == -1 && PyErr_Occurred()) {
-            printf("0000");
-            fflush(stdout);
             return NULL;
         }
         result = java_lang_Long_new_J(env, j);
         if (!result) {
             process_java_exception(env);
-            printf("1111");
-            fflush(stdout);
             return NULL;
         }
-        printf("2222");
-        fflush(stdout);
         return result;
     } else if ((*env)->IsAssignableFrom(env, JINT_OBJ_TYPE, expectedType)) {
         jobject result;
         jint i = PyObject_As_jint(pyobject);
         if (i == -1 && PyErr_Occurred()) {
-            printf("3333");
-            fflush(stdout);
             return NULL;
         }
         result = java_lang_Integer_new_I(env, i);
         if (!result) {
             process_java_exception(env);
-            printf("4444");
-            fflush(stdout);
             return NULL;
         }
-        printf("5555");
-        fflush(stdout);
         return result;
     } else if ((*env)->IsAssignableFrom(env, JBYTE_OBJ_TYPE, expectedType)) {
         jobject result;
         jbyte b = PyObject_As_jbyte(pyobject);
         if (b == -1 && PyErr_Occurred()) {
-            printf("6666");
-            fflush(stdout);
             return NULL;
         }
         result = java_lang_Byte_new_B(env, b);
         if (!result) {
             process_java_exception(env);
-            printf("7777");
-            fflush(stdout);
             return NULL;
         }
-        printf("8888");
-        fflush(stdout);
         return result;
     } else if ((*env)->IsAssignableFrom(env, JSHORT_OBJ_TYPE, expectedType)) {
         jobject result;
         jshort s = PyObject_As_jshort(pyobject);
         if (s == -1 && PyErr_Occurred()) {
-            printf("9999");
-            fflush(stdout);
             return NULL;
         }
         result = java_lang_Short_new_S(env, s);
         if (!result) {
             process_java_exception(env);
-            printf("10 10 10 10");
-            fflush(stdout);
             return NULL;
         }
-        printf("11 11 11 11");
-        fflush(stdout);
         return result;
     } else if ((*env)->IsAssignableFrom(env, JPYOBJECT_TYPE, expectedType)) {
-        printf("12 12 12 12");
-        fflush(stdout);
         return PyObject_As_JPyObject(env, pyobject);
     }
     raiseTypeError(env, pyobject, expectedType);
-    printf("13 13 13 13");
-    fflush(stdout);
     return NULL;
 }
 
@@ -1136,128 +1108,78 @@ jobject PyObject_As_jobject(JNIEnv *env, PyObject *pyobject,
                             jclass expectedType)
 {
     if (pyobject == Py_None) {
-        printf("AAAA");
-        fflush(stdout);
         return NULL;
     } else if (PyJClass_Check(pyobject)) {
-        printf("BBBB");
-        fflush(stdout);
         return (*env)->NewLocalRef(env, ((PyJObject *) pyobject)->clazz);
     } else if (PyJC3Class_Check(pyobject)) {
-        printf("CCCC");
-        fflush(stdout);
         return (*env)->NewLocalRef(env, ((PyJC3Object *) pyobject)->clazz);
     } else if (pyjarray_check(pyobject)) {
         PyJObject *pyjarray = (PyJObject *) pyobject;
         if ((*env)->IsAssignableFrom(env, pyjarray->clazz, expectedType)) {
-            printf("DDDD");
-            fflush(stdout);
             pyjarray_release_pinned((PyJArrayObject *) pyjarray, JNI_COMMIT);
             return (*env)->NewLocalRef(env, pyjarray->object);
         }
     } else if (PyJC3Object_Check(pyobject)) {
         PyJC3Object *pyjobject = (PyJC3Object*) pyobject;
         if ((*env)->IsAssignableFrom(env, pyjobject->clazz, expectedType)) {
-            printf("EEEE");
-            fflush(stdout);
             return (*env)->NewLocalRef(env, pyjobject->object);
         }
     } else if (PyJObject_Check(pyobject)) {
         PyJObject *pyjobject = (PyJObject*) pyobject;
         if ((*env)->IsAssignableFrom(env, pyjobject->clazz, expectedType)) {
-            printf("FFFF");
-            fflush(stdout);
             return (*env)->NewLocalRef(env, pyjobject->object);
         }
     } else if ((*env)->IsSameObject(env, expectedType, JPYOBJECT_TYPE)) {
-        printf("GGGG");
-        fflush(stdout);
         return PyObject_As_JPyObject(env, pyobject);
 #if PY_MAJOR_VERSION < 3
     } else if (PyString_Check(pyobject)) {
-        printf("HHHH");
-        fflush(stdout);
         return pystring_as_jobject(env, pyobject, expectedType);
 #endif
     } else if (PyUnicode_Check(pyobject)) {
-        printf("IIII");
-        fflush(stdout);
         return pyunicode_as_jobject(env, pyobject, expectedType);
     } else if (PyBool_Check(pyobject)) {
-        printf("JJJJ");
-        fflush(stdout);
         return pybool_as_jobject(env, pyobject, expectedType);
 #if JEP_NUMPY_ENABLED
     } else if (npy_scalar_check(pyobject)) {
         jobject result = convert_npy_scalar_jobject(env, pyobject, expectedType);
         if (result != NULL || PyErr_Occurred()) {
-            printf("KKKK");
-            fflush(stdout);
             return result;
         } else if ((*env)->IsAssignableFrom(env, JPYOBJECT_TYPE, expectedType)) {
-            printf("LLLL");
-            fflush(stdout);
             return PyObject_As_JPyObject(env, pyobject);
         }
 #endif
     } else if (PyLong_Check(pyobject)) {
-        printf("MMMM");
-        fflush(stdout);
         return pylong_as_jobject(env, pyobject, expectedType);
 #if PY_MAJOR_VERSION < 3
     } else if (PyInt_Check(pyobject)) {
-        printf("NNNN");
-        fflush(stdout);
         return pyint_as_jobject(env, pyobject, expectedType);
 #endif
     } else if (PyFloat_Check(pyobject)) {
-        printf("OOOO");
-        fflush(stdout);
         return pyfloat_as_jobject(env, pyobject, expectedType);
     } else if (PyList_Check(pyobject) || PyTuple_Check(pyobject)) {
-        printf("PPPP");
-        fflush(stdout);
         return pyfastsequence_as_jobject(env, pyobject, expectedType);
     } else if (PyDict_Check(pyobject)) {
-        printf("QQQQ");
-        fflush(stdout);
         return pydict_as_jobject(env, pyobject, expectedType);
     } else if (PyCallable_Check(pyobject)) {
         if (isFunctionalInterfaceType(env, expectedType)) {
-            printf("RRRR");
-            fflush(stdout);
             return PyCallable_as_functional_interface(env, pyobject, expectedType);
         } else if (PyErr_Occurred()) {
-            printf("SSSS");
-            fflush(stdout);
             return NULL;
         } else if ((*env)->IsAssignableFrom(env, JPYCALLABLE_TYPE, expectedType)) {
-            printf("TTTT");
-            fflush(stdout);
             return PyCallable_As_JPyCallable(env, pyobject);
         }
 #if JEP_NUMPY_ENABLED
     } else if (npy_array_check(pyobject)) {
-        printf("UUUU");
-        fflush(stdout);
         return convert_pyndarray_jobject(env, pyobject, expectedType);
 #endif
     } else if (PyObject_CheckBuffer(pyobject)) {
-        printf("VVVV");
-        fflush(stdout);
         return pybuffer_as_jobject(env, pyobject, expectedType);
     } else if ((*env)->IsAssignableFrom(env, JSTRING_TYPE, expectedType)) {
-        printf("WWWW");
-        fflush(stdout);
         return (jobject) PyObject_As_jstring(env, pyobject);
     } else if ((*env)->IsAssignableFrom(env, JPYOBJECT_TYPE, expectedType)) {
-        printf("XXXX");
-        fflush(stdout);
         return PyObject_As_JPyObject(env, pyobject);
     }
     raiseTypeError(env, pyobject, expectedType);
-    printf("YYYY");
-    fflush(stdout);
     return NULL;
 }
 

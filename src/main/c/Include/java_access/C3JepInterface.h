@@ -2,18 +2,18 @@
 #define _Included_c3_zoo_py_JepInterface
 
 jstring C3_JepInterface_getFieldValueString(JNIEnv*, jobject, jstring);
-jstring C3_JepInterface_dispatchString(JNIEnv*, jstring, jstring, jobject*);
-jstring C3_JepInterface_dispatchStringMember(JNIEnv*, jstring, jstring, jobject, jobject*);
-jobjectArray C3_JepInterface_dispatchArray(JNIEnv*, jstring, jstring, jobject*);
+jstring C3_JepInterface_dispatchString(JNIEnv*, jstring, jstring, jobjectArray);
+jstring C3_JepInterface_dispatchStringMember(JNIEnv*, jstring, jstring, jobject, jobjectArray);
+jobjectArray C3_JepInterface_dispatchArray(JNIEnv*, jstring, jstring, jobjectArray);
 jobject C3_JepInterface_dispatchObject(JNIEnv*, jstring, jstring, jobjectArray);
-jobject C3_JepInterface_dispatchClass(JNIEnv*, jstring, jstring, jobject*);
-jint C3_JepInterface_dispatchInt(JNIEnv*, jstring, jstring, jobject*);
-jbyte C3_JepInterface_dispatchByte(JNIEnv*, jstring, jstring, jobject*);
-jdouble C3_JepInterface_dispatchDouble(JNIEnv*, jstring, jstring, jobject*);
-jfloat C3_JepInterface_dispatchFloat(JNIEnv*, jstring, jstring, jobject*);
-jlong C3_JepInterface_dispatchLong(JNIEnv*, jstring, jstring, jobject*);
-jboolean C3_JepInterface_dispatchBoolean(JNIEnv*, jstring, jstring, jobject*);
-void C3_JepInterface_dispatchVoid(JNIEnv*, jstring, jstring, jobject*);
+jobject C3_JepInterface_dispatchClass(JNIEnv*, jstring, jstring, jobjectArray);
+jint C3_JepInterface_dispatchInt(JNIEnv*, jstring, jstring, jobjectArray);
+jbyte C3_JepInterface_dispatchByte(JNIEnv*, jstring, jstring, jobjectArray);
+jdouble C3_JepInterface_dispatchDouble(JNIEnv*, jstring, jstring, jobjectArray);
+jfloat C3_JepInterface_dispatchFloat(JNIEnv*, jstring, jstring, jobjectArray);
+jlong C3_JepInterface_dispatchLong(JNIEnv*, jstring, jstring, jobjectArray);
+jboolean C3_JepInterface_dispatchBoolean(JNIEnv*, jstring, jstring, jobjectArray);
+void C3_JepInterface_dispatchVoid(JNIEnv*, jstring, jstring, jobjectArray);
 jboolean C3_JepInterface_isFieldStatic(JNIEnv*, jobject);
 jobjectArray C3_JepInterface_getConstructors(JNIEnv*, jclass);
 jobjectArray C3_JepInterface_getFields(JNIEnv*, jobject);

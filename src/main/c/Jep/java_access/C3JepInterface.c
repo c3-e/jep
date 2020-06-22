@@ -13,9 +13,7 @@ static jmethodID dispatchFloatC3 = 0;
 static jmethodID dispatchLongC3 = 0;
 static jmethodID dispatchBooleanC3 = 0;
 static jmethodID dispatchVoidC3 = 0;
-static jmethodID dispatchC3         = 0;
 static jmethodID isFieldStaticC3 = 0;
-
 static jmethodID getConstructorsC3    = 0;
 static jmethodID getFieldsC3        = 0;
 static jmethodID getMethodsC3        = 0;
@@ -29,11 +27,11 @@ static jmethodID getConstructorParameterTypesC3 = 0;
 static jmethodID getReturnTypeC3     = 0;
 static jmethodID isVarArgsC3         = 0;
 static jmethodID isPublicC3   = 0;
-static jmethodID isStaticMethodTypeC3   = 0;
+static jmethodID isStaticC3   = 0;
 static jmethodID isAbstractC3 = 0;
 static jmethodID getFieldNameC3 = 0;
 
-jobjectArray C3_JepInterface_dispatchArray(JNIEnv* env, jstring tn, jstring mn, jobject* args)
+jobjectArray C3_JepInterface_dispatchArray(JNIEnv* env, jstring tn, jstring mn, jobjectArray args)
 {
     jobjectArray result = NULL;
     if (JNI_STATIC_METHOD(dispatchArrayC3, env, C3_JEPINTERFACE_TYPE, "dispatchArray", "(Ljava/lang/String;Ljava/lang/String;[Ljava/lang/Object;)[Ljava/lang/Object;")) {
@@ -51,7 +49,7 @@ jobject C3_JepInterface_dispatchObject(JNIEnv* env, jstring tn, jstring mn, jobj
     return result;
 }
 
-jint C3_JepInterface_dispatchInt(JNIEnv* env, jstring tn, jstring mn, jobject* args)
+jint C3_JepInterface_dispatchInt(JNIEnv* env, jstring tn, jstring mn, jobjectArray args)
 {
     jint result = 0;
     if (JNI_STATIC_METHOD(dispatchIntC3, env, C3_JEPINTERFACE_TYPE, "dispatchInt", "(Ljava/lang/String;Ljava/lang/String;[Ljava/lang/Object;)I")) {
@@ -60,7 +58,7 @@ jint C3_JepInterface_dispatchInt(JNIEnv* env, jstring tn, jstring mn, jobject* a
     return result;
 }
 
-jstring C3_JepInterface_dispatchString(JNIEnv* env, jstring tn, jstring mn, jobject* args)
+jstring C3_JepInterface_dispatchString(JNIEnv* env, jstring tn, jstring mn, jobjectArray args)
 {
     jstring result = NULL;
     if (JNI_STATIC_METHOD(dispatchStringC3, env, C3_JEPINTERFACE_TYPE, "dispatchString", "(Ljava/lang/String;Ljava/lang/String;[Ljava/lang/Object;)Ljava/lang/String;")) {
@@ -69,7 +67,7 @@ jstring C3_JepInterface_dispatchString(JNIEnv* env, jstring tn, jstring mn, jobj
     return result;
 }
 
-jstring C3_JepInterface_dispatchStringMember(JNIEnv* env, jstring tn, jstring mn, jobject obj, jobject* args)
+jstring C3_JepInterface_dispatchStringMember(JNIEnv* env, jstring tn, jstring mn, jobject obj, jobjectArray args)
 {
     jstring result = NULL;
     if (JNI_STATIC_METHOD(dispatchStringMemberC3, env, C3_JEPINTERFACE_TYPE, "dispatchStringMember",
@@ -79,14 +77,14 @@ jstring C3_JepInterface_dispatchStringMember(JNIEnv* env, jstring tn, jstring mn
     return result;
 }
 
-void C3_JepInterface_dispatchVoid(JNIEnv* env, jstring tn, jstring mn, jobject* args)
+void C3_JepInterface_dispatchVoid(JNIEnv* env, jstring tn, jstring mn, jobjectArray args)
 {
     if (JNI_STATIC_METHOD(dispatchVoidC3, env, C3_JEPINTERFACE_TYPE, "dispatchVoid", "(Ljava/lang/String;Ljava/lang/String;[Ljava/lang/Object;)")) {
         (*env)->CallStaticVoidMethod(env, C3_JEPINTERFACE_TYPE, dispatchVoidC3, tn, mn, args);
     }
 }
 
-jfloat C3_JepInterface_dispatchFloat(JNIEnv* env, jstring tn, jstring mn, jobject* args)
+jfloat C3_JepInterface_dispatchFloat(JNIEnv* env, jstring tn, jstring mn, jobjectArray args)
 {
     jfloat result = 0;
     if (JNI_STATIC_METHOD(dispatchFloatC3, env, C3_JEPINTERFACE_TYPE, "dispatchFloat", "(Ljava/lang/String;Ljava/lang/String;[Ljava/lang/Object;)F")) {
@@ -95,7 +93,7 @@ jfloat C3_JepInterface_dispatchFloat(JNIEnv* env, jstring tn, jstring mn, jobjec
     return result;
 }
 
-jbyte C3_JepInterface_dispatchByte(JNIEnv* env, jstring tn, jstring mn, jobject* args)
+jbyte C3_JepInterface_dispatchByte(JNIEnv* env, jstring tn, jstring mn, jobjectArray args)
 {
    jbyte result = 0;
    if (JNI_STATIC_METHOD(dispatchByteC3, env, C3_JEPINTERFACE_TYPE, "dispatchByte", "(Ljava/lang/String;Ljava/lang/String;[Ljava/lang/Object;)B")) {
@@ -104,7 +102,7 @@ jbyte C3_JepInterface_dispatchByte(JNIEnv* env, jstring tn, jstring mn, jobject*
    return result;
 }
 
-jobject C3_JepInterface_dispatchClass(JNIEnv* env, jstring tn, jstring mn, jobject* args)
+jobject C3_JepInterface_dispatchClass(JNIEnv* env, jstring tn, jstring mn, jobjectArray args)
 {
     jobject result = NULL;
     if (JNI_STATIC_METHOD(dispatchClassC3, env, C3_JEPINTERFACE_TYPE, "dispatchClass", "(Ljava/lang/String;Ljava/lang/String;[Ljava/lang/Object;)Ljava/lang/Object;")) {
@@ -113,7 +111,7 @@ jobject C3_JepInterface_dispatchClass(JNIEnv* env, jstring tn, jstring mn, jobje
     return result;
 }
 
-jboolean C3_JepInterface_dispatchBoolean(JNIEnv* env, jstring tn, jstring mn, jobject* args)
+jboolean C3_JepInterface_dispatchBoolean(JNIEnv* env, jstring tn, jstring mn, jobjectArray args)
 {
     jboolean result = JNI_FALSE;
     if (JNI_STATIC_METHOD(dispatchDoubleC3, env, C3_JEPINTERFACE_TYPE, "dispatchBoolean", "(Ljava/lang/String;Ljava/lang/String;[Ljava/lang/Object;)Z")) {
@@ -122,7 +120,7 @@ jboolean C3_JepInterface_dispatchBoolean(JNIEnv* env, jstring tn, jstring mn, jo
     return result;
 }
 
-jdouble C3_JepInterface_dispatchDouble(JNIEnv* env, jstring tn, jstring mn, jobject* args)
+jdouble C3_JepInterface_dispatchDouble(JNIEnv* env, jstring tn, jstring mn, jobjectArray args)
 {
     jdouble result = 0;
     if (JNI_STATIC_METHOD(dispatchDoubleC3, env, C3_JEPINTERFACE_TYPE, "dispatchDouble", "(Ljava/lang/String;Ljava/lang/String;[Ljava/lang/Object;)D")) {
@@ -131,7 +129,7 @@ jdouble C3_JepInterface_dispatchDouble(JNIEnv* env, jstring tn, jstring mn, jobj
     return result;
 }
 
-jlong C3_JepInterface_dispatchLong(JNIEnv* env, jstring tn, jstring mn, jobject* args)
+jlong C3_JepInterface_dispatchLong(JNIEnv* env, jstring tn, jstring mn, jobjectArray args)
 {
     jlong result = 0;
     if (JNI_STATIC_METHOD(dispatchLongC3, env, C3_JEPINTERFACE_TYPE, "dispatchLong", "(Ljava/lang/String;Ljava/lang/String;[Ljava/lang/Object;)L")) {
@@ -254,9 +252,9 @@ jboolean C3_JepInterface_isStatic(JNIEnv* env,
         jobject obj)
 {
     jboolean result = JNI_FALSE;
-    if (JNI_STATIC_METHOD(isStaticMethodTypeC3, env, C3_JEPINTERFACE_TYPE, "isStatic",
+    if (JNI_STATIC_METHOD(isStaticC3, env, C3_JEPINTERFACE_TYPE, "isStatic",
                    "(Lc3/platform/type/MethodType;)Z")) {
-        result = (*env)->CallStaticBooleanMethod(env, C3_JEPINTERFACE_TYPE, isStaticMethodTypeC3, obj);
+        result = (*env)->CallStaticBooleanMethod(env, C3_JEPINTERFACE_TYPE, isStaticC3, obj);
     }
     return result;
 }
