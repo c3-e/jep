@@ -115,7 +115,7 @@ static PyObject* pyjc3constructor_call(PyJC3MethodObject *self, PyObject *args,
     PyJC3Object     *clazz       = NULL;
     JNIEnv        *env         = NULL;
     int            pos         = 0;
-    jvalue        *jargs       = NULL;
+    jobjectArray jarray             = NULL;
     int           foundArray   = 0; /* if params includes pyjarray instance */
     PyThreadState *_save       = NULL;
     jobject   obj  = NULL;
@@ -150,8 +150,12 @@ static PyObject* pyjc3constructor_call(PyJC3MethodObject *self, PyObject *args,
         return NULL;
     }
 
-    jargs = (jvalue *) PyMem_Malloc(sizeof(jvalue) * self->lenParameters);
-
+    jarray = (*env)->NewObjectArray(env, (jsize) self->lenParameters, JOBJECT_TYPE, NULL);
+    if (!jarray) {
+        process_java_exception(env);
+        (*env)->PopLocalFrame(env, NULL);
+        return PyErr_NoMemory(); // TODO C3 Throw a better error
+    }
     for (pos = 0; pos < self->lenParameters; pos++) {
         PyObject *param = NULL;
         int paramTypeId = -1;
@@ -168,7 +172,7 @@ static PyObject* pyjc3constructor_call(PyJC3MethodObject *self, PyObject *args,
             foundArray = 1;
         }
 
-        jargs[pos] = convert_pyarg_jvalue(env, param, paramType, paramTypeId, pos);
+        (*env)->SetObjectArrayElement(env, jarray, (jsize) pos, convert_pyarg_jobject(env, param, paramType, paramTypeId, pos));
         if (PyErr_Occurred()) {
             goto EXIT_ERROR;
         }
@@ -177,10 +181,10 @@ static PyObject* pyjc3constructor_call(PyJC3MethodObject *self, PyObject *args,
     }
 
     Py_UNBLOCK_THREADS;
-    obj = (jobject) C3_JepInterface_DispatchObject(env,
+    obj = (jobject) C3_JepInterface_dispatchObject(env,
                              self->typeName,
                              self->methodName,
-                             jargs);
+                             jarray);
     Py_BLOCK_THREADS;
     if (process_java_exception(env) || !obj) {
         goto EXIT_ERROR;
@@ -191,7 +195,7 @@ static PyObject* pyjc3constructor_call(PyJC3MethodObject *self, PyObject *args,
 
     // we already closed the local frame, so make
     // sure to delete this local ref.
-    PyMem_Free(jargs);
+    (*env)->DeleteLocalRef(env, jarray);
 
     // re pin array if needed
     if (foundArray) {
@@ -207,7 +211,9 @@ static PyObject* pyjc3constructor_call(PyJC3MethodObject *self, PyObject *args,
     return pobj;
 
 EXIT_ERROR:
-    PyMem_Free(jargs);
+    if (jarray) {
+        (*env)->DeleteLocalRef(env, jarray);
+    }
     (*env)->PopLocalFrame(env, NULL);
     return NULL;
 }

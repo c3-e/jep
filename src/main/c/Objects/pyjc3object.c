@@ -26,7 +26,6 @@
 */
 
 #include "Jep.h"
-
 /*
  * https://bugs.python.org/issue2897
  * structmember.h must be included to use PyMemberDef
@@ -153,21 +152,28 @@ static int pyjc3object_init(JNIEnv *env, PyJC3Object *pyjob)
             (*env)->DeleteLocalRef(env, c3method);
         } // end of looping over available methods
 
+        // TODO C3: Do we want to use fields or only allow accessor methods? For performance reasons we may want to
+        // switch to fields. If not, we certainly need to update the methods returned from getMethods to include
+        // the modifiers like `withName`
+
         //  process fields
         // fieldArray = java_lang_Class_getFields(env, pyjob->clazz);
-
-        fieldArray = C3_JepInterface_getFields(env, pyjob);
+        printf("About to get fields\n");
+        fflush(stdout);
+        fieldArray = C3_JepInterface_getFields(env, pyjob->object);
         if (process_java_exception(env) || !fieldArray) {
+            printf("getFields java error\n");
+            fflush(stdout);
             goto EXIT_ERROR;
         }
 
-        // for each field, create a pyjfield object and
+        // for each field, create a pyjc3field object and
         // add to the internal members list.
         len = (*env)->GetArrayLength(env, fieldArray);
         for (i = 0; i < len; i++) {
             //jobject          rfield   = NULL;
             jobject          c3field   = NULL;
-            PyJFieldObject *pyjfield = NULL;
+            PyJC3FieldObject *pyjfield = NULL;
 
             //rfield = (*env)->GetObjectArrayElement(env, fieldArray, i);
             c3field = (*env)->GetObjectArrayElement(env, fieldArray, i);
@@ -177,6 +183,8 @@ static int pyjc3object_init(JNIEnv *env, PyJC3Object *pyjob)
             if (!pyjfield) {
                 continue;
             }
+            printf("setting field: %s\n", PyString_AsString(pyjfield->pyFieldName));
+            fflush(stdout);
 
             if (pyjfield->pyFieldName && PyString_Check(pyjfield->pyFieldName)) {
                 if (PyDict_SetItem(cachedAttrs, pyjfield->pyFieldName,
@@ -409,10 +417,20 @@ static PyObject* pyjc3object_richcompare(PyJC3Object *self,
 // returns new reference.
 static PyObject* pyjc3object_getattro(PyObject *obj, PyObject *name)
 {
+    printf("getattro\n");
+    fflush(stdout);
+    printf("%s\n", PyString_AsString(name));
+    fflush(stdout);
+
     PyObject *ret = PyObject_GenericGetAttr(obj, name);
     if (ret == NULL) {
+        printf("getattro: null\n");
+        fflush(stdout);
         return NULL;
     } else if (PyJC3Method_Check(ret) || PyJC3MultiMethod_Check(ret)) {
+
+        printf("getattro: method\n");
+        fflush(stdout);
         /*
          * TODO Should not bind non-static methods to pyjclass objects, but not
          * sure yet how to handle multimethods and static methods.
@@ -425,11 +443,18 @@ static PyObject* pyjc3object_getattro(PyObject *obj, PyObject *name)
 #endif
         Py_DECREF(ret);
         return wrapper;
-    } else if (PyJField_Check(ret)) {
+    } else if (PyJC3Field_Check(ret)) {
+
+        printf("getattro: field %s\n", PyString_AsString(name));
+        fflush(stdout);
         // PyObject *resolved = pyjfield_get((PyJFieldObject *) ret, (PyJC3Object*) obj);
-        PyObject *resolved = pyjc3field_get((PyJFieldObject *) ret, (PyJC3Object*) obj);
+        PyObject *resolved = pyjc3field_get((PyJC3FieldObject *) ret, (PyJC3Object*) obj);
         Py_DECREF(ret);
         return resolved;
+    } else {
+
+        printf("getattro: none %s\n", PyString_AsString(name));
+        fflush(stdout);
     }
     return ret;
 }
@@ -469,7 +494,7 @@ static int pyjc3object_setattro(PyJC3Object *obj, PyObject *name, PyObject *v)
         return -1;
     }
     //return pyjfield_set((PyJFieldObject *) cur, obj, v);
-    return pyjc3field_set((PyJFieldObject *) cur, obj, v);
+    return pyjc3field_set((PyJC3FieldObject *) cur, obj, v);
 }
 
 static Py_hash_t pyjc3object_hash(PyJC3Object *self)
