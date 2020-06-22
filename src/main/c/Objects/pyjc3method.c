@@ -419,14 +419,14 @@ static PyObject* pyjc3method_call(PyJC3MethodObject *self,
         if (self->isStatic) {
         printf("pyjc3method_call string static: true");
             fflush(stdout);
-          jstr = (jstring) C3_JepInterface_dispatchString(env, // TODO C3 make this c function
+          jstr = (jstring) C3_JepInterface_dispatchString(env,
                      self->typeName,
                      self->methodName,
                      jarray);
         } else {
         printf("pyjc3method_call string static: false");
             fflush(stdout);
-          jstr = (jstring) C3_JepInterface_dispatchStringMember(env, // TODO C3 make this c function
+          jstr = (jstring) C3_JepInterface_dispatchStringMember(env,
                                self->typeName,
                                self->methodName,
                                instance->object,
@@ -444,11 +444,18 @@ static PyObject* pyjc3method_call(PyJC3MethodObject *self,
     case JARRAY_ID: {
         jobjectArray obj;
         Py_BEGIN_ALLOW_THREADS;
-
-        obj = (jobjectArray) C3_JepInterface_dispatchArray(env, // TODO C3 make this c function
-                           self->typeName,
-                           self->methodName,
-                           jarray);
+        if (self->isStatic) {
+            obj = (jobjectArray) C3_JepInterface_dispatchArray(env,
+                               self->typeName,
+                               self->methodName,
+                               jarray);
+        } else {
+            obj = (jobjectArray) C3_JepInterface_dispatchArrayMember(env,
+                               self->typeName,
+                               self->methodName,
+                               instance->object,
+                               jarray);
+        }
 
         Py_END_ALLOW_THREADS;
         if (!process_java_exception(env) && obj != NULL) {
@@ -461,11 +468,18 @@ static PyObject* pyjc3method_call(PyJC3MethodObject *self,
     case JCLASS_ID: {
         jobject obj;
         Py_BEGIN_ALLOW_THREADS;
-
-        obj = (jobject) C3_JepInterface_dispatchClass(env, // TODO C3 make this c function
-                           self->typeName,
-                           self->methodName,
-                           jarray);
+        if (self->isStatic) {
+            obj = (jobject) C3_JepInterface_dispatchClass(env,
+                               self->typeName,
+                               self->methodName,
+                               jarray);
+        } else {
+            obj = (jobject) C3_JepInterface_dispatchClassMember(env,
+                               self->typeName,
+                               self->methodName,
+                               instance->object,
+                               jarray);
+        }
 
         Py_END_ALLOW_THREADS;
         if (!process_java_exception(env) && obj != NULL) {
@@ -478,11 +492,18 @@ static PyObject* pyjc3method_call(PyJC3MethodObject *self,
     case JOBJECT_ID: {
         jobject obj;
         Py_BEGIN_ALLOW_THREADS;
-
-        obj = (jobject) C3_JepInterface_dispatchObject(env, // TODO C3 make this c function
-                                   self->typeName,
-                                   self->methodName,
-                                   jarray);
+        if (self->isStatic) {
+            obj = (jobject) C3_JepInterface_dispatchObject(env,
+                               self->typeName,
+                               self->methodName,
+                               jarray);
+        } else {
+            obj = (jobject) C3_JepInterface_dispatchObjectMember(env,
+                               self->typeName,
+                               self->methodName,
+                               instance->object,
+                               jarray);
+        }
 
         Py_END_ALLOW_THREADS;
         if (!process_java_exception(env) && obj != NULL) {
@@ -495,12 +516,18 @@ static PyObject* pyjc3method_call(PyJC3MethodObject *self,
     case JINT_ID: {
         jint ret;
         Py_BEGIN_ALLOW_THREADS;
-
-        ret = (jint) C3_JepInterface_dispatchInt(env, // TODO C3 make this c function
-
-                                   self->typeName,
-                                   self->methodName,
-                                   jarray);
+        if (self->isStatic) {
+            ret = (jint) C3_JepInterface_dispatchInt(env,
+                               self->typeName,
+                               self->methodName,
+                               jarray);
+        } else {
+            ret = (jint) C3_JepInterface_dispatchIntMember(env,
+                               self->typeName,
+                               self->methodName,
+                               instance->object,
+                               jarray);
+        }
 
         Py_END_ALLOW_THREADS;
         if (!process_java_exception(env)) {
@@ -513,11 +540,18 @@ static PyObject* pyjc3method_call(PyJC3MethodObject *self,
     case JBYTE_ID: {
         jbyte ret;
         Py_BEGIN_ALLOW_THREADS;
-
-        ret = (jbyte) C3_JepInterface_dispatchByte(env, // TODO C3 make this c function
-                                   self->typeName,
-                                   self->methodName,
-                                   jarray);
+        if (self->isStatic) {
+            ret = (jbyte) C3_JepInterface_dispatchByte(env,
+                               self->typeName,
+                               self->methodName,
+                               jarray);
+        } else {
+            ret = (jbyte) C3_JepInterface_dispatchByteMember(env,
+                               self->typeName,
+                               self->methodName,
+                               instance->object,
+                               jarray);
+        }
 
         Py_END_ALLOW_THREADS;
         if (!process_java_exception(env)) {
@@ -532,7 +566,7 @@ static PyObject* pyjc3method_call(PyJC3MethodObject *self,
 //        jchar ret;
 //        Py_BEGIN_ALLOW_THREADS;
 //
-//        ret = (jchar) C3_JepInterface_dispatch(env, // TODO C3 make this c function
+//        ret = (jchar) C3_JepInterface_dispatch(env,
 //                                   self->typeName,
 //                                   self->methodName,
 //                                   jarray);
@@ -548,7 +582,7 @@ static PyObject* pyjc3method_call(PyJC3MethodObject *self,
 //        jshort ret;
 //        Py_BEGIN_ALLOW_THREADS;
 //
-//        ret = (jshort) C3_JepInterface_dispatch(env, // TODO C3 make this c function
+//        ret = (jshort) C3_JepInterface_dispatch(env,
 //                                   self->typeName,
 //                                   self->methodName,
 //                                   jarray);
@@ -564,11 +598,18 @@ static PyObject* pyjc3method_call(PyJC3MethodObject *self,
     case JDOUBLE_ID: {
         jdouble ret;
         Py_BEGIN_ALLOW_THREADS;
-
-        ret = (jdouble) C3_JepInterface_dispatchDouble(env, // TODO C3 make this c function
-                                   self->typeName,
-                                   self->methodName,
-                                   jarray);
+        if (self->isStatic) {
+            ret = (jdouble) C3_JepInterface_dispatchDouble(env,
+                               self->typeName,
+                               self->methodName,
+                               jarray);
+        } else {
+            ret = (jdouble) C3_JepInterface_dispatchDoubleMember(env,
+                               self->typeName,
+                               self->methodName,
+                               instance->object,
+                               jarray);
+        }
 
         Py_END_ALLOW_THREADS;
         if (!process_java_exception(env)) {
@@ -581,11 +622,18 @@ static PyObject* pyjc3method_call(PyJC3MethodObject *self,
     case JFLOAT_ID: {
         jfloat ret;
         Py_BEGIN_ALLOW_THREADS;
-
-        ret = (jfloat) C3_JepInterface_dispatchFloat(env, // TODO C3 make this c function
-                                   self->typeName,
-                                   self->methodName,
-                                   jarray);
+        if (self->isStatic) {
+            ret = (jfloat) C3_JepInterface_dispatchFloat(env,
+                               self->typeName,
+                               self->methodName,
+                               jarray);
+        } else {
+            ret = (jfloat) C3_JepInterface_dispatchFloatMember(env,
+                               self->typeName,
+                               self->methodName,
+                               instance->object,
+                               jarray);
+        }
 
         Py_END_ALLOW_THREADS;
         if (!process_java_exception(env)) {
@@ -598,11 +646,18 @@ static PyObject* pyjc3method_call(PyJC3MethodObject *self,
     case JLONG_ID: {
         jlong ret;
         Py_BEGIN_ALLOW_THREADS;
-
-        ret = (jlong) C3_JepInterface_dispatchLong(env, // TODO C3 make this c function
-                                   self->typeName,
-                                   self->methodName,
-                                   jarray);
+        if (self->isStatic) {
+            ret = (jlong) C3_JepInterface_dispatchLong(env,
+                               self->typeName,
+                               self->methodName,
+                               jarray);
+        } else {
+            ret = (jlong) C3_JepInterface_dispatchLongMember(env,
+                               self->typeName,
+                               self->methodName,
+                               instance->object,
+                               jarray);
+        }
 
         Py_END_ALLOW_THREADS;
         if (!process_java_exception(env)) {
@@ -615,11 +670,18 @@ static PyObject* pyjc3method_call(PyJC3MethodObject *self,
     case JBOOLEAN_ID: {
         jboolean ret;
         Py_BEGIN_ALLOW_THREADS;
-
-        ret = (jboolean) C3_JepInterface_dispatchBoolean(env, // TODO C3 make this c function
-                                   self->typeName,
-                                   self->methodName,
-                                   jarray);
+        if (self->isStatic) {
+            ret = (jboolean) C3_JepInterface_dispatchBoolean(env,
+                               self->typeName,
+                               self->methodName,
+                               jarray);
+        } else {
+            ret = (jboolean) C3_JepInterface_dispatchBooleanMember(env,
+                               self->typeName,
+                               self->methodName,
+                               instance->object,
+                               jarray);
+        }
 
         Py_END_ALLOW_THREADS;
         if (!process_java_exception(env)) {
@@ -631,12 +693,19 @@ static PyObject* pyjc3method_call(PyJC3MethodObject *self,
 
     default:
         Py_BEGIN_ALLOW_THREADS;
-
         // i hereby anoint thee a void method
-        C3_JepInterface_dispatchVoid(env, // TODO C3 make this c function
-                       self->typeName,
-                       self->methodName,
-                       jarray);
+        if (self->isStatic) {
+            C3_JepInterface_dispatchVoid(env,
+                               self->typeName,
+                               self->methodName,
+                               jarray);
+        } else {
+            C3_JepInterface_dispatchVoidMember(env,
+                               self->typeName,
+                               self->methodName,
+                               instance->object,
+                               jarray);
+        }
 
         Py_END_ALLOW_THREADS;
         process_java_exception(env);

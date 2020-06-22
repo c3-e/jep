@@ -3,7 +3,6 @@
 
 jstring C3_JepInterface_getFieldValueString(JNIEnv*, jobject, jstring);
 jstring C3_JepInterface_dispatchString(JNIEnv*, jstring, jstring, jobjectArray);
-jstring C3_JepInterface_dispatchStringMember(JNIEnv*, jstring, jstring, jobject, jobjectArray);
 jobjectArray C3_JepInterface_dispatchArray(JNIEnv*, jstring, jstring, jobjectArray);
 jobject C3_JepInterface_dispatchObject(JNIEnv*, jstring, jstring, jobjectArray);
 jobject C3_JepInterface_dispatchClass(JNIEnv*, jstring, jstring, jobjectArray);
@@ -14,6 +13,17 @@ jfloat C3_JepInterface_dispatchFloat(JNIEnv*, jstring, jstring, jobjectArray);
 jlong C3_JepInterface_dispatchLong(JNIEnv*, jstring, jstring, jobjectArray);
 jboolean C3_JepInterface_dispatchBoolean(JNIEnv*, jstring, jstring, jobjectArray);
 void C3_JepInterface_dispatchVoid(JNIEnv*, jstring, jstring, jobjectArray);
+jstring C3_JepInterface_dispatchStringMember(JNIEnv*, jstring, jstring, jobject, jobjectArray);
+jobjectArray C3_JepInterface_dispatchArrayMember(JNIEnv*, jstring, jstring, jobject, jobjectArray);
+jobject C3_JepInterface_dispatchObjectMember(JNIEnv*, jstring, jstring, jobject, jobjectArray);
+jobject C3_JepInterface_dispatchClassMember(JNIEnv*, jstring, jstring, jobject, jobjectArray);
+jint C3_JepInterface_dispatchIntMember(JNIEnv*, jstring, jstring, jobject, jobjectArray);
+jbyte C3_JepInterface_dispatchByteMember(JNIEnv*, jstring, jstring, jobject, jobjectArray);
+jdouble C3_JepInterface_dispatchDoubleMember(JNIEnv*, jstring, jstring, jobject, jobjectArray);
+jfloat C3_JepInterface_dispatchFloatMember(JNIEnv*, jstring, jstring, jobject, jobjectArray);
+jlong C3_JepInterface_dispatchLongMember(JNIEnv*, jstring, jstring, jobject, jobjectArray);
+jboolean C3_JepInterface_dispatchBooleanMember(JNIEnv*, jstring, jstring, jobject, jobjectArray);
+void C3_JepInterface_dispatchVoidMember(JNIEnv*, jstring, jstring, jobject, jobjectArray);
 jboolean C3_JepInterface_isFieldStatic(JNIEnv*, jobject);
 jobjectArray C3_JepInterface_getConstructors(JNIEnv*, jclass);
 jobjectArray C3_JepInterface_getFields(JNIEnv*, jobject);
