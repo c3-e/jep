@@ -27,6 +27,7 @@
 
 #include "jep_platform.h"
 #include "pyjc3object.h"
+
 #ifndef _Included_pyjc3field
 #define _Included_pyjc3field
 
