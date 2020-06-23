@@ -42,6 +42,7 @@ jobjectArray java_lang_reflect_Method_getParameterTypes(JNIEnv* env,
     return result;
 }
 
+
 jclass java_lang_reflect_Method_getReturnType(JNIEnv* env, jobject this)
 {
     jclass result = NULL;

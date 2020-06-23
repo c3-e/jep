@@ -166,3 +166,4 @@ jboolean java_lang_Class_isInterface(JNIEnv* env, jclass this)
     Py_END_ALLOW_THREADS
     return result;
 }
+

@@ -65,6 +65,8 @@ PyObject* jobject_As_PyObject(JNIEnv*, jobject);
  */
 PyObject* jobject_As_PyJObject(JNIEnv*, jobject, jclass);
 
+PyObject* jobject_As_PyJC3Object(JNIEnv*, jobject, jclass);
+
 PyObject* jstring_As_PyString(JNIEnv*, jstring);
 /*
  * Equivalent to java_lang_Object_toString() and passing the result to

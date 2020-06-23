@@ -60,10 +60,12 @@ static void raiseTypeError(JNIEnv *env, PyObject *pyobject, jclass expectedType)
         return;
     }
     expTypeName = (*env)->GetStringUTFChars(env, expTypeJavaName, 0);
-    if (PyJClass_Check(pyobject)) {
+    if (PyJClass_Check(pyobject) || PyJC3Class_Check(pyobject)) {
         actTypeName = "java.lang.Class";
     } else if (PyJObject_Check(pyobject)) {
         actTypeName = PyString_AsString(((PyJObject*) pyobject)->javaClassName);
+    } else if (PyJC3Object_Check(pyobject)) {
+             actTypeName = PyString_AsString(((PyJC3Object*) pyobject)->javaClassName);
     } else {
         actTypeName = pyobject->ob_type->tp_name;
     }
@@ -745,6 +747,8 @@ char isFunctionalInterfaceType(JNIEnv *env, jclass type)
     jobject abstractMethod = NULL;
     jsize i;
     jboolean isInterface;
+    jboolean isC3 = C3_JepInterface_isC3Class(env, type);
+
     if ((*env)->PushLocalFrame(env, JLOCAL_REFS) != 0) {
         process_java_exception(env);
         return 0;
@@ -757,7 +761,10 @@ char isFunctionalInterfaceType(JNIEnv *env, jclass type)
     if (!isInterface) {
         return 0; // It's not an interface, so it can't be functional
     }
-    methods = java_lang_Class_getMethods(env, type);
+    if (!isC3)
+        {methods = java_lang_Class_getMethods(env, type);}
+    else
+        {methods = C3_JepInterface_getMethods(env, type);}
     if (process_java_exception(env)) {
         (*env)->PopLocalFrame(env, NULL);
         return 0;
@@ -765,13 +772,18 @@ char isFunctionalInterfaceType(JNIEnv *env, jclass type)
     numMethods = (*env)->GetArrayLength(env, methods);
     for (i = 0; i < numMethods; i++) {
         jobject method = (*env)->GetObjectArrayElement(env, methods, i);
-        jint modifiers = java_lang_reflect_Member_getModifiers(env, method);
+        jint modifiers;
+        if (!isC3)
+            {modifiers = java_lang_reflect_Member_getModifiers(env, method);}
         jboolean isAbstract;
         if (process_java_exception(env)) {
             (*env)->PopLocalFrame(env, NULL);
             return 0;
         }
-        isAbstract = java_lang_reflect_Modifier_isAbstract(env, modifiers);
+        if (!isC3)
+            {isAbstract = java_lang_reflect_Modifier_isAbstract(env, modifiers);}
+        else
+            {isAbstract = C3_JepInterface_isAbstract(env, method);}
         if (process_java_exception(env)) {
             (*env)->PopLocalFrame(env, NULL);
             return 0;
@@ -1098,14 +1110,19 @@ jobject PyObject_As_jobject(JNIEnv *env, PyObject *pyobject,
     if (pyobject == Py_None) {
         return NULL;
     } else if (PyJClass_Check(pyobject)) {
-        if ((*env)->IsAssignableFrom(env, JCLASS_TYPE, expectedType)) {
-            return (*env)->NewLocalRef(env, ((PyJObject *) pyobject)->clazz);
-        }
+        return (*env)->NewLocalRef(env, ((PyJObject *) pyobject)->clazz);
+    } else if (PyJC3Class_Check(pyobject)) {
+        return (*env)->NewLocalRef(env, ((PyJC3Object *) pyobject)->clazz);
     } else if (pyjarray_check(pyobject)) {
         PyJObject *pyjarray = (PyJObject *) pyobject;
         if ((*env)->IsAssignableFrom(env, pyjarray->clazz, expectedType)) {
             pyjarray_release_pinned((PyJArrayObject *) pyjarray, JNI_COMMIT);
             return (*env)->NewLocalRef(env, pyjarray->object);
+        }
+    } else if (PyJC3Object_Check(pyobject)) {
+        PyJC3Object *pyjobject = (PyJC3Object*) pyobject;
+        if ((*env)->IsAssignableFrom(env, pyjobject->clazz, expectedType)) {
+            return (*env)->NewLocalRef(env, pyjobject->object);
         }
     } else if (PyJObject_Check(pyobject)) {
         PyJObject *pyjobject = (PyJObject*) pyobject;

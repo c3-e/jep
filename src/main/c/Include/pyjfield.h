@@ -27,7 +27,7 @@
 
 #include "jep_platform.h"
 #include "pyjobject.h"
-
+#include "pyjc3object.h"
 #ifndef _Included_pyjfield
 #define _Included_pyjfield
 
@@ -45,7 +45,6 @@ typedef struct {
                                               otherwise 1 or 0 */
     int               init;                /* 1 if init performed */
 } PyJFieldObject;
-
 
 PyJFieldObject* PyJField_New(JNIEnv*, jobject);
 int PyJField_Check(PyObject*);

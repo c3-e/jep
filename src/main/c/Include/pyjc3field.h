@@ -1,7 +1,7 @@
 /*
    jep - Java Embedded Python
 
-   Copyright (c) 2015-2019 JEP_AUTHORS.
+   Copyright (c) 2004-2019 JEP AUTHORS.
 
    This file is licensed under the the zlib/libpng License.
 
@@ -26,31 +26,32 @@
 */
 
 #include "jep_platform.h"
-#include "pyjobject.h"
-#include "pyjmethod.h"
 #include "pyjc3object.h"
-#ifndef _Included_pyjmultimethod
-#define _Included_pyjmultimethod
 
+#ifndef _Included_pyjc3field
+#define _Included_pyjc3field
 
-extern PyTypeObject PyJMultiMethod_Type;
+extern PyTypeObject PyJC3Field_Type;
 
+/* Represents a java field on a java object and allows getting and setting values */
 typedef struct {
     PyObject_HEAD
-    PyObject* methodList;
-} PyJMultiMethodObject;
+    jfieldID          fieldId;             /* Resolved fieldid */
+    jobject           c3field;              /* reflect/Field object */
+    jclass            fieldType;           /* field's type */
+    int               fieldTypeId;         /* field's typeid */
+    PyObject         *pyFieldName;         /* python name... :-) */
+    int               isStatic;            /* -1 if not known,
+                                              otherwise 1 or 0 */
+    int               init;                /* 1 if init performed */
+} PyJC3FieldObject;
 
-/*
- * Both args must be PyJMethodObjects. A minimum of 2 methods is required to
- * make a PyJMultiMethod, after creation it is possible to add more than two
- * methods using PyJMultiMethod_Append.
- */
-PyObject* PyJMultiMethod_New(PyObject*, PyObject*);
-/* Args must be a PyJMultiMethodObject and a PyJMethodObject */
-int PyJMultiMethod_Append(PyObject*, PyObject*);
-/* Check if the arg is a PyJMultiMethodObject */
-int PyJMultiMethod_Check(PyObject*);
-/* Get the name of a PyJMultiMethodObject, returns a new reference to the name */
-PyObject* PyJMultiMethod_GetName(PyObject*);
+PyJC3FieldObject* PyJC3Field_New(JNIEnv*, jobject);
 
-#endif // ndef pyjmultimethod
+int PyJC3Field_Check(PyObject*);
+
+PyObject* pyjc3field_get(PyJC3FieldObject*, PyJC3Object*);
+
+int pyjc3field_set(PyJC3FieldObject*, PyJC3Object*, PyObject*);
+
+#endif // ndef pyjfield

@@ -26,31 +26,31 @@
 */
 
 #include "jep_platform.h"
-#include "pyjobject.h"
-#include "pyjmethod.h"
 #include "pyjc3object.h"
-#ifndef _Included_pyjmultimethod
-#define _Included_pyjmultimethod
+#include "pyjc3method.h"
+#include "pyjc3object.h"
+#ifndef _Included_pyjc3multimethod
+#define _Included_pyjc3multimethod
 
 
-extern PyTypeObject PyJMultiMethod_Type;
+extern PyTypeObject PyJC3MultiMethod_Type;
 
 typedef struct {
     PyObject_HEAD
     PyObject* methodList;
-} PyJMultiMethodObject;
+} PyJC3MultiMethodObject;
 
 /*
- * Both args must be PyJMethodObjects. A minimum of 2 methods is required to
- * make a PyJMultiMethod, after creation it is possible to add more than two
- * methods using PyJMultiMethod_Append.
+ * Both args must be PyJC3MethodObjects. A minimum of 2 methods is required to
+ * make a PyJC3MultiMethod, after creation it is possible to add more than two
+ * methods using PyJC3MultiMethod_Append.
  */
-PyObject* PyJMultiMethod_New(PyObject*, PyObject*);
-/* Args must be a PyJMultiMethodObject and a PyJMethodObject */
-int PyJMultiMethod_Append(PyObject*, PyObject*);
-/* Check if the arg is a PyJMultiMethodObject */
-int PyJMultiMethod_Check(PyObject*);
-/* Get the name of a PyJMultiMethodObject, returns a new reference to the name */
-PyObject* PyJMultiMethod_GetName(PyObject*);
+PyObject* PyJC3MultiMethod_New(PyObject*, PyObject*);
+/* Args must be a PyJC3MultiMethodObject and a PyJC3MethodObject */
+int PyJC3MultiMethod_Append(PyObject*, PyObject*);
+/* Check if the arg is a PyJC3MultiMethodObject */
+int PyJC3MultiMethod_Check(PyObject*);
+/* Get the name of a PyJC3MultiMethodObject, returns a new reference to the name */
+PyObject* PyJC3MultiMethod_GetName(PyObject*);
 
-#endif // ndef pyjmultimethod
+#endif // ndef pyjc3multimethod

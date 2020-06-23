@@ -29,6 +29,7 @@
 
 static jmethodID getParameterTypes = 0;
 
+
 jobjectArray java_lang_reflect_Constructor_getParameterTypes(JNIEnv* env,
         jobject this)
 {

@@ -26,42 +26,42 @@
 */
 
 #include "jep_platform.h"
-#include "pyjobject.h"
 #include "pyjc3object.h"
-#ifndef _Included_pyjmethod
-#define _Included_pyjmethod
+#ifndef _Included_pyjc3method
+#define _Included_pyjc3method
 
 
-extern PyTypeObject PyJMethod_Type;
+extern PyTypeObject PyJC3Method_Type;
 
 /*
  * A callable python object which wraps a java method and is dynamically added
- * to a PyJObject using setattr. Most of the fields in this object are lazy
+ * to a PyJC3Object using setattr. Most of the fields in this object are lazy
  * loaded and care should be taken to ensure they are populated before accessing
  * them. The only fields that are not lazily loaded are rmethod and pyMethodName.
  */
 typedef struct {
     PyObject_HEAD
-    jmethodID         methodId;            /* resolved methodid */
-    jobject           rmethod;             /* reflect/Method object */
+    jobject           rmethod;             /* TODO C3 determine if we need this */
+    jstring           methodName;
+    jstring           typeName;
     int               returnTypeId;        /* type id of return */
     PyObject         *pyMethodName;        /* python name... :-) */
     jobjectArray      parameters;          /* array of jclass parameter types */
     int               lenParameters;       /* length of parameters above */
     int               isStatic;            /* if method is static */
-} PyJMethodObject;
+} PyJC3MethodObject;
 
-/* Create a new PyJMethod from a java.lang.reflect.Method*/
-PyJMethodObject* PyJMethod_New(JNIEnv*, jobject);
+/* Create a new PyJC3Method from a c3 type APIs*/
+PyJC3MethodObject* PyJC3Method_New(JNIEnv*, jobject, jstring);
 
-/* Check if the arg is a PyJMethodObject */
-int PyJMethod_Check(PyObject *obj);
+/* Check if the arg is a PyJC3MethodObject */
+int PyJC3Method_Check(PyObject *obj);
 
 /*
  * Get the number of parameters the method is expecting. If the method has not
  * been initialized yet this will trigger initialization.
  */
-int PyJMethod_GetParameterCount(PyJMethodObject*, JNIEnv*);
+int PyJC3Method_GetParameterCount(PyJC3MethodObject*, JNIEnv*);
 
 /*
  * Check if a method is compatible with the types of a tuple of arguments.
@@ -72,6 +72,6 @@ int PyJMethod_GetParameterCount(PyJMethodObject*, JNIEnv*);
  * does not need to be called before using calling this method, it is only
  * necessary for resolving method overloading.
  */
-int PyJMethod_CheckArguments(PyJMethodObject*, JNIEnv*, PyObject*);
+int PyJC3Method_CheckArguments(PyJC3MethodObject*, JNIEnv*, PyObject*);
 
-#endif // ndef pyjmethod
+#endif // ndef pyjc3method

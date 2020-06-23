@@ -76,7 +76,7 @@ if __name__ == '__main__':
     setup(name='jep',
           version=VERSION,
           description='Jep embeds CPython in Java',
-          long_description=read_file('README.rst'),
+          long_description=read_file('README.md'),
           author='Jep Developers',
           author_email='jep-project@googlegroups.com',
           url='https://github.com/ninia/jep',

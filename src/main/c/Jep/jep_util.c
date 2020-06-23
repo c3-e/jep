@@ -511,7 +511,7 @@ int pyarg_matches_jtype(JNIEnv *env,
         case JCLASS_ID:
             return 1;
         }
-    } else if (PyJClass_Check(param)) {
+    } else if (PyJClass_Check(param) || PyJC3Class_Check(param)) {
         switch (paramTypeId) {
         case JCLASS_ID:
             return 2;
@@ -522,7 +522,7 @@ int pyarg_matches_jtype(JNIEnv *env,
                 return 1;
             }
         }
-    } else if (PyJObject_Check(param)) {
+    } else if (PyJObject_Check(param) || PyJC3Object_Check(param)) {
         switch (paramTypeId) {
         case JARRAY_ID:
         case JOBJECT_ID:
@@ -586,6 +586,30 @@ jvalue convert_pyarg_jvalue(JNIEnv *env, PyObject *param, jclass paramType,
                             int paramTypeId, int pos)
 {
     jvalue ret = PyObject_As_jvalue(env, param, paramType);
+    if (PyErr_Occurred()) {
+        PyObject *ptype, *pvalue, *ptrace, *pvalue_string;
+        PyErr_Fetch(&ptype, &pvalue, &ptrace);
+        if (pvalue == NULL) {
+            pvalue_string = PyObject_Str(ptype);
+        } else {
+            pvalue_string = PyObject_Str(pvalue);
+        }
+        PyErr_Format(PyExc_TypeError, "Error converting parameter %d: %s", pos + 1,
+                     PyString_AsString(pvalue_string));
+        Py_DECREF(pvalue_string);
+        Py_DECREF(ptype);
+        Py_XDECREF(pvalue);
+        Py_XDECREF(ptrace);
+    }
+    return ret;
+}
+// for parsing args.
+// takes a python object and sets the right jvalue member for the given java type.
+// returns uninitialized on error and raises a python exception.
+jobject convert_pyarg_jobject(JNIEnv *env, PyObject *param, jclass paramType,
+                            int paramTypeId, int pos)
+{
+    jobject ret = PyObject_As_jobject(env, param, paramType);
     if (PyErr_Occurred()) {
         PyObject *ptype, *pvalue, *ptrace, *pvalue_string;
         PyErr_Fetch(&ptype, &pvalue, &ptrace);

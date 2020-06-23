@@ -44,6 +44,9 @@
 #define JNI_METHOD(var, env, type, name, sig)\
     (var || (var = (*env)->GetMethodID(env, type, name, sig)))
 
+#define JNI_STATIC_METHOD(var, env, type, name, sig)\
+    (var || (var = (*env)->GetStaticMethodID(env, type, name, sig)))
+
 // get a const char* string from java string.
 // you *must* call release when you're finished with it.
 // returns local reference.
@@ -61,6 +64,7 @@ void unref_cache_frequent_classes(JNIEnv*);
 int get_jtype(JNIEnv*, jclass);
 int pyarg_matches_jtype(JNIEnv*, PyObject*, jclass, int);
 jvalue convert_pyarg_jvalue(JNIEnv*, PyObject*, jclass, int, int);
+jobject convert_pyarg_jobject(JNIEnv*, PyObject*, jclass, int, int);
 
 #define JBOOLEAN_ID 0
 #define JINT_ID     1
@@ -98,14 +102,15 @@ extern jclass JDOUBLE_ARRAY_TYPE;
 
 /*
  * CLASS_TABLE contains the definition for all the classes that we cache for
- * easy access. Tyically a macro is passed to CLASS_TABLE macro and it will be
+ * easy access. Typically a macro is passed to CLASS_TABLE macro and it will be
  * evaluated for all cached classes. This is based off the X macro pattern
- * except a macro is passed in rather than redifining X for each use.
+ * except a macro is passed in rather than redefining X for each use.
  */
 #define CLASS_TABLE(F) \
     F(JOBJECT_TYPE, "java/lang/Object") \
     F(JSTRING_TYPE, "java/lang/String") \
     F(JCLASS_TYPE, "java/lang/Class") \
+    F(C3_JEPINTERFACE_TYPE, "c3/zoo/py/JepInterface") \
     F(JLIST_TYPE, "java/util/List") \
     F(JMAP_TYPE, "java/util/Map") \
     F(JENTRY_TYPE, "java/util/Map$Entry") \

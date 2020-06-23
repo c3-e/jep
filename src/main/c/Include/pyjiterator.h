@@ -32,7 +32,7 @@
 
 #include "jep_platform.h"
 #include "pyjobject.h"
-
+#include "pyjc3object.h"
 #ifndef _Included_pyjiterator
 #define _Included_pyjiterator
 

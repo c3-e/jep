@@ -33,7 +33,7 @@
 
 #include "jep_platform.h"
 #include "pyjobject.h"
-
+#include "pyjc3object.h"
 #ifndef _Included_pyjbuffer
 #define _Included_pyjbuffer
 

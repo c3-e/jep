@@ -37,6 +37,12 @@
 #include "jep_exceptions.h"
 #include "jep_numpy.h"
 
+#include "pyjc3constructor.h"
+#include "pyjc3multimethod.h"
+#include "pyjc3object.h"
+#include "pyjc3class.h"
+#include "pyjc3method.h"
+#include "pyjc3field.h"
 #include "pyembed.h"
 #include "pyjarray.h"
 #include "pyjbuffer.h"
@@ -99,3 +105,4 @@
 #include "java_access/ShortBuffer.h"
 #include "java_access/String.h"
 #include "java_access/Throwable.h"
+#include "java_access/C3JepInterface.h"
