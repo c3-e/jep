@@ -111,6 +111,7 @@ if __name__ == '__main__':
                   libraries=get_java_libraries() + get_python_libs(),
                   library_dirs=get_java_lib_folders(),
                   extra_link_args=get_java_linker_args() + get_python_linker_args(),
+                  extra_compile_args=['-g'],
                   include_dirs=get_java_include() + ['src/main/c/Include', 'build/include',] + numpy_include,
               )
           ],
