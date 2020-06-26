@@ -4,6 +4,19 @@
 [![image](https://img.shields.io/badge/docs-wiki-orange.svg)](https://github.com/ninia/jep/wiki)
 [![image](https://img.shields.io/badge/docs-javadoc-orange.svg)](https://ninia.github.io/jep/javadoc)
 
+## Development setup for C3 Jep
+
+Run `./c3-jep install` to install the local version of this repo into your `jep_dev` conda environment. This
+will create the environment if it does not exist.
+
+To run the c3server tests that exercise the `(C3)JepInterface` features, run `./c3-jep test`. 
+
+If you want the version of `jep` currently installed in the `jep_dev` environment to be used for all embedded actions
+in a locally running `v8` c3server, set the enviroment variable `JEP_DEV_MODE=True` in the terminal/IDE that will run
+the c3 server.
+
+
+
 
 ## C3 Contributions
 
@@ -54,16 +67,12 @@ For C3, we will create a new `PyJC3Object` (and corresponding `PyJC3Class`) obje
 
 Search "TODO C3" to see a list of TODOs for C3
 
-#### Needed for PLAT-25012 (C3 interfaces for Jep)
-* ~~TODO C3 (not listed elsewhere) Implement all corresponding Java methods for C3_JepInterface_... functions (we may not need all of these).~~
-* TODO C3 CASTING FROM jobject TO jbyte, jint, ETC IN THIS WAY PROBABLY WONT WORK. WE WILL NEED A UNIQUE FUNCTION TO CALL C3.Dispatch PER RETURN TYPE: We may need a unique java function to call `C3.Dispatch` for each return type
-* TODO C3 determine if we need this: decide whether PyJC3Methods need a rmethod attribute, or what an alternative for it would be.
-
 #### Not Needed for PLAT-25012
 * TODO C3 AVOID REFLECTION: When you call `getValue` in java, I believe `convert_p2j`s `pyobject_2_jobject` function is called. This function has been refactored to not reflect on C3. The same is not true when calling `invoke` on a JEP interpreter instance in java; we should fix this.
     * Note from Isaiah: this may not be necessary since we do not currently use `interpreter.invoke` in `TurboPy.java`
-* TODO C3 figure out what we should do with fields: I have not put much thought into this as normal Java instances of C3 Types do not have fields (and use accessor methods instead). But just as we have refactored pyjc3methods to not use a jMethodId, we should not need to reflect and get fieldid here
-
+* TODO C3: static fields -- do we use/need these? If so, we simply need to add per-ValueType accessors.
+* TODO C3: pyjc3field.set -- this is currently not handled properly
+* TODO C3 (maybe): change handling of C3 collections
 
 
 &nbsp;

@@ -1,0 +1,31 @@
+#!/usr/bin/env bash
+
+cmds=(
+  "    install                      install the current (i.e. working state) of the repository into the jep_dev conda environment"
+  "    test                         run the c3server jep unit tests"
+)
+
+
+if [[ "${cmds[@]}" =~ "$1" ]]; then
+  source "c3scripts/c3-jep-$1"
+  exit $?
+fi
+
+echo ""
+echo "usage: `basename $0` <command>"
+echo ""
+echo "  commands:"
+echo ""
+for cmd in "${cmds[@]}" ; do
+  echo "${cmd}"
+done
+echo ""
+echo ""
+#EXIT_CODE=0
+#ls /Library/Java/Extensions/libjep* || EXIT_CODE=$?
+#if [ $EXIT_CODE != 0 ]; then
+#  jep_pkgs=$($PIP_CMD show jep | grep "^Location:" | cut -d ':' -f 2 | cut -d ' ' -f 2)
+#  # make sure to move all *.so / *.dylib / *.jnilib to /Library/Java/Extensions/ and ensure command doesn't fail
+#  sudo cp $jep_pkgs/jep/libjep* $jep_pkgs/jep/*.so /Library/Java/Extensions/ | true
+#fi
+
