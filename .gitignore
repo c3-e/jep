@@ -26,5 +26,6 @@ MANIFEST
 .DS_Store
 .idea
 
+.gradle
 jep.iml
 target/

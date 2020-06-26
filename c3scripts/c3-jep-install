@@ -1,0 +1,29 @@
+#!/usr/bin/env bash
+set -e
+
+# Assume ./c3-conda install has been run
+CONDA_ROOT="/usr/local/share/c3/conda"
+CONDA_CMD="${CONDA_ROOT}/bin/conda"
+DEV_ENV_PATH="${CONDA_ROOT}/envs/jep_dev/"
+PIP_CMD="${DEV_ENV_PATH}bin/pip"
+CONDA_BASE=$(conda info --base)
+source $CONDA_BASE/etc/profile.d/conda.sh
+
+if ($CONDA_CMD info --envs | grep -q jep_dev); then
+  echo "conda environment jep_dev exists"
+  echo "installing numpy package if necessary"
+  $CONDA_CMD install --yes  python=3.7 numpy=1.18.1 pytest=5.4.1 pip -p $DEV_ENV_PATH
+  # TODO: Remove test libraries from main jep config
+  $CONDA_CMD install --yes -c conda-forge astunparse=1.6.2 -p $DEV_ENV_PATH
+  echo "installing jep package"
+  rm -rf build/
+  conda activate jep_dev && python setup.py install
+else
+  echo "creating jep_dev conda environment"
+  $CONDA_CMD create  --yes -n jep_dev python=3.7 numpy=1.18.1 pytest=5.4.1 pip
+  $CONDA_CMD install --yes -c conda-forge astunparse=1.6.2 -p $DEV_ENV_PATH
+  echo "installing jep package"
+  rm -rf build/
+  conda activate jep_dev && python setup.py install
+fi
+
