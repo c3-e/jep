@@ -111,8 +111,8 @@ if __name__ == '__main__':
                   libraries=get_java_libraries() + get_python_libs(),
                   library_dirs=get_java_lib_folders(),
                   extra_link_args=get_java_linker_args() + get_python_linker_args(),
-                  extra_compile_args=['-g'],
-                  include_dirs=get_java_include() + ['src/main/c/Include', 'build/include',] + numpy_include,
+                  extra_compile_args=['-Og'] if bool(os.environ.get('JEP_DEV_MODE')) else None,
+                  include_dirs=get_java_include() + ['src/main/c/Include', 'build/include'] + numpy_include,
               )
           ],
 
