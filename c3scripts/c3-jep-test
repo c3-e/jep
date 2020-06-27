@@ -11,4 +11,4 @@ conda activate jep_dev && python setup.py install
 
 cd $C3_SERVER_ROOT
 
-JEP_DEV_MODE=True ./v8 test --tests JepInterface_Test
+JEP_DEV_MODE=True ./v8 test --tests C3JepInterface_Test
