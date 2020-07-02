@@ -17,13 +17,13 @@ if ($CONDA_CMD info --envs | grep -q jep_dev); then
   $CONDA_CMD install --yes -c conda-forge astunparse=1.6.2 -p $DEV_ENV_PATH
   echo "installing jep package"
   rm -rf build/
-  conda activate jep_dev && python setup.py install
+  conda activate jep_dev && JEP_DEV_MODE=True python setup.py install
 else
   echo "creating jep_dev conda environment"
   $CONDA_CMD create  --yes -n jep_dev python=3.7 numpy=1.18.1 pytest=5.4.1 pip
   $CONDA_CMD install --yes -c conda-forge astunparse=1.6.2 -p $DEV_ENV_PATH
   echo "installing jep package"
   rm -rf build/
-  conda activate jep_dev && python setup.py install
+  conda activate jep_dev && JEP_DEV_MODE=True python setup.py install
 fi
 

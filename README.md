@@ -12,11 +12,12 @@ will create the environment if it does not exist.
 To run the c3server tests that exercise the `(C3)JepInterface` features, run `./c3-jep test`. 
 
 If you want the version of `jep` currently installed in the `jep_dev` environment to be used for all embedded actions
-in a locally running `v8` c3server, set the enviroment variable `JEP_DEV_MODE=True` in the terminal/IDE that will run
+in a locally running `v8` c3server, set the environment variable `JEP_DEV_MODE=True` in the terminal/IDE that will run
 the c3 server.
 
 
-
+**NOTE**: For all tests (including debugging and profiling), please ensure that your `C3_SERVER_ROOT` environment
+variable is correctly set to point to the root directory of your local v8 c3server repo.
 
 ## C3 Contributions
 

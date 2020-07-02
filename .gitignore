@@ -29,3 +29,5 @@ MANIFEST
 .gradle
 jep.iml
 target/
+.c3-jep-test-outputs/
+*_output*

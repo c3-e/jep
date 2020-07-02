@@ -1,0 +1,18 @@
+#!/usr/bin/env bash
+set -e
+
+
+TEST_OUTPUT_DIR=.c3-jep-test-outputs
+get_test_pid() {
+  pid=$(jps -l |  ack -oP "[0-9]+(?= -- main class information unavailable)" )
+  while [ -z "$pid" ]
+  do
+    sleep 5
+    pid=$(jps -l |  ack -oP "[0-9]+(?= -- main class information unavailable)" )
+  done
+  echo "$pid"
+}
+
+ensure_test_output_dir() {
+  mkdir -p $TEST_OUTPUT_DIR
+}
