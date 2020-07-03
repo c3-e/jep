@@ -12,7 +12,7 @@ exit 1
 
 
 source ./c3scripts/c3-jep-utils
-ensure_test_output_dir
+ensure_output_dirs
 
 TEST=${2:-C3JepInterface_Test}
 CUR_DIR=$(pwd)

@@ -30,4 +30,5 @@ MANIFEST
 jep.iml
 target/
 .c3-jep-test-outputs/
+.c3-jep-profile-outputs/
 *_output*
