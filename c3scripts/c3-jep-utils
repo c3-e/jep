@@ -1,0 +1,30 @@
+#!/usr/bin/env bash
+set -e
+
+
+TEST_OUTPUT_DIR=.c3-jep-test-outputs
+PROFILING_OUTPUT_DIR=.c3-jep-profile-outputs
+
+get_test_pid() {
+  pid=$(jps -l |  ack -oP "[0-9]+(?= -- main class information unavailable)" )
+  while [ -z "$pid" ]
+  do
+    sleep 5
+    pid=$(jps -l |  ack -oP "[0-9]+(?= -- main class information unavailable)" )
+  done
+  echo "$pid"
+}
+
+ensure_output_dirs() {
+  mkdir -p $TEST_OUTPUT_DIR
+  mkdir -p $PROFILING_OUTPUT_DIR
+}
+
+wait_for_test_to_complete() {
+  pid=$1
+  while ps -p $pid >/dev/null; do
+    sleep 5
+    echo "Test with pid" $pid "is still running"
+  done
+  echo "Test finished"
+}

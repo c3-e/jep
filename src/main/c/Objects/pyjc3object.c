@@ -158,12 +158,12 @@ static int pyjc3object_init(JNIEnv *env, PyJC3Object *pyjob)
 
         //  process fields
         // fieldArray = java_lang_Class_getFields(env, pyjob->clazz);
-        printf("About to get fields\n");
-        fflush(stdout);
+        //printf("About to get fields\n");
+        //fflush(stdout);
         fieldArray = C3_JepInterface_getFields(env, pyjob->object);
         if (process_java_exception(env) || !fieldArray) {
-            printf("getFields java error\n");
-            fflush(stdout);
+            //printf("getFields java error\n");
+            //fflush(stdout);
             goto EXIT_ERROR;
         }
 
@@ -183,8 +183,8 @@ static int pyjc3object_init(JNIEnv *env, PyJC3Object *pyjob)
             if (!pyjfield) {
                 continue;
             }
-            printf("setting field: %s\n", PyString_AsString(pyjfield->pyFieldName));
-            fflush(stdout);
+            //printf("setting field: %s\n", PyString_AsString(pyjfield->pyFieldName));
+            //fflush(stdout);
 
             if (pyjfield->pyFieldName && PyString_Check(pyjfield->pyFieldName)) {
                 if (PyDict_SetItem(cachedAttrs, pyjfield->pyFieldName,
@@ -417,20 +417,20 @@ static PyObject* pyjc3object_richcompare(PyJC3Object *self,
 // returns new reference.
 static PyObject* pyjc3object_getattro(PyObject *obj, PyObject *name)
 {
-    printf("getattro\n");
-    fflush(stdout);
-    printf("%s\n", PyString_AsString(name));
-    fflush(stdout);
+    //printf("getattro\n");
+    //fflush(stdout);
+    //printf("%s\n", PyString_AsString(name));
+    //fflush(stdout);
 
     PyObject *ret = PyObject_GenericGetAttr(obj, name);
     if (ret == NULL) {
-        printf("getattro: null\n");
-        fflush(stdout);
+        //printf("getattro: null\n");
+        //fflush(stdout);
         return NULL;
     } else if (PyJC3Method_Check(ret) || PyJC3MultiMethod_Check(ret)) {
 
-        printf("getattro: method\n");
-        fflush(stdout);
+        //printf("getattro: method\n");
+        //fflush(stdout);
         /*
          * TODO Should not bind non-static methods to pyjclass objects, but not
          * sure yet how to handle multimethods and static methods.
@@ -445,16 +445,16 @@ static PyObject* pyjc3object_getattro(PyObject *obj, PyObject *name)
         return wrapper;
     } else if (PyJC3Field_Check(ret)) {
 
-        printf("getattro: field %s\n", PyString_AsString(name));
-        fflush(stdout);
+        //printf("getattro: field %s\n", PyString_AsString(name));
+        //fflush(stdout);
         // PyObject *resolved = pyjfield_get((PyJFieldObject *) ret, (PyJC3Object*) obj);
         PyObject *resolved = pyjc3field_get((PyJC3FieldObject *) ret, (PyJC3Object*) obj);
         Py_DECREF(ret);
         return resolved;
     } else {
 
-        printf("getattro: none %s\n", PyString_AsString(name));
-        fflush(stdout);
+        //printf("getattro: none %s\n", PyString_AsString(name));
+        //fflush(stdout);
     }
     return ret;
 }

@@ -267,9 +267,9 @@ static PyObject* pyjc3method_call(PyJC3MethodObject *self,
 //    const char      *mName   = jstring2char(env, self->methodName);
 //    const char      *tName   = jstring2char(env, self->typeName);
 //
-//        printf("pyjc3method_call %s.%s  num params expected, given, normal, params: %d, %d, %d, %d\n",
+//        //printf("pyjc3method_call %s.%s  num params expected, given, normal, params: %d, %d, %d, %d\n",
 //       tName, mName, lenJArgsExpected, lenPyArgsGiven, lenJArgsNormal, self->lenParameters);
-//        fflush(stdout);
+//        //fflush(stdout);
 //        release_utf_char(env, self->methodName, mName);
 //        release_utf_char(env, self->typeName, tName);
 
@@ -318,18 +318,18 @@ static PyObject* pyjc3method_call(PyJC3MethodObject *self,
         if (paramTypeId == JARRAY_ID) {
             foundArray = 1;
         }
-        printf("pyjc3method_call param number, type: %d, %d\n", pos, paramTypeId);
-        fflush(stdout);
+        //printf("pyjc3method_call param number, type: %d, %d\n", pos, paramTypeId);
+        //fflush(stdout);
         (*env)->SetObjectArrayElement(env, jarray, (jsize) pos + start_idx, convert_pyarg_jobject(env, param, paramType, paramTypeId, pos + start_idx));
 
         if (paramTypeId == JSTRING_ID) {
-          printf("pyjc3method_call param[%d] %s\n", pos, PyString_AsString(PyObject_Str(param)));
-          fflush(stdout);
+          //printf("pyjc3method_call param[%d] %s\n", pos, PyString_AsString(PyObject_Str(param)));
+          //fflush(stdout);
         }
 
         if (PyErr_Occurred()) {
-            printf("pyjc3method_call error occurred\n");
-            fflush(stdout);
+            //printf("pyjc3method_call error occurred\n");
+            //fflush(stdout);
             if (pos == (lenJArgsExpected - 1)
                     && PyErr_ExceptionMatches(PyExc_TypeError)) {
                 jboolean varargs = C3_JepInterface_isVarArgs(env, self->rmethod);
@@ -351,16 +351,16 @@ static PyObject* pyjc3method_call(PyJC3MethodObject *self,
         (*env)->DeleteLocalRef(env, paramType);
     }
     if (lenJArgsNormal + 1 == lenJArgsExpected) {
-        printf("pyjc3method_call varargs true\n");
-        fflush(stdout);
+        //printf("pyjc3method_call varargs true\n");
+        //fflush(stdout);
         /* Need to process last arg as varargs. */
         PyObject *param = NULL;
         jclass paramType = (jclass) (*env)->GetObjectArrayElement(env,
                            self->parameters, lenJArgsExpected - 1);
         if (lenPyArgsGiven == lenJArgsExpected) {
 
-            printf("pyjc3method_call varargs true   1 \n");
-            fflush(stdout);
+            //printf("pyjc3method_call varargs true   1 \n");
+            //fflush(stdout);
             /*
              * Python args are normally one longer than expected to allow for
              * this/self so if it isn't then nothing was given for the varargs
@@ -368,8 +368,8 @@ static PyObject* pyjc3method_call(PyJC3MethodObject *self,
             param = PyTuple_New(0);
         } else {
 
-            printf("pyjc3method_call varargs true    2\n");
-            fflush(stdout);
+            //printf("pyjc3method_call varargs true    2\n");
+            //fflush(stdout);
             param = PyTuple_GetSlice(args, lenJArgsExpected, lenPyArgsGiven);
         }
         if (PyErr_Occurred()) {
@@ -394,15 +394,15 @@ static PyObject* pyjc3method_call(PyJC3MethodObject *self,
         jstring jstr;
         Py_BEGIN_ALLOW_THREADS;
         if (self->isStatic) {
-        printf("pyjc3method_call string static: true");
-            fflush(stdout);
+        //printf("pyjc3method_call string static: true");
+            //fflush(stdout);
           jstr = (jstring) C3_JepInterface_dispatchString(env,
                      self->typeName,
                      self->methodName,
                      jarray);
         } else {
-        printf("pyjc3method_call string static: false");
-            fflush(stdout);
+        //printf("pyjc3method_call string static: false");
+            //fflush(stdout);
           jstr = (jstring) C3_JepInterface_dispatchStringMember(env,
                                self->typeName,
                                self->methodName,

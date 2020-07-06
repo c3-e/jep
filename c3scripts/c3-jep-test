@@ -1,14 +1,6 @@
 #!/usr/bin/env bash
 set -e
 
-# Assume ./c3-conda install has been run
-CONDA_BASE=$(conda info --base)
-source $CONDA_BASE/etc/profile.d/conda.sh
+TEST=${2:-C3JepInterface_Test}
 
-rm -rf build/
-
-conda activate jep_dev && python setup.py install
-
-cd $C3_SERVER_ROOT
-
-JEP_DEV_MODE=True ./v8 test --tests C3JepInterface_Test
+cd $C3_SERVER_ROOT && JEP_DEV_MODE=True ./v8 test --tests $TEST

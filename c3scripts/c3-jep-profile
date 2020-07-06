@@ -1,0 +1,59 @@
+#!/usr/bin/env bash
+set -e
+
+source ./c3scripts/c3-jep-utils
+
+ensure_output_dirs
+
+TEST=${2:-C3JepInterface_Test}
+CUR_DIR=$(pwd)
+TEST_OUTPUT_FILE=$CUR_DIR"/"$TEST_OUTPUT_DIR"/"$TEST"."$(date "+%Y.%m.%d-%H.%M.%S")
+PROFILING_OUTPUT_FILE=$CUR_DIR"/"$PROFILING_OUTPUT_DIR"/"$TEST"."$(date "+%Y.%m.%d-%H.%M.%S")
+
+echo ""
+echo "NOTE: After the test is launched, you will have approximately 90 seconds to enter your password for Instruments"
+echo "      and then press any key in the Terminal window before the test shuts down."
+echo ""
+read -n 1 -s -r -p "Press any key to launch the test"
+echo ""
+echo ""
+
+echo "Launching test "$TEST
+# execute tests in a forked process
+# --debug-jvm flag to make sure that the gradle process waits so we can grab the pid before attaching
+# a debugger or profiler
+echo "After completion, test output will be stored in "$TEST_OUTPUT_FILE
+echo ""
+cd $C3_SERVER_ROOT && JEP_DEV_MODE=True ./v8 test --tests $TEST --debug-jvm > $TEST_OUTPUT_FILE 2>&1 &
+
+echo ""
+echo "Getting pid for test process. Please wait while the test starts."
+echo ""
+GRADLE_TESTER_PID=$(get_test_pid | awk '{ print $NF }' | tail -1)
+echo "Gradle Tester PID: " $GRADLE_TESTER_PID
+echo ""
+
+echo "After completion, profiling output will be stored in "$PROFILING_OUTPUT_FILE".trace"
+echo ""
+echo "To view in Instruments, simply execute 'open "$PROFILING_OUTPUT_FILE".trace'"
+echo ""
+#read -n 1 -s -r -p "Please connect to the CLion Profiler (Run -> Attach Profiler to Process) and then press any key to allow the test to resume."
+
+#TODO: Figure out how to avoid the prompt...
+
+echo "Please enter your password to allow Instruments to run and then press any key to begin the test"
+echo ""
+instruments -t Time\ Profiler -D $PROFILING_OUTPUT_FILE -p $GRADLE_TESTER_PID > /dev/null 2>&1 &
+
+
+echo ""
+read -n 1 -s -r -p "Press any key to allow the test to resume."
+
+echo ""
+# attach to jvm process so that the test begins to execute
+echo "run" | jdb -attach 5005 > /dev/null 2>&1 &
+
+wait_for_test_to_complete $GRADLE_TESTER_PID
+
+echo "Done"
+

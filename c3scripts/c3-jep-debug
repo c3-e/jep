@@ -1,0 +1,36 @@
+#!/usr/bin/env bash
+set -e
+
+echo "This does not work properly"
+exit 1
+#echo "NOTE: If you see the following message:\n"
+#echo "Error calling thread_get_state for GP registers for thread 0x1603\n\t\t\n\t\t\n\t\twarning: Mach error at '../../gdb/i386-darwin-nat.c:132' in function 'virtual void i386_darwin_nat_target::fetch_registers(struct regcache *, int)': (os/kern) invalid argument (0x4)\n\t\t--Type <RET> for more, q to quit, c to continue without paging--"
+#echo "Just enter 'c' to continue."
+#echo ""
+#echo "'sudo' is required to run GDB or dtrace; see https://github.com/cs01/gdbgui/issues/55 for more details. Please enter your password."
+#sudo -v
+
+
+source ./c3scripts/c3-jep-utils
+ensure_output_dirs
+
+TEST=${2:-C3JepInterface_Test}
+CUR_DIR=$(pwd)
+TEST_OUTPUT_FILE=$CUR_DIR"/"$TEST"_output."$(date "+%H.%M.%S-%Y.%m.%d")
+
+
+# execute tests in a forked process
+# --debug-jvm flag to make sure that the gradle process waits so we can grab the pid before attaching
+# a debugger or profiler
+cd $C3_SERVER_ROOT && JEP_DEV_MODE=True ./v8 test --tests $TEST --debug-jvm > $TEST_OUTPUT_FILE 2>&1 &
+
+echo "Getting PID for GradleWorkerMain (test) Process. Please wait while test starts."
+GRADLE_TESTER_PID=$(get_test_pid | awk '{ print $NF }' | tail -1)
+echo "Gradle Tester PID: " $GRADLE_TESTER_PID
+
+echo ""
+
+# attach to jvm process so that the test begins to execute
+echo "run" | jdb -attach 5005
+
+lldb -p ${GRADLE_TESTER_PID}
