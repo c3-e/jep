@@ -16,11 +16,14 @@ echo "      and then press any key in the Terminal window before the test shuts 
 echo ""
 read -n 1 -s -r -p "Press any key to launch the test"
 echo ""
+echo ""
 
 echo "Launching test "$TEST
 # execute tests in a forked process
 # --debug-jvm flag to make sure that the gradle process waits so we can grab the pid before attaching
 # a debugger or profiler
+echo "After completion, test output will be stored in "$TEST_OUTPUT_FILE
+echo ""
 cd $C3_SERVER_ROOT && JEP_DEV_MODE=True ./v8 test --tests $TEST --debug-jvm > $TEST_OUTPUT_FILE 2>&1 &
 
 echo ""
@@ -32,7 +35,7 @@ echo ""
 
 echo "After completion, profiling output will be stored in "$PROFILING_OUTPUT_FILE".trace"
 echo ""
-echo "To view in Instruments, simply execute open "$PROFILING_OUTPUT_FILE".trace"
+echo "To view in Instruments, simply execute 'open "$PROFILING_OUTPUT_FILE".trace'"
 echo ""
 #read -n 1 -s -r -p "Please connect to the CLion Profiler (Run -> Attach Profiler to Process) and then press any key to allow the test to resume."
 

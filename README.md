@@ -4,20 +4,31 @@
 [![image](https://img.shields.io/badge/docs-wiki-orange.svg)](https://github.com/ninia/jep/wiki)
 [![image](https://img.shields.io/badge/docs-javadoc-orange.svg)](https://ninia.github.io/jep/javadoc)
 
-## Development setup for C3 Jep
+## Developing C3 Jep
 
+### Setup
 Run `./c3-jep install` to install the local version of this repo into your `jep_dev` conda environment. This
 will create the environment if it does not exist.
-
-To run the c3server tests that exercise the `(C3)JepInterface` features, run `./c3-jep test`. 
 
 If you want the version of `jep` currently installed in the `jep_dev` environment to be used for all embedded actions
 in a locally running `v8` c3server, set the environment variable `JEP_DEV_MODE=True` in the terminal/IDE that will run
 the c3 server.
 
+### Testing
+To run the c3server tests that exercise the `(C3)JepInterface` features, use `./c3-jep test`. By default, 
+this will execute `C3JepInterface_Test`, but you can also specify a different test: `./c3-jep test MyTest_Test`.
+
+### Profiling
+To run C-level profiling (handled by `Instruments`), use `./c3-jep profile`.
+As with testing, the default test is `C3JepInterface_Test`, but you may specify a different test.
+
+Profiling output is stored in the `.c3-jep-profile-outputs` directory and test output in the `.c3-jep-test-outputs`.
+
 
 **NOTE**: For all tests (including debugging and profiling), please ensure that your `C3_SERVER_ROOT` environment
 variable is correctly set to point to the root directory of your local v8 c3server repo.
+
+
 
 ## C3 Contributions
 
