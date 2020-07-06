@@ -11,6 +11,12 @@ TEST_OUTPUT_FILE=$CUR_DIR"/"$TEST_OUTPUT_DIR"/"$TEST"."$(date "+%Y.%m.%d-%H.%M.%
 PROFILING_OUTPUT_FILE=$CUR_DIR"/"$PROFILING_OUTPUT_DIR"/"$TEST"."$(date "+%Y.%m.%d-%H.%M.%S")
 
 echo ""
+echo "NOTE: After the test is launched, you will have approximately 90 seconds to enter your password for Instruments"
+echo "      and then press any key in the Terminal window before the test shuts down."
+echo ""
+read -n 1 -s -r -p "Press any key to launch the test"
+echo ""
+
 echo "Launching test "$TEST
 # execute tests in a forked process
 # --debug-jvm flag to make sure that the gradle process waits so we can grab the pid before attaching
@@ -32,7 +38,7 @@ echo ""
 
 #TODO: Figure out how to avoid the prompt...
 
-echo "Please enter your password to allow instruments to run and then press any key to begin the test"
+echo "Please enter your password to allow Instruments to run and then press any key to begin the test"
 echo ""
 instruments -t Time\ Profiler -D $PROFILING_OUTPUT_FILE -p $GRADLE_TESTER_PID > /dev/null 2>&1 &
 
