@@ -1,6 +1,7 @@
 #ifndef _Included_c3_zoo_py_JepInterface
 #define _Included_c3_zoo_py_JepInterface
 
+//Params are env, type name, method name, args
 jstring C3_JepInterface_dispatchString(JNIEnv*, jstring, jstring, jobjectArray);
 jobjectArray C3_JepInterface_dispatchArray(JNIEnv*, jstring, jstring, jobjectArray);
 jobject C3_JepInterface_dispatchObject(JNIEnv*, jstring, jstring, jobjectArray);
@@ -13,6 +14,7 @@ jlong C3_JepInterface_dispatchLong(JNIEnv*, jstring, jstring, jobjectArray);
 jboolean C3_JepInterface_dispatchBoolean(JNIEnv*, jstring, jstring, jobjectArray);
 void C3_JepInterface_dispatchVoid(JNIEnv*, jstring, jstring, jobjectArray);
 
+//Params are env, type name, method name, obj, args
 jstring C3_JepInterface_dispatchStringMember(JNIEnv*, jstring, jstring, jobject, jobjectArray);
 jobjectArray C3_JepInterface_dispatchArrayMember(JNIEnv*, jstring, jstring, jobject, jobjectArray);
 jobject C3_JepInterface_dispatchObjectMember(JNIEnv*, jstring, jstring, jobject, jobjectArray);
@@ -25,6 +27,7 @@ jlong C3_JepInterface_dispatchLongMember(JNIEnv*, jstring, jstring, jobject, job
 jboolean C3_JepInterface_dispatchBooleanMember(JNIEnv*, jstring, jstring, jobject, jobjectArray);
 void C3_JepInterface_dispatchVoidMember(JNIEnv*, jstring, jstring, jobject, jobjectArray);
 
+//Params are env, obj, field name
 jstring C3_JepInterface_getFieldValueString(JNIEnv*, jobject, jstring);
 jobjectArray C3_JepInterface_getFieldValueArray(JNIEnv*, jobject, jstring);
 jobject C3_JepInterface_getFieldValueObject(JNIEnv*, jobject, jstring);
@@ -36,8 +39,21 @@ jfloat C3_JepInterface_getFieldValueFloat(JNIEnv*, jobject, jstring);
 jlong C3_JepInterface_getFieldValueLong(JNIEnv*, jobject, jstring);
 jboolean C3_JepInterface_getFieldValueBoolean(JNIEnv*, jobject, jstring);
 
+//Params are env, type name, field name
+jstring C3_JepInterface_getConstantFieldValueString(JNIEnv*, jstring, jstring);
+jobjectArray C3_JepInterface_getConstantFieldValueArray(JNIEnv*, jstring, jstring);
+jobject C3_JepInterface_getConstantFieldValueObject(JNIEnv*, jstring, jstring);
+jobject C3_JepInterface_getConstantFieldValueClass(JNIEnv*, jstring, jstring);
+jint C3_JepInterface_getConstantFieldValueInt(JNIEnv*, jstring, jstring);
+jbyte C3_JepInterface_getConstantFieldValueByte(JNIEnv*, jstring, jstring);
+jdouble C3_JepInterface_getConstantFieldValueDouble(JNIEnv*, jstring, jstring);
+jfloat C3_JepInterface_getConstantFieldValueFloat(JNIEnv*, jstring, jstring);
+jlong C3_JepInterface_getConstantFieldValueLong(JNIEnv*, jstring, jstring);
+jboolean C3_JepInterface_getConstantFieldValueBoolean(JNIEnv*, jstring, jstring);
 
-jboolean C3_JepInterface_isFieldStatic(JNIEnv*, jobject);
+
+//Other
+jboolean C3_JepInterface_isFieldConstant(JNIEnv*, jobject);
 jobjectArray C3_JepInterface_getConstructors(JNIEnv*, jclass);
 jobjectArray C3_JepInterface_getFields(JNIEnv*, jobject);
 jobjectArray C3_JepInterface_getMethods(JNIEnv*, jobject);

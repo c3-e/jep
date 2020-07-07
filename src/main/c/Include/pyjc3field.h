@@ -41,7 +41,7 @@ typedef struct {
     jclass            fieldType;           /* field's type */
     int               fieldTypeId;         /* field's typeid */
     PyObject         *pyFieldName;         /* python name... :-) */
-    int               isStatic;            /* -1 if not known,
+    int               isConstant;            /* -1 if not known,
                                               otherwise 1 or 0 */
     int               init;                /* 1 if init performed */
 } PyJC3FieldObject;

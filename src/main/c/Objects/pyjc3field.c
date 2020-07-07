@@ -62,7 +62,7 @@ PyJC3FieldObject* PyJC3Field_New(JNIEnv *env, jobject c3field)
     pyf->c3field      = (*env)->NewGlobalRef(env, c3field);
     pyf->pyFieldName = NULL;
     pyf->fieldTypeId = -1;
-    pyf->isStatic    = -1;
+    pyf->isConstant    = -1;
     pyf->init        = 0;
 
     // ------------------------------ get field name
@@ -88,7 +88,7 @@ EXIT_ERROR:
 
 static int pyjc3field_init(JNIEnv *env, PyJC3FieldObject *self)
 {
-    jboolean         isStatic    = JNI_TRUE;
+    jboolean         isConstant     = JNI_TRUE;
 
     if ((*env)->PushLocalFrame(env, JLOCAL_REFS) != 0) {
         process_java_exception(env);
@@ -116,7 +116,7 @@ static int pyjc3field_init(JNIEnv *env, PyJC3FieldObject *self)
     //printf("pyjc3field init 3\n");
     //fflush(stdout);
 
-    // ------------------------------ get isStatic
+    // ------------------------------ get isConstant
 
     if (process_java_exception(env)) {
         goto EXIT_ERROR;
@@ -126,7 +126,7 @@ static int pyjc3field_init(JNIEnv *env, PyJC3FieldObject *self)
     //printf("pyjc3field init 4\n");
     //fflush(stdout);
 
-    isStatic = C3_JepInterface_isFieldStatic(env, self->c3field);
+    isConstant = C3_JepInterface_isFieldConstant(env, self->c3field);
     if (process_java_exception(env)) {
         goto EXIT_ERROR;
     }
@@ -134,13 +134,13 @@ static int pyjc3field_init(JNIEnv *env, PyJC3FieldObject *self)
     //printf("pyjc3field init 5\n");
     //fflush(stdout);
 
-    if (isStatic == JNI_TRUE) {
+    if (isConstant == JNI_TRUE) {
 
         //printf("pyjc3field init static\n");
         //fflush(stdout);
-        self->isStatic = 1;
+        self->isConstant = 1;
     } else {
-        self->isStatic = 0;
+        self->isConstant = 0;
     }
     self->fieldType = (*env)->NewGlobalRef(env, self->fieldType);
 
@@ -174,6 +174,13 @@ int PyJC3Field_Check(PyObject *obj)
 // returns new reference.
 PyObject* pyjc3field_get(PyJC3FieldObject *self, PyJC3Object* pyjobject)
 {
+
+    //NOTE: THE CURRENT IMPLEMENTATION OF ACCESSING CONSTANT FIELDS WORKS WHEN USED ON AN INSTANCE OF A TYPE (e.g. my_dog.goodBoy), BUT
+    // MAY NEED TO BE UPDATED DEPENDING ON HOW TYPES/C3 VARIABLE IS HANDLED IN EMBEDDED MODE (i.e. c3.Dog.goodBoy or c3.DogBreed.HUSKY)
+
+    // It may end up being easier to pass the parameter object to java and determine whether it is a type or instance there.
+
+
     PyObject *result = NULL;
     JNIEnv   *env;
 
@@ -196,10 +203,10 @@ PyObject* pyjc3field_get(PyJC3FieldObject *self, PyJC3Object* pyjobject)
         }
     }
 
-    if (!pyjobject->object && !self->isStatic) {
+    if (!pyjobject->object && !self->isConstant) {
     //printf("pyjc3field get not static\n");
     //fflush(stdout);
-        PyErr_SetString(PyExc_TypeError, "Field is not static.");
+        PyErr_SetString(PyExc_TypeError, "Field is not constant.");
         return NULL;
     }
 
@@ -212,14 +219,14 @@ PyObject* pyjc3field_get(PyJC3FieldObject *self, PyJC3Object* pyjobject)
     case JSTRING_ID: {
         jstring     jstr;
 
-        if (self->isStatic) {
+        if (self->isConstant) {
 
             //printf("pyjc3field get static string field %d\n", self->fieldTypeId);
             //fflush(stdout);
-            jstr = (jstring) (*env)->GetStaticObjectField(
-                       env,
-                       pyjobject->clazz,
-                       self->fieldId);
+
+            jstr = C3_JepInterface_getConstantFieldValueString(env,
+                                                               pyjobject->typeName,
+                                                               PyObject_As_jstring(env, self->pyFieldName));
         } else {
             //printf("pyjc3field get non-static string field %d\n", self->fieldTypeId);
             //fflush(stdout);
@@ -249,10 +256,10 @@ PyObject* pyjc3field_get(PyJC3FieldObject *self, PyJC3Object* pyjobject)
     case JCLASS_ID: {
         jobject obj;
 
-        if (self->isStatic)
-            obj = (*env)->GetStaticObjectField(env,
-                                               pyjobject->clazz,
-                                               self->fieldId);
+        if (self->isConstant)
+            ret = C3_JepInterface_getConstantFieldValueClass(env,
+                                                               pyjobject->typeName,
+                                                               PyObject_As_jstring(env, self->pyFieldName));
         else
             obj = C3_JepInterface_getFieldValueClass(env,
                                                       pyjobject->object,
@@ -274,10 +281,10 @@ PyObject* pyjc3field_get(PyJC3FieldObject *self, PyJC3Object* pyjobject)
     case JOBJECT_ID: {
         jobject obj;
 
-        if (self->isStatic)
-            obj = (*env)->GetStaticObjectField(env,
-                                               pyjobject->clazz,
-                                               self->fieldId);
+        if (self->isConstant)
+            obj = C3_JepInterface_getConstantFieldValueObject(env,
+                                                               pyjobject->typeName,
+                                                               PyObject_As_jstring(env, self->pyFieldName));
         else
             obj = C3_JepInterface_getFieldValueObject(env,
                                                               pyjobject->object,
@@ -302,10 +309,10 @@ PyObject* pyjc3field_get(PyJC3FieldObject *self, PyJC3Object* pyjobject)
                 Py_RETURN_NONE;
         jobject obj;
 
-        if (self->isStatic)
-            obj = (*env)->GetStaticObjectField(env,
-                                               pyjobject->clazz,
-                                               self->fieldId);
+        if (self->isConstant)
+            obj = C3_JepInterface_getConstantFieldValueArray(env,
+                                                               pyjobject->typeName,
+                                                               PyObject_As_jstring(env, self->pyFieldName));
         else
             obj = C3_JepInterface_getFieldValueArray(env,
                                                             pyjobject->object,
@@ -326,10 +333,10 @@ PyObject* pyjc3field_get(PyJC3FieldObject *self, PyJC3Object* pyjobject)
     case JINT_ID: {
         jint ret;
 
-        if (self->isStatic)
-            ret = (*env)->GetStaticIntField(env,
-                                            pyjobject->clazz,
-                                            self->fieldId);
+        if (self->isConstant)
+            ret = C3_JepInterface_getConstantFieldValueInt(env,
+                                                               pyjobject->typeName,
+                                                               PyObject_As_jstring(env, self->pyFieldName));
         else
             ret = C3_JepInterface_getFieldValueInt(env,
                                                           pyjobject->object,
@@ -346,10 +353,10 @@ PyObject* pyjc3field_get(PyJC3FieldObject *self, PyJC3Object* pyjobject)
     case JBYTE_ID: {
         jbyte ret;
 
-        if (self->isStatic)
-            ret = (*env)->GetStaticByteField(env,
-                                             pyjobject->clazz,
-                                             self->fieldId);
+        if (self->isConstant)
+            ret = C3_JepInterface_getConstantFieldValueByte(env,
+                                                               pyjobject->typeName,
+                                                               PyObject_As_jstring(env, self->pyFieldName));
         else
             ret = C3_JepInterface_getFieldValueByte(env,
                                                             pyjobject->object,
@@ -366,7 +373,7 @@ PyObject* pyjc3field_get(PyJC3FieldObject *self, PyJC3Object* pyjobject)
 //    case JCHAR_ID: {
 //        jchar ret;
 //
-//        if (self->isStatic)
+//        if (self->isConstant)
 //            ret = (*env)->GetStaticCharField(env,
 //                                             pyjobject->clazz,
 //                                             self->fieldId);
@@ -385,7 +392,7 @@ PyObject* pyjc3field_get(PyJC3FieldObject *self, PyJC3Object* pyjobject)
 //    case JSHORT_ID: {
 //        jshort ret;
 //
-//        if (self->isStatic)
+//        if (self->isConstant)
 //            ret = (*env)->GetStaticShortField(env,
 //                                              pyjobject->clazz,
 //                                              self->fieldId);
@@ -405,10 +412,10 @@ PyObject* pyjc3field_get(PyJC3FieldObject *self, PyJC3Object* pyjobject)
     case JDOUBLE_ID: {
         jdouble ret;
 
-        if (self->isStatic)
-            ret = (*env)->GetStaticDoubleField(env,
-                                               pyjobject->clazz,
-                                               self->fieldId);
+        if (self->isConstant)
+            ret = C3_JepInterface_getConstantFieldValueDouble(env,
+                                                               pyjobject->typeName,
+                                                               PyObject_As_jstring(env, self->pyFieldName));
         else
             ret = C3_JepInterface_getFieldValueDouble(env,
                                                               pyjobject->object,
@@ -425,10 +432,10 @@ PyObject* pyjc3field_get(PyJC3FieldObject *self, PyJC3Object* pyjobject)
     case JFLOAT_ID: {
         jfloat ret;
 
-        if (self->isStatic)
-            ret = (*env)->GetStaticFloatField(env,
-                                              pyjobject->clazz,
-                                              self->fieldId);
+        if (self->isConstant)
+            ret = C3_JepInterface_getConstantFieldValueFloat(env,
+                                                               pyjobject->typeName,
+                                                               PyObject_As_jstring(env, self->pyFieldName));
         else
             ret = C3_JepInterface_getFieldValueFloat(env,
                                                             pyjobject->object,
@@ -445,10 +452,10 @@ PyObject* pyjc3field_get(PyJC3FieldObject *self, PyJC3Object* pyjobject)
     case JLONG_ID: {
         jlong ret;
 
-        if (self->isStatic)
-            ret = (*env)->GetStaticLongField(env,
-                                             pyjobject->clazz,
-                                             self->fieldId);
+        if (self->isConstant)
+            ret = C3_JepInterface_getConstantFieldValueLong(env,
+                                                               pyjobject->typeName,
+                                                               PyObject_As_jstring(env, self->pyFieldName));
         else
             ret = C3_JepInterface_getFieldValueLong(env,
                                                             pyjobject->object,
@@ -466,15 +473,19 @@ PyObject* pyjc3field_get(PyJC3FieldObject *self, PyJC3Object* pyjobject)
     case JBOOLEAN_ID: {
         jboolean ret;
 
-        if (self->isStatic)
-            ret = (*env)->GetStaticBooleanField(env,
-                                                pyjobject->clazz,
-                                                self->fieldId);
-        else
+        if (self->isConstant) {
+            //printf("pyjc3field get constant boolean field %d\n", self->fieldTypeId);
+            //fflush(stdout);
+            ret = C3_JepInterface_getConstantFieldValueBoolean(env,
+                                                              pyjobject->typeName,
+                                                               PyObject_As_jstring(env, self->pyFieldName));
+        } else {
+            //printf("pyjc3field get non-constant boolean field %d\n", self->fieldTypeId);
+            //fflush(stdout);
             ret = C3_JepInterface_getFieldValueBoolean(env,
-                                                              pyjobject->object,
-                                                              PyObject_As_jstring(env, self->pyFieldName));
-
+                                                       pyjobject->object,
+                                                       PyObject_As_jstring(env, self->pyFieldName));
+        }
         if (process_java_exception(env)) {
             return NULL;
         }
@@ -495,159 +506,10 @@ PyObject* pyjc3field_get(PyJC3FieldObject *self, PyJC3Object* pyjobject)
 
 int pyjc3field_set(PyJC3FieldObject *self, PyJC3Object* pyjobject, PyObject *value)
 {
-    //TODO C3: Implement
-    JNIEnv *env = pyembed_get_env();
-
     if (!self) {
-        PyErr_Format(PyExc_RuntimeError, "Invalid self object.");
+        PyErr_Format(PyExc_RuntimeError, "C3 Objs are immutable, so setting fields is not supported.");
         return -1;
     }
-
-    if (!self->init) {
-        if (!pyjc3field_init(env, self) || PyErr_Occurred()) {
-            return -1;
-        }
-    }
-
-    if (!pyjobject->object && !self->isStatic) {
-        PyErr_SetString(PyExc_TypeError, "Field is not static.");
-        return -1;
-    }
-
-    switch (self->fieldTypeId) {
-    case JSTRING_ID:
-    case JCLASS_ID:
-    case JARRAY_ID:
-    case JOBJECT_ID: {
-        jobject obj = PyObject_As_jobject(env, value, self->fieldType);
-        if (!obj && PyErr_Occurred()) {
-            return -1;
-        }
-        if (self->isStatic) {
-            (*env)->SetStaticObjectField(env, pyjobject->clazz,
-                                         self->fieldId, obj);
-        } else {
-            (*env)->SetObjectField(env, pyjobject->object,
-                                   self->fieldId, obj);
-        }
-        (*env)->DeleteLocalRef(env, obj);
-        return 0;
-    }
-    case JINT_ID: {
-        jint i = PyObject_As_jint(value);
-        if (i == -1 && PyErr_Occurred()) {
-            return -1;
-        }
-        if (self->isStatic) {
-            (*env)->SetStaticIntField(env, pyjobject->clazz,
-                                      self->fieldId, i);
-        } else {
-            (*env)->SetIntField(env, pyjobject->object,
-                                self->fieldId, i);
-        }
-        return 0;
-    }
-    case JCHAR_ID: {
-        jchar c = PyObject_As_jchar(value);
-        if (c == 0 && PyErr_Occurred()) {
-            return -1;
-        }
-        if (self->isStatic) {
-            (*env)->SetStaticCharField(env, pyjobject->clazz,
-                                       self->fieldId, c);
-        } else {
-            (*env)->SetCharField(env, pyjobject->object,
-                                 self->fieldId, c);
-        }
-        return 0;
-    }
-    case JBYTE_ID: {
-        jbyte b = PyObject_As_jbyte(value);
-        if (b == -1 && PyErr_Occurred()) {
-            return -1;
-        }
-        if (self->isStatic) {
-            (*env)->SetStaticByteField(env, pyjobject->clazz,
-                                       self->fieldId, b);
-        } else {
-            (*env)->SetByteField(env, pyjobject->object,
-                                 self->fieldId, b);
-        }
-        return 0;
-    }
-    case JSHORT_ID: {
-        jshort s = PyObject_As_jshort(value);
-        if (s == -1 && PyErr_Occurred()) {
-            return -1;
-        }
-        if (self->isStatic) {
-            (*env)->SetStaticShortField(env, pyjobject->clazz,
-                                        self->fieldId, s);
-        } else {
-            (*env)->SetShortField(env, pyjobject->object,
-                                  self->fieldId, s);
-        }
-        return 0;
-    }
-    case JDOUBLE_ID: {
-        jdouble d = PyObject_As_jdouble(value);
-        if (d == -1.0 && PyErr_Occurred()) {
-            return -1;
-        }
-        if (self->isStatic) {
-            (*env)->SetStaticDoubleField(env, pyjobject->clazz,
-                                         self->fieldId, d);
-        } else {
-            (*env)->SetDoubleField(env, pyjobject->object,
-                                   self->fieldId, d);
-        }
-        return 0;
-    }
-    case JFLOAT_ID: {
-        jfloat f = PyObject_As_jfloat(value);
-        if (f == -1.0 && PyErr_Occurred()) {
-            return -1;
-        }
-        if (self->isStatic) {
-            (*env)->SetStaticFloatField(env, pyjobject->clazz,
-                                        self->fieldId, f);
-        } else {
-            (*env)->SetFloatField(env, pyjobject->object,
-                                  self->fieldId, f);
-        }
-        return 0;
-    }
-    case JLONG_ID: {
-        jlong j = PyObject_As_jlong(value);
-        if (j == -1 && PyErr_Occurred()) {
-            return -1;
-        }
-        if (self->isStatic) {
-            (*env)->SetStaticLongField(env, pyjobject->clazz,
-                                       self->fieldId, j);
-        } else {
-            (*env)->SetLongField(env, pyjobject->object,
-                                 self->fieldId, j);
-        }
-        return 0;
-    }
-    case JBOOLEAN_ID: {
-        jboolean z = PyObject_As_jboolean(value);
-        if (PyErr_Occurred()) {
-            return -1;
-        }
-        if (self->isStatic) {
-            (*env)->SetStaticBooleanField(env, pyjobject->clazz,
-                                          self->fieldId, z);
-        } else {
-            (*env)->SetBooleanField(env, pyjobject->object,
-                                    self->fieldId, z);
-        }
-        return 0;
-    }
-    }
-    PyErr_Format(PyExc_RuntimeError, "Unknown field type %i.", self->fieldTypeId);
-    return -1;
 }
 
 PyTypeObject PyJC3Field_Type = {

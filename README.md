@@ -36,13 +36,13 @@ variable is correctly set to point to the root directory of your local v8 c3serv
 
 JEP wraps Java objects in `PyJObject`s objects in the Python interpreter. When (in Python) a `PyJObject` is created, or when an attribute is accessed on a `PyJObject`, Java reflection is used to .
 
-For C3, we will create a new `PyJC3Object` (and corresponding `PyJC3Class`) object which calls static functions on the C3 type `JepInterface`, avoiding the performance cost of Java reflection. Searching for `C3_JepInterface` will show you a list of the functions invoked on this type.
+For C3, we will create a new `PyJC3Object` (and corresponding `PyJC3Type`) object which calls static functions on the C3 type `JepInterface`, avoiding the performance cost of Java reflection. Searching for `C3_JepInterface` will show you a list of the functions invoked on this type.
 
 #### What files are being changed and why:
 
-1. src/main/c/Include/Jep.h, src/main/c/Include/pyjarray.h, src/main/c/Include/pyjautocloseable.h, src/main/c/Include/pyjbuffer.h, src/main/c/Include/pyjiterable.h, src/main/c/Include/pyjiterator.h, src/main/c/Include/pyjmap.h, src/main/c/Include/pyjmultimethod.h, src/main/c/Include/pyjnumber.h: Unclear if all of these files NEED to be updated. All of these files `#include`d either `PyJObject` or `PyJClass`  originally, so I chose to also include `PyJC3Object` and `PyJC3Class`. Note that some functions that were originally implemented on `PyJObject` and `PyJClass` have been moved to `PyJC3Object` or `PyJC3Class` (`PyJObject_Check` and `PyJClass_Check`), so it would make sense to now include these new `PyJC3` types in files that call these functions.
+1. src/main/c/Include/Jep.h, src/main/c/Include/pyjarray.h, src/main/c/Include/pyjautocloseable.h, src/main/c/Include/pyjbuffer.h, src/main/c/Include/pyjiterable.h, src/main/c/Include/pyjiterator.h, src/main/c/Include/pyjmap.h, src/main/c/Include/pyjmultimethod.h, src/main/c/Include/pyjnumber.h: Unclear if all of these files NEED to be updated. All of these files `#include`d either `PyJObject` or `PyJClass`  originally, so I chose to also include `PyJC3Object` and `PyJC3Type`. Note that some functions that were originally implemented on `PyJObject` and `PyJClass` have been moved to `PyJC3Object` or `PyJC3Type` (`PyJObject_Check` and `PyJClass_Check`), so it would make sense to now include these new `PyJC3` types in files that call these functions.
 
-1. src/main/c/Jep/convert_j2p.c, src/main/c/Jep/convert_j2p.h: These files implement the logic to convert a Java object to a Python object. Within the implementation of `jobject_As_PyObject`, I have added the following logic: If the Java object is an `Object`, call to C3 server and check if it is a C3 object / C3 class. If so, create a `PyJC3Object` (or `PyJC3Class`). Otherwise, create a `PyJObject` (or `PyJClass`). Creating the `PyJC3Object`/`PyJC3Class` is implemented by `jobject_As_PyJC3Object` (which is called by `jobject_As_PyObject`).
+1. src/main/c/Jep/convert_j2p.c, src/main/c/Jep/convert_j2p.h: These files implement the logic to convert a Java object to a Python object. Within the implementation of `jobject_As_PyObject`, I have added the following logic: If the Java object is an `Object`, call to C3 server and check if it is a C3 object / C3 class. If so, create a `PyJC3Object` (or `PyJC3Type`). Otherwise, create a `PyJObject` (or `PyJClass`). Creating the `PyJC3Object`/`PyJC3Type` is implemented by `jobject_As_PyJC3Object` (which is called by `jobject_As_PyObject`).
 
 1. src/main/c/Include/java_access/Class.h, src/main/c/Include/java_access/Class.c: This file originally implements functions to call Java.Lang.Class functions on Java objects from C. All functions that 1) use reflection or 2) have a Java.Lang.Reflection Object in the signature are replaced by new `C3_JepInterface_`... functions that call static methods on the C3 Type `JepInterface`.
 
@@ -58,21 +58,21 @@ For C3, we will create a new `PyJC3Object` (and corresponding `PyJC3Class`) obje
 
 1. src/main/c/Include/jep_util.h: Introduce helper function `JNI_STATIC_METHOD` (similar to `JNI_METHOD`). This function calls a static JNI method, caching the method. This is useful as the functions we will invoke on the C3 type `JepInterface` are static. Also, `C3_JEPINTERFACE_TYPE` is added to the `CLASS_TABLE`, pointing to class `c3/zoo/py/JepInterface` (the c3 type). We use `C3_JEPINTERFACE_TYPE` to call functions on the C3 type `JepInterface`.
 
-1. src/main/c/Include/pyjc3class.h, src/main/c/Include/pyjc3class.c: We introduce a new type `PyJC3Class`. src/main/c/Include/pyjc3class.h implements `PyJClass_Check`; this function now returns true if the `pyobj` arg is a `PyJC3Class` (new behavior) or a `PyJClass` (original behavior). We introduce `PyJC3Class` so that we can directly call `C3` methods without using Java reflection calls when interacting with C3 Types from within JEP. An alternative implementation would be to only have `PyJClass` and conditionally check if the Java class is a C3 type to determine whether Java reflection should be used. This alternative approach would likely be less performant, since it would incur a check on every access or method call, so it is not used.
+1. src/main/c/Include/pyjc3type.h, src/main/c/Include/pyjc3type.c: We introduce a new type `PyJC3Type`. src/main/c/Include/pyjc3type.h implements `PyJClass_Check`; this function now returns true if the `pyobj` arg is a `PyJC3Type` (new behavior) or a `PyJClass` (original behavior). We introduce `PyJC3Type` so that we can directly call `C3` methods without using Java reflection calls when interacting with C3 Types from within JEP. An alternative implementation would be to only have `PyJClass` and conditionally check if the Java class is a C3 type to determine whether Java reflection should be used. This alternative approach would likely be less performant, since it would incur a check on every access or method call, so it is not used.
 
-1. src/main/c/Include/pyjc3object.h, src/main/c/Include/pyjc3object.c: similar to `pyjc3class`
+1. src/main/c/Include/pyjc3object.h, src/main/c/Include/pyjc3object.c: similar to `pyjc3type`
 
-1. src/main/c/Include/pyjc3constructor.h, src/main/c/Include/pyjc3constructor.c: similar to `pyjc3class`
+1. src/main/c/Include/pyjc3constructor.h, src/main/c/Include/pyjc3constructor.c: similar to `pyjc3type`
 
-1. src/main/c/Include/pyjc3method.h, src/main/c/Include/pyjc3method.c: similar to `pyjc3class`
+1. src/main/c/Include/pyjc3method.h, src/main/c/Include/pyjc3method.c: similar to `pyjc3type`
 
-1. src/main/c/Include/pyjc3multimethod.h, src/main/c/Include/pyjc3multimethod.c: similar to `pyjc3class`
+1. src/main/c/Include/pyjc3multimethod.h, src/main/c/Include/pyjc3multimethod.c: similar to `pyjc3type`
 
 1. src/main/c/Include/pyjfield.h, src/main/c/Include/pyjfield.c: These objects are not very applicable since c3 java types don't typically have fields. Unlike `pyjmethod`s, `pyjfield`s don't seem to use java reflection on each call. In these files, we provide new implementations to create `pyjfield`s without reflection. These functions get called in `PyJC3Object` when objects are being created.
 
 1. src/main/c/Jep/convert_p2j.c: The logic to create Java objects from Python objects lives here. Added some logic to use C3 type APIs (instead of Java reflection) to determine how to convert `callable` Python objects to Java.
 
-1. src/main/c/Jep/jep_util.c: Updated to check for `PyJC3Class` and `PyJC3Object` along with the original PyJClass or PyJObject.
+1. src/main/c/Jep/jep_util.c: Updated to check for `PyJC3Type` and `PyJC3Object` along with the original PyJClass or PyJObject.
 
 
 ## C3 TODOs
