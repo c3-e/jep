@@ -134,7 +134,7 @@ static PyObject* pyjc3constructor_call(PyJC3MethodObject *self, PyObject *args,
     }
 
     firstArg = PyTuple_GetItem(args, 0);
-    if (!PyJC3Class_Check(firstArg)) {
+    if (!PyJC3Type_Check(firstArg)) {
         PyErr_SetString(PyExc_RuntimeError,
                         "First argument to a java constructor must be a java class.");
         return NULL;

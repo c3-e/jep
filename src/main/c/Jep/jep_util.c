@@ -511,7 +511,7 @@ int pyarg_matches_jtype(JNIEnv *env,
         case JCLASS_ID:
             return 1;
         }
-    } else if (PyJClass_Check(param) || PyJC3Class_Check(param)) {
+    } else if (PyJClass_Check(param) || PyJC3Type_Check(param)) {
         switch (paramTypeId) {
         case JCLASS_ID:
             return 2;

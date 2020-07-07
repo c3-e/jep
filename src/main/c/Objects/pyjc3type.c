@@ -29,9 +29,9 @@
 
 
 /*
- * Adds a single inner class as attributes to the pyjc3class. This will check if
+ * Adds a single inner class as attributes to the pyjc3type. This will check if
  * the inner class is public and will only add it if it is public. This is
- * intended to only be called from pyjc3class_add_inner_classes().
+ * intended to only be called from pyjc3type_add_inner_classes().
  *
  * @param env the JNI environment
  * @param topClz the pyjc3object of the top/outer Class
@@ -39,7 +39,7 @@
  *
  * @return NULL on errors, topClz if there are no errors
  */
-static PyObject* pyjc3class_add_inner_class(JNIEnv *env, PyJC3ClassObject *topClz,
+static PyObject* pyjc3type_add_inner_class(JNIEnv *env, PyJC3TypeObject *topClz,
         jclass innerClz)
 {
     jint      mods;
@@ -60,7 +60,7 @@ static PyObject* pyjc3class_add_inner_class(JNIEnv *env, PyJC3ClassObject *topCl
         jstring          shortName  = NULL;
         const char      *charName   = NULL;
 
-        attrClz = PyJC3Class_Wrap(env, innerClz);
+        attrClz = PyJC3Type_Wrap(env, innerClz);
         if (!attrClz) {
             return NULL;
         }
@@ -84,15 +84,15 @@ static PyObject* pyjc3class_add_inner_class(JNIEnv *env, PyJC3ClassObject *topCl
 
 
 /*
- * Adds a Java class's public inner classes as attributes to the pyjc3class.
+ * Adds a Java class's public inner classes as attributes to the pyjc3type.
  *
  * @param env the JNI environment
  * @param topClz the pyjc3object of the top/outer Class
  *
  * @return topClz if successful, otherwise NULL
  */
-static PyObject* pyjc3class_add_inner_classes(JNIEnv *env,
-        PyJC3ClassObject *topClz)
+static PyObject* pyjc3type_add_inner_classes(JNIEnv *env,
+        PyJC3TypeObject *topClz)
 {
     jobjectArray      innerArray    = NULL;
     jsize             innerSize     = 0;
@@ -120,7 +120,7 @@ static PyObject* pyjc3class_add_inner_classes(JNIEnv *env,
                 (*env)->DeleteLocalRef(env, innerArray);
                 return NULL;
             }
-            if (pyjc3class_add_inner_class(env, topClz, innerClz) == NULL) {
+            if (pyjc3type_add_inner_class(env, topClz, innerClz) == NULL) {
                 (*env)->PopLocalFrame(env, NULL);
                 (*env)->DeleteLocalRef(env, innerArray);
                 return NULL;
@@ -135,16 +135,16 @@ static PyObject* pyjc3class_add_inner_classes(JNIEnv *env,
 }
 
 
-static int pyjc3class_init(JNIEnv *env, PyObject *pyjob)
+static int pyjc3type_init(JNIEnv *env, PyObject *pyjob)
 {
-    ((PyJC3ClassObject*) pyjob)->constructor = NULL;
+    ((PyJC3TypeObject*) pyjob)->constructor = NULL;
 
     /*
      * attempt to add public inner classes as attributes since lots of people
      * code with public enum.  Note this will not allow the inner class to be
      * imported separately, it must be accessed through the enclosing class.
      */
-    if (!pyjc3class_add_inner_classes(env, (PyJC3ClassObject*) pyjob)) {
+    if (!pyjc3type_add_inner_classes(env, (PyJC3TypeObject*) pyjob)) {
         /*
          * let's just print the error to stderr and continue on without
          * inner class support, it's not the end of the world
@@ -157,11 +157,11 @@ static int pyjc3class_init(JNIEnv *env, PyObject *pyjob)
     return 1;
 }
 
-PyObject* PyJC3Class_Wrap(JNIEnv *env, jobject obj)
+PyObject* PyJC3Type_Wrap(JNIEnv *env, jobject obj)
 {
-    PyObject* pyjob = PyJC3Object_New(env, &PyJC3Class_Type, NULL, obj);
+    PyObject* pyjob = PyJC3Object_New(env, &PyJC3Type_Type, NULL, obj);
     if (pyjob) {
-        if (!pyjc3class_init(env, pyjob)) {
+        if (!pyjc3type_init(env, pyjob)) {
             Py_DecRef(pyjob);
             pyjob = NULL;
         }
@@ -169,20 +169,20 @@ PyObject* PyJC3Class_Wrap(JNIEnv *env, jobject obj)
     return pyjob;
 }
 
-static void pyjc3class_dealloc(PyJC3ClassObject *self)
+static void pyjc3type_dealloc(PyJC3TypeObject *self)
 {
 #if USE_DEALLOC
     Py_CLEAR(self->constructor);
-    PyJC3Class_Type.tp_base->tp_dealloc((PyObject*) self);
+    PyJC3Type_Type.tp_base->tp_dealloc((PyObject*) self);
 #endif
 }
 
 /*
- * Initialize the constructors field of a pyjc3class.
+ * Initialize the constructors field of a pyjc3type.
  *
  * @return 1 on successful initialization, -1 on error.
  */
-static int pyjc3class_init_constructors(PyJC3ClassObject *pyc)
+static int pyjc3type_init_constructors(PyJC3TypeObject *pyc)
 {
     JNIEnv       *env         = NULL;
     jobjectArray  initArray   = NULL;
@@ -251,14 +251,14 @@ EXIT_ERROR:
 }
 
 // call constructor as a method and return pyjc3object.
-static PyObject* pyjc3class_call(PyJC3ClassObject *self,
+static PyObject* pyjc3type_call(PyJC3TypeObject *self,
                                PyObject *args,
                                PyObject *keywords)
 {
     PyObject *boundConstructor = NULL;
     PyObject *result           = NULL;
     if (self->constructor == NULL) {
-        if (pyjc3class_init_constructors(self) == -1) {
+        if (pyjc3type_init_constructors(self) == -1) {
             return NULL;
         }
         if (self->constructor == NULL) {
@@ -282,12 +282,12 @@ static PyObject* pyjc3class_call(PyJC3ClassObject *self,
 }
 
 
-PyTypeObject PyJC3Class_Type = {
+PyTypeObject PyJC3Type_Type = {
     PyVarObject_HEAD_INIT(NULL, 0)
-    "jep.PyJC3Class",
-    sizeof(PyJC3ClassObject),
+    "jep.PyJC3Type",
+    sizeof(PyJC3TypeObject),
     0,
-    (destructor) pyjc3class_dealloc,            /* tp_dealloc */
+    (destructor) pyjc3type_dealloc,            /* tp_dealloc */
     0,                                        /* tp_print */
     0,                                        /* tp_getattr */
     0,                                        /* tp_setattr */
@@ -297,13 +297,13 @@ PyTypeObject PyJC3Class_Type = {
     0,                                        /* tp_as_sequence */
     0,                                        /* tp_as_mapping */
     0,                                        /* tp_hash  */
-    (ternaryfunc) pyjc3class_call,              /* tp_call */
+    (ternaryfunc) pyjc3type_call,              /* tp_call */
     0,                                        /* tp_str */
     0,                                        /* tp_getattro */
     0,                                        /* tp_setattro */
     0,                                        /* tp_as_buffer */
     Py_TPFLAGS_DEFAULT,                       /* tp_flags */
-    "C3 Python Class",                                 /* tp_doc */
+    "C3 Python Type",                                 /* tp_doc */
     0,                                        /* tp_traverse */
     0,                                        /* tp_clear */
     0,                                        /* tp_richcompare */
