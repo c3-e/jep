@@ -257,7 +257,7 @@ PyObject* pyjc3field_get(PyJC3FieldObject *self, PyJC3Object* pyjobject)
         jobject obj;
 
         if (self->isConstant)
-            ret = C3_JepInterface_getConstantFieldValueClass(env,
+            obj = C3_JepInterface_getConstantFieldValueClass(env,
                                                                pyjobject->typeName,
                                                                PyObject_As_jstring(env, self->pyFieldName));
         else
