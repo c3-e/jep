@@ -40,7 +40,7 @@
 #include "pyjc3constructor.h"
 #include "pyjc3multimethod.h"
 #include "pyjc3object.h"
-#include "pyjc3class.h"
+#include "pyjc3type.h"
 #include "pyjc3method.h"
 #include "pyjc3field.h"
 #include "pyembed.h"

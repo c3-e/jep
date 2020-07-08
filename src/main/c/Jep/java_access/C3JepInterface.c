@@ -36,7 +36,18 @@ static jmethodID getFieldValueFloatC3 = 0;
 static jmethodID getFieldValueLongC3 = 0;
 static jmethodID getFieldValueBooleanC3 = 0;
 
-static jmethodID isFieldStaticC3 = 0;
+static jmethodID getConstantFieldValueStringC3 = 0;
+static jmethodID getConstantFieldValueArrayC3 = 0;
+static jmethodID getConstantFieldValueClassC3 = 0;
+static jmethodID getConstantFieldValueObjectC3 = 0;
+static jmethodID getConstantFieldValueIntC3 = 0;
+static jmethodID getConstantFieldValueByteC3 = 0;
+static jmethodID getConstantFieldValueDoubleC3 = 0;
+static jmethodID getConstantFieldValueFloatC3 = 0;
+static jmethodID getConstantFieldValueLongC3 = 0;
+static jmethodID getConstantFieldValueBooleanC3 = 0;
+
+static jmethodID isFieldConstantC3 = 0;
 static jmethodID getConstructorsC3    = 0;
 static jmethodID getFieldsC3        = 0;
 static jmethodID getMethodsC3        = 0;
@@ -360,6 +371,102 @@ jboolean C3_JepInterface_getFieldValueBoolean(JNIEnv* env, jobject obj, jstring 
 }
 
 
+// Static Field Accessors
+
+
+jstring C3_JepInterface_getConstantFieldValueString(JNIEnv* env, jstring typeName, jstring fieldName)
+{
+    jstring result = NULL;
+    if (JNI_STATIC_METHOD(getConstantFieldValueStringC3, env, C3_JEPINTERFACE_TYPE, "getConstantFieldValueString", "(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;")) {
+        result = (jstring) (*env)->CallStaticObjectMethod(env, C3_JEPINTERFACE_TYPE, getConstantFieldValueStringC3, typeName, fieldName);
+    }
+    return result;
+}
+
+
+jobjectArray C3_JepInterface_getConstantFieldValueArray(JNIEnv* env, jstring typeName, jstring fieldName)
+{
+    jobjectArray result = NULL;
+    if (JNI_STATIC_METHOD(getConstantFieldValueArrayC3, env, C3_JEPINTERFACE_TYPE, "getConstantFieldValueArray", "(Ljava/lang/String;Ljava/lang/String;)[Ljava/lang/Object;")) {
+        result = (jobjectArray) (*env)->CallStaticObjectMethod(env, C3_JEPINTERFACE_TYPE, getConstantFieldValueArrayC3, typeName, fieldName);
+    }
+    return result;
+}
+
+jobject C3_JepInterface_getConstantFieldValueObject(JNIEnv* env, jstring typeName, jstring fieldName)
+{
+    jobject result = NULL;
+    if (JNI_STATIC_METHOD(getConstantFieldValueObjectC3, env, C3_JEPINTERFACE_TYPE, "getConstantFieldValueObject", "(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/Object;")) {
+        result = (jobject) (*env)->CallStaticObjectMethod(env, C3_JEPINTERFACE_TYPE, getConstantFieldValueObjectC3, typeName, fieldName);
+    }
+    return result;
+}
+
+jobject C3_JepInterface_getConstantFieldValueClass(JNIEnv* env, jstring typeName, jstring fieldName)
+{
+    jobject result = NULL;
+    if (JNI_STATIC_METHOD(getConstantFieldValueClassC3, env, C3_JEPINTERFACE_TYPE, "getConstantFieldValueClass", "(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/Object;")) {
+        result = (jobject) (*env)->CallStaticObjectMethod(env, C3_JEPINTERFACE_TYPE, getConstantFieldValueClassC3, typeName, fieldName);
+    }
+    return result;
+}
+
+jint C3_JepInterface_getConstantFieldValueInt(JNIEnv* env, jstring typeName, jstring fieldName)
+{
+    jint result = 0;
+    if (JNI_STATIC_METHOD(getConstantFieldValueIntC3, env, C3_JEPINTERFACE_TYPE, "getConstantFieldValueInt", "(Ljava/lang/String;Ljava/lang/String;)I")) {
+        result = (*env)->CallStaticIntMethod(env, C3_JEPINTERFACE_TYPE, getConstantFieldValueIntC3, typeName, fieldName);
+    }
+    return result;
+}
+
+jbyte C3_JepInterface_getConstantFieldValueByte(JNIEnv* env, jstring typeName, jstring fieldName)
+{
+    jbyte result = 0;
+    if (JNI_STATIC_METHOD(getConstantFieldValueByteC3, env, C3_JEPINTERFACE_TYPE, "getConstantFieldValueByte", "(Ljava/lang/String;Ljava/lang/String;)B")) {
+        result = (*env)->CallStaticByteMethod(env, C3_JEPINTERFACE_TYPE, getConstantFieldValueByteC3, typeName, fieldName);
+    }
+    return result;
+}
+
+jdouble C3_JepInterface_getConstantFieldValueDouble(JNIEnv* env, jstring typeName, jstring fieldName)
+{
+    jdouble result = 0;
+    if (JNI_STATIC_METHOD(getConstantFieldValueDoubleC3, env, C3_JEPINTERFACE_TYPE, "getConstantFieldValueDouble", "(Ljava/lang/String;Ljava/lang/String;)D")) {
+        result = (*env)->CallStaticDoubleMethod(env, C3_JEPINTERFACE_TYPE, getConstantFieldValueDoubleC3, typeName, fieldName);
+    }
+    return result;
+}
+
+jfloat C3_JepInterface_getConstantFieldValueFloat(JNIEnv* env, jstring typeName, jstring fieldName)
+{
+    jfloat result = 0;
+    if (JNI_STATIC_METHOD(getConstantFieldValueFloatC3, env, C3_JEPINTERFACE_TYPE, "getConstantFieldValueFloat", "(Ljava/lang/String;Ljava/lang/String;)F")) {
+        result = (*env)->CallStaticFloatMethod(env, C3_JEPINTERFACE_TYPE, getConstantFieldValueFloatC3, typeName, fieldName);
+    }
+    return result;
+}
+
+jlong C3_JepInterface_getConstantFieldValueLong(JNIEnv* env, jstring typeName, jstring fieldName)
+{
+    jlong result = 0;
+    if (JNI_STATIC_METHOD(getConstantFieldValueLongC3, env, C3_JEPINTERFACE_TYPE, "getConstantFieldValueLong", "(Ljava/lang/String;Ljava/lang/String;)L")) {
+        result = (*env)->CallStaticLongMethod(env, C3_JEPINTERFACE_TYPE, getConstantFieldValueLongC3, typeName, fieldName);
+    }
+    return result;
+}
+
+jboolean C3_JepInterface_getConstantFieldValueBoolean(JNIEnv* env, jstring typeName, jstring fieldName)
+{
+    jboolean result = JNI_FALSE;
+    if (JNI_STATIC_METHOD(getConstantFieldValueBooleanC3, env, C3_JEPINTERFACE_TYPE, "getConstantFieldValueBoolean", "(Ljava/lang/String;Ljava/lang/String;)Z")) {
+        result = (*env)->CallStaticBooleanMethod(env, C3_JEPINTERFACE_TYPE, getConstantFieldValueBooleanC3, typeName, fieldName);
+    }
+    return result;
+}
+
+
+
 // OTHER
 
 jobjectArray C3_JepInterface_getConstructors(JNIEnv* env, jobject obj)
@@ -495,13 +602,13 @@ jboolean C3_JepInterface_isAbstract(JNIEnv* env, jobject method)
 }
 
 
-jboolean C3_JepInterface_isFieldStatic(JNIEnv* env, jobject ft)
+jboolean C3_JepInterface_isFieldConstant(JNIEnv* env, jobject ft)
 {
     jboolean result = JNI_FALSE;
-    if (isFieldStaticC3
-            || (isFieldStaticC3 = (*env)->GetStaticMethodID(env, C3_JEPINTERFACE_TYPE, "isFieldStatic",
+    if (isFieldConstantC3
+            || (isFieldConstantC3 = (*env)->GetStaticMethodID(env, C3_JEPINTERFACE_TYPE, "isFieldConstant",
                            "(Lc3/platform/type/FieldType;)Z"))) {
-        result = (*env)->CallStaticBooleanMethod(env, C3_JEPINTERFACE_TYPE, isFieldStaticC3, ft);
+        result = (*env)->CallStaticBooleanMethod(env, C3_JEPINTERFACE_TYPE, isFieldConstantC3, ft);
     }
     return result;
 }

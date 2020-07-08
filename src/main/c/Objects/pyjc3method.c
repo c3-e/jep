@@ -460,7 +460,7 @@ static PyObject* pyjc3method_call(PyJC3MethodObject *self,
 
         Py_END_ALLOW_THREADS;
         if (!process_java_exception(env) && obj != NULL) {
-            result = PyJC3Class_Wrap(env, obj);
+            result = PyJC3Type_Wrap(env, obj);
         }
 
         break;

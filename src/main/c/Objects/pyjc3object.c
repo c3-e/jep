@@ -206,7 +206,7 @@ static int pyjc3object_init(JNIEnv *env, PyJC3Object *pyjob)
         Py_INCREF(cachedAttrs);
         pyjob->attr = cachedAttrs;
     } else {
-        /* PyJC3Class may add additional attributes so use a copy */
+        /* PyJC3Type may add additional attributes so use a copy */
         pyjob->attr = PyDict_Copy(cachedAttrs);
     }
 
@@ -228,7 +228,7 @@ PyObject* PyJC3Object_New(JNIEnv *env, PyTypeObject* type, jobject obj,
     if (obj) {
         pyjob->object = (*env)->NewGlobalRef(env, obj);
     } else {
-        /* THis should only happen for pyjc3class*/
+        /* THis should only happen for pyjc3type*/
         pyjob->object = NULL;
     }
     if (class) {
@@ -303,7 +303,7 @@ static PyObject* pyjc3object_richcompare(PyJC3Object *self,
         target = self->object;
         other_target = other->object;
 
-        // lack of object indicates it's a pyjc3class
+        // lack of object indicates it's a pyjc3type
         if (!target) {
             target = self->clazz;
         }
@@ -534,7 +534,7 @@ static PyObject* pyjc3object_synchronized(PyObject* self, PyObject* args)
         // PyJC3Object
         monitor = PyJMonitor_New(thisObj->object);
     } else {
-        // PyJC3Class
+        // PyJC3Type
         monitor = PyJMonitor_New(thisObj->clazz);
     }
 

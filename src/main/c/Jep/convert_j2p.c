@@ -240,7 +240,7 @@ PyObject* jobject_As_PyJC3Object(JNIEnv *env, jobject jobj, jclass class)
     } else if ((*env)->IsAssignableFrom(env, class, JAUTOCLOSEABLE_TYPE)) {
         result = PyJAutoCloseable_Wrap(env, jobj, class);
     } else if ((*env)->IsSameObject(env, class, JCLASS_TYPE)) {
-        result = PyJC3Class_Wrap(env, jobj);
+        result = PyJC3Type_Wrap(env, jobj);
     } else if ((*env)->IsAssignableFrom(env, class, JNUMBER_TYPE)) {
         result = PyJNumber_Wrap(env, jobj, class);
     } else if ((*env)->IsAssignableFrom(env, class, JBUFFER_TYPE)) {

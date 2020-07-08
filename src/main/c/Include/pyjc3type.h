@@ -26,16 +26,16 @@
 */
 
 /*
- * A PyJC3ClassObject is a PyJC3Object with a __call__ method attached, where
- * the call method can invoke the Java object's constructors.
+ * A PyJC3TypeObject is a PyJC3Object with a __call__ method attached, where
+ * the call method can invoke the Java object's constructors. This represents a C3 Type.
  */
 
 #include "jep_platform.h"
 #include "pyjc3object.h"
-#ifndef _Included_pyjc3class
-#define _Included_pyjc3class
+#ifndef _Included_pyjc3type
+#define _Included_pyjc3type
 
-extern PyTypeObject PyJC3Class_Type;
+extern PyTypeObject PyJC3Type_Type;
 
 typedef struct {
     PyObject_HEAD
@@ -45,12 +45,12 @@ typedef struct {
      * PyJC3Constructors
      */
     PyObject  *constructor;
-} PyJC3ClassObject;
+} PyJC3TypeObject;
 
-PyObject* PyJC3Class_Wrap(JNIEnv*, jobject);
+PyObject* PyJC3Type_Wrap(JNIEnv*, jobject);
 
-#define PyJC3Class_Check(pyobj) \
-    PyObject_TypeCheck(pyobj, &PyJC3Class_Type)
+#define PyJC3Type_Check(pyobj) \
+    PyObject_TypeCheck(pyobj, &PyJC3Type_Type)
 
 
-#endif // ndef pyjc3class
+#endif // ndef pyjc3type
