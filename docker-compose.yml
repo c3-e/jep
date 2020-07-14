@@ -1,0 +1,17 @@
+version: "2.1"
+
+networks:
+  c3:
+    driver: bridge
+
+services:
+  client:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: artifacts.c3-e.com/c3-jupyter-devtools:minimal
+    volumes:
+      - .:/src
+    networks:
+      - c3
+    command: tail -f /dev/null
